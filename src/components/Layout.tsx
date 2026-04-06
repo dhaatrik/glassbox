@@ -85,18 +85,28 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
 
           {/* User Profile & Auras */}
           <div className="mt-auto pt-6 border-t border-border-dim flex flex-col gap-4">
+            <div className="flex items-center justify-between px-2 mb-2">
+              <div className="flex items-center gap-1.5 text-orange-400 bg-orange-400/10 px-2.5 py-1 rounded-full border border-orange-400/20">
+                <span className="material-symbols-outlined text-[14px]">local_fire_department</span>
+                <span className="text-xs font-bold font-mono">12 Day Streak</span>
+              </div>
+            </div>
             <div className="flex items-center gap-2 px-2">
               <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest">Aura</span>
-              <div className="flex gap-2 ml-auto">
-                {['theme-cyan', 'theme-matcha', 'theme-lavender', 'theme-peach'].map(t => (
+              <div className="flex gap-2 ml-auto flex-wrap justify-end w-32">
+                {['theme-cyan', 'theme-matcha', 'theme-lavender', 'theme-peach', 'theme-vaporwave', 'theme-dracula', 'theme-void'].map(t => (
                   <button 
                     key={t}
                     onClick={() => setAura(t)}
                     className={`w-4 h-4 rounded-full transition-transform ${aura === t ? 'scale-125 ring-2 ring-white/30' : 'hover:scale-110'}`}
+                    title={t.replace('theme-', '')}
                     style={{ 
                       backgroundColor: t === 'theme-cyan' ? '#00f0ff' : 
                                        t === 'theme-matcha' ? '#a3e635' : 
-                                       t === 'theme-lavender' ? '#c084fc' : '#ff8a65' 
+                                       t === 'theme-lavender' ? '#c084fc' : 
+                                       t === 'theme-peach' ? '#ff8a65' :
+                                       t === 'theme-vaporwave' ? '#ff71ce' :
+                                       t === 'theme-dracula' ? '#ff79c6' : '#ffffff'
                     }}
                   />
                 ))}

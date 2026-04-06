@@ -1,5 +1,5 @@
 {
   "name": "Glassbox: Monthly Pulse & Feedback",
   "description": "Internal Monthly Pulse & Feedback tool with a cyberpunk terminal aesthetic.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["microphone", "display-capture"]
 }

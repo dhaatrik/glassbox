@@ -435,6 +435,17 @@ export function Metrics({
 
             {insights ? (
               <div className="bg-surface-dim/50 border border-primary/30 p-5 rounded-xl space-y-6">
+                {insights.tldr && (
+                  <div className="bg-primary/10 p-5 rounded-2xl border border-primary/30 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+                    <h4 className="text-primary text-sm font-bold font-sans mb-2 uppercase tracking-widest flex items-center gap-2">
+                      <span className="material-symbols-outlined text-lg">bolt</span>
+                      Vibe Check (TL;DR)
+                    </h4>
+                    <p className="text-white font-sans text-lg leading-relaxed">
+                      "{insights.tldr}"
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="bg-surface-dim/50 p-4 rounded-xl border border-border-dim">
                     <h4 className="text-primary text-xs font-bold font-sans mb-3 uppercase tracking-widest flex items-center gap-2">

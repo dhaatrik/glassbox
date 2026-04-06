@@ -18,6 +18,31 @@ export function Dashboard({
   });
   const [tickerItems, setTickerItems] = useState<any[]>([]);
 
+  const handleReaction = (ticketId: string, emoji: string) => {
+    const stored = localStorage.getItem("glassbox_tickets");
+    if (stored) {
+      const tickets = JSON.parse(stored);
+      const updatedTickets = tickets.map((t: any) => {
+        if (t.id === ticketId) {
+          const reactions = t.reactions || {};
+          reactions[emoji] = (reactions[emoji] || 0) + 1;
+          
+          // If it's a "Same 💀" upvote, potentially bump severity/status
+          if (emoji === '💀' && reactions[emoji] > 5 && t.status === 'QUEUED') {
+            t.status = 'PROCESSING';
+          }
+          
+          return { ...t, reactions };
+        }
+        return t;
+      });
+      localStorage.setItem("glassbox_tickets", JSON.stringify(updatedTickets));
+      
+      // Update local state for ticker
+      setTickerItems(updatedTickets.filter((t: any) => t.status !== "RESOLVED"));
+    }
+  };
+
   useEffect(() => {
     const stored = localStorage.getItem("glassbox_tickets");
     if (stored) {
@@ -335,23 +360,57 @@ export function Dashboard({
               <span className="text-xs font-sans font-bold text-primary uppercase tracking-wider">Live Feed</span>
             </div>
 
-            <div className="whitespace-nowrap animate-ticker flex items-center text-sm font-sans text-text-muted w-max">
+            <div className="whitespace-nowrap animate-ticker flex items-center text-sm font-sans text-text-muted w-max hover:[animation-play-state:paused]">
               <div className="flex gap-8 items-center pr-8">
                 {tickerItems.length > 0 ? tickerItems.map((t, i) => (
-                  <span key={i} className={`flex items-center gap-2 ${t.status === 'STALLED' ? 'text-critical' : ''}`}>
+                  <div key={i} className={`flex items-center gap-3 ${t.status === 'STALLED' ? 'text-critical' : ''}`}>
                     <span className="px-2 py-0.5 rounded-md bg-surface-dim text-xs font-mono">{t.dept}</span>
-                    {t.title.length > 50 ? t.title.substring(0, 50) + '...' : t.title}
-                  </span>
+                    <span>{t.title.length > 50 ? t.title.substring(0, 50) + '...' : t.title}</span>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                      {['🔥', '💀', '👀', '💯', '🚩'].map(emoji => (
+                        <button 
+                          key={emoji}
+                          onClick={() => handleReaction(t.id, emoji)}
+                          className="hover:scale-125 transition-transform text-base relative"
+                          title={emoji === '💀' ? 'Same (Upvote)' : 'React'}
+                        >
+                          {emoji}
+                          {t.reactions?.[emoji] > 0 && (
+                            <span className="absolute -top-2 -right-2 text-[8px] bg-surface-dim text-white rounded-full w-3 h-3 flex items-center justify-center">
+                              {t.reactions[emoji]}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )) : (
                   <span>All systems nominal. No active signals.</span>
                 )}
               </div>
               <div className="flex gap-8 items-center pr-8">
                 {tickerItems.length > 0 ? tickerItems.map((t, i) => (
-                  <span key={`dup-${i}`} className={`flex items-center gap-2 ${t.status === 'STALLED' ? 'text-critical' : ''}`}>
+                  <div key={`dup-${i}`} className={`flex items-center gap-3 ${t.status === 'STALLED' ? 'text-critical' : ''}`}>
                     <span className="px-2 py-0.5 rounded-md bg-surface-dim text-xs font-mono">{t.dept}</span>
-                    {t.title.length > 50 ? t.title.substring(0, 50) + '...' : t.title}
-                  </span>
+                    <span>{t.title.length > 50 ? t.title.substring(0, 50) + '...' : t.title}</span>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                      {['🔥', '💀', '👀', '💯', '🚩'].map(emoji => (
+                        <button 
+                          key={emoji}
+                          onClick={() => handleReaction(t.id, emoji)}
+                          className="hover:scale-125 transition-transform text-base relative"
+                          title={emoji === '💀' ? 'Same (Upvote)' : 'React'}
+                        >
+                          {emoji}
+                          {t.reactions?.[emoji] > 0 && (
+                            <span className="absolute -top-2 -right-2 text-[8px] bg-surface-dim text-white rounded-full w-3 h-3 flex items-center justify-center">
+                              {t.reactions[emoji]}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )) : (
                   <span>All systems nominal. No active signals.</span>
                 )}

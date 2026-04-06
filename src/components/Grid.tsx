@@ -148,6 +148,29 @@ export function Grid({
     }
   }, [initialFilter, onClearFilter]);
 
+  const handleSwipe = (ticket: Ticket, info: any) => {
+    const offset = info.offset.x;
+    const velocity = info.velocity.x;
+    
+    if (offset > 100 || velocity > 500) {
+      // Swipe Right -> Move to next status
+      const currentIndex = COLUMNS.indexOf(ticket.status);
+      if (currentIndex < COLUMNS.length - 1) {
+        const newStatus = COLUMNS[currentIndex + 1];
+        const updatedTickets = tickets.map(t => t.id === ticket.id ? { ...t, status: newStatus } : t);
+        setTickets(updatedTickets);
+      }
+    } else if (offset < -100 || velocity < -500) {
+      // Swipe Left -> Move to previous status
+      const currentIndex = COLUMNS.indexOf(ticket.status);
+      if (currentIndex > 0) {
+        const newStatus = COLUMNS[currentIndex - 1];
+        const updatedTickets = tickets.map(t => t.id === ticket.id ? { ...t, status: newStatus } : t);
+        setTickets(updatedTickets);
+      }
+    }
+  };
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const { source, destination } = result;
@@ -408,7 +431,11 @@ export function Grid({
                             index={index}
                           >
                             {(provided, snapshot) => (
-                              <div
+                              <motion.div
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={0.8}
+                                onDragEnd={(e, info) => handleSwipe(ticket, info)}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
@@ -587,7 +614,7 @@ export function Grid({
                                     </div>
                                   )}
                                 </div>
-                              </div>
+                              </motion.div>
                             )}
                           </Draggable>
                         ))}

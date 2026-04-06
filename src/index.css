@@ -22,6 +22,7 @@
   --animate-ticker: ticker 60s linear infinite;
   --animate-pulse-critical: pulse-critical 2s infinite;
   --animate-mesh: mesh 15s ease infinite;
+  --animate-shake: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 
   @keyframes blink {
     0%,
@@ -84,6 +85,12 @@
     100% {
       background-position: 0% 50%;
     }
+  }
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
   }
 }
 
@@ -157,4 +164,16 @@ body {
 .theme-peach {
   --theme-primary: #ff8a65;
   --theme-primary-dim: rgba(255, 138, 101, 0.1);
+}
+.theme-vaporwave {
+  --theme-primary: #ff71ce;
+  --theme-primary-dim: rgba(255, 113, 206, 0.1);
+}
+.theme-dracula {
+  --theme-primary: #ff79c6;
+  --theme-primary-dim: rgba(255, 121, 198, 0.1);
+}
+.theme-void {
+  --theme-primary: #ffffff;
+  --theme-primary-dim: rgba(255, 255, 255, 0.1);
 }

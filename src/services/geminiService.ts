@@ -55,6 +55,10 @@ Generate a report that includes:
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            tldr: {
+              type: Type.STRING,
+              description: "A short, Gen Z style TL;DR of the overall company vibe based on the feedback.",
+            },
             recurringThemes: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
@@ -82,6 +86,7 @@ Generate a report that includes:
             },
           },
           required: [
+            "tldr",
             "recurringThemes",
             "areasOfConcern",
             "areasOfPraise",

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { motion } from "motion/react";
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import confetti from "canvas-confetti";
 import { analyzeSentiment } from "../services/geminiService";
 
 export function Submit() {
@@ -13,6 +14,72 @@ export function Submit() {
   const [progress, setProgress] = useState(0);
   const [transmitStatus, setTransmitStatus] = useState("");
   const [attachments, setAttachments] = useState<{ name: string; type: string }[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [aiPersona, setAiPersona] = useState<"NONE" | "BESTIE" | "ROAST">("NONE");
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
+
+  const recognitionRef = useRef<any>(null);
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    // @ts-ignore
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    
+    recognition.onresult = (event: any) => {
+      let currentTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        currentTranscript += event.results[i][0].transcript;
+      }
+      setText((prev) => prev + (prev ? " " : "") + currentTranscript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+  };
+
+  const handleScreenRecord = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "video/webm" });
+        setAttachments([...attachments, { name: "screen-recording.webm", type: "video/webm" }]);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      // Stop after 10 seconds for demo purposes
+      setTimeout(() => mediaRecorder.stop(), 10000);
+    } catch (err) {
+      console.error("Error capturing screen:", err);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!text.trim() || isTransmitting) return;
@@ -45,6 +112,19 @@ export function Submit() {
       } else {
         setTransmitStatus("SIGNAL_DELIVERED");
         setFlashing(true);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#00f0ff', '#ff2a6d', '#05ff00']
+        });
+
+        if (aiPersona !== "NONE") {
+          const response = aiPersona === "BESTIE" 
+            ? "Omg bestie, I totally get it. Validating your feelings rn. 💖 We'll get this sorted!"
+            : "Skill issue tbh. But fine, I'll log it. 🙄💀";
+          setAiResponse(response);
+        }
 
         // Save to localStorage
         const existingFeedback = JSON.parse(localStorage.getItem("pulse_feedback") || "[]");
@@ -98,7 +178,7 @@ export function Submit() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col flex-1 relative"
+      className={`flex flex-col flex-1 relative ${severity === 'CRITICAL' ? 'animate-shake' : ''}`}
     >
       {flashing && (
         <div className="fixed inset-0 bg-white z-[100] transition-opacity duration-500 opacity-0 animate-[flash_0.5s_ease-out]"></div>
@@ -344,11 +424,22 @@ export function Submit() {
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
               05 // The Tea (Input Data)
             </h3>
-            <div className="flex items-center gap-1 text-[10px] text-stable font-sans font-bold tracking-wider opacity-80 bg-stable/10 px-2 py-1 rounded-full">
-              <span className="material-symbols-outlined text-[12px]">
-                lock
-              </span>
-              ENCRYPTED
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleRecording}
+                className={`flex items-center gap-1 text-[10px] font-sans font-bold tracking-wider px-3 py-1.5 rounded-full transition-colors ${isRecording ? 'bg-critical/20 text-critical animate-pulse' : 'bg-surface-dim border border-border-dim text-text-muted hover:text-primary hover:border-primary/50'}`}
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {isRecording ? 'mic' : 'mic_none'}
+                </span>
+                {isRecording ? 'RECORDING...' : 'VOICE SPILL'}
+              </button>
+              <div className="flex items-center gap-1 text-[10px] text-stable font-sans font-bold tracking-wider opacity-80 bg-stable/10 px-2 py-1 rounded-full">
+                <span className="material-symbols-outlined text-[12px]">
+                  lock
+                </span>
+                ENCRYPTED
+              </div>
             </div>
           </div>
           <div className="relative flex-1 min-h-[200px] group mt-2">
@@ -398,6 +489,13 @@ export function Submit() {
                 }}
               />
             </label>
+            <button 
+              onClick={handleScreenRecord}
+              className="flex flex-col items-center justify-center w-20 h-20 bg-surface-dim/50 border border-border-dim border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary"
+            >
+              <span className="material-symbols-outlined text-2xl mb-1">screen_record</span>
+              <span className="text-[10px] font-sans font-bold">Record</span>
+            </button>
             {attachments.map((attachment, idx) => (
               <div key={idx} className="flex flex-col items-center justify-center w-20 h-20 bg-surface-dim/50 border border-border-dim rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary relative group">
                 <span className="material-symbols-outlined text-2xl mb-1">
@@ -416,7 +514,58 @@ export function Submit() {
             ))}
           </div>
         </motion.section>
+
+        {/* Section 7: AI Persona */}
+        <motion.section 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.7 }}
+          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
+        >
+          <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
+            07 // AI Persona Response
+          </h3>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setAiPersona("NONE")}
+              className={`flex-1 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${aiPersona === "NONE" ? "border-primary bg-primary/10 text-primary" : "border-border-dim bg-surface-dim/50 text-text-muted hover:border-primary/50"}`}
+            >
+              Boring (None)
+            </button>
+            <button
+              onClick={() => setAiPersona("BESTIE")}
+              className={`flex-1 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${aiPersona === "BESTIE" ? "border-pink-500 bg-pink-500/10 text-pink-500" : "border-border-dim bg-surface-dim/50 text-text-muted hover:border-pink-500/50"}`}
+            >
+              💖 Bestie
+            </button>
+            <button
+              onClick={() => setAiPersona("ROAST")}
+              className={`flex-1 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${aiPersona === "ROAST" ? "border-orange-500 bg-orange-500/10 text-orange-500" : "border-border-dim bg-surface-dim/50 text-text-muted hover:border-orange-500/50"}`}
+            >
+              🔥 Roast Me
+            </button>
+          </div>
+        </motion.section>
       </main>
+
+      <AnimatePresence>
+        {aiResponse && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] glass-panel p-6 rounded-2xl border-primary/50 shadow-[0_0_30px_rgba(0,240,255,0.2)] max-w-md w-full"
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-xs font-bold text-primary uppercase tracking-widest">AI Response</span>
+              <button onClick={() => setAiResponse(null)} className="text-text-muted hover:text-white">
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            <p className="text-white font-sans text-lg">{aiResponse}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Sticky Footer - Transmit */}
       <footer className="sticky bottom-0 p-5 bg-gradient-to-t from-background-dark via-background-dark to-transparent z-50 w-full max-w-3xl mx-auto">
