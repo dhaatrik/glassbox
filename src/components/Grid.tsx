@@ -17,6 +17,7 @@ type Ticket = {
   dueDate?: string;
   lastUpdatedBy?: string;
   isFavorite?: boolean;
+  attachments?: { name: string; type: string }[];
 };
 
 const initialTickets: Ticket[] = [
@@ -783,18 +784,48 @@ export function Grid({
                     <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-2 block">
                       Attachments
                     </label>
-                    <div className="flex gap-3">
-                      <div className="flex flex-col items-center justify-center w-20 h-20 bg-surface/50 border border-border-dim border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary">
+                    <div className="flex gap-3 flex-wrap">
+                      <label htmlFor={`file-upload-${selectedTicket.id}`} className="flex flex-col items-center justify-center w-20 h-20 bg-surface/50 border border-border-dim border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary">
                         <span className="material-symbols-outlined text-2xl mb-1">add_photo_alternate</span>
                         <span className="text-[10px] font-sans font-bold">Add</span>
-                      </div>
-                      <div className="flex flex-col items-center justify-center w-20 h-20 bg-surface/50 border border-border-dim rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary relative group">
-                        <span className="material-symbols-outlined text-2xl mb-1">description</span>
-                        <span className="text-[10px] font-sans font-bold truncate w-16 text-center">logs.txt</span>
-                        <div className="absolute -top-2 -right-2 bg-surface border border-border-dim rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="material-symbols-outlined text-[12px] text-critical">close</span>
+                        <input 
+                          type="file" 
+                          id={`file-upload-${selectedTicket.id}`} 
+                          className="hidden" 
+                          multiple
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              const newAttachments = Array.from(e.target.files).map(file => ({
+                                name: file.name,
+                                type: file.type || 'unknown'
+                              }));
+                              setSelectedTicket({
+                                ...selectedTicket,
+                                attachments: [...(selectedTicket.attachments || []), ...newAttachments]
+                              });
+                            }
+                          }}
+                        />
+                      </label>
+                      {selectedTicket.attachments?.map((attachment, idx) => (
+                        <div key={idx} className="flex flex-col items-center justify-center w-20 h-20 bg-surface/50 border border-border-dim rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary relative group">
+                          <span className="material-symbols-outlined text-2xl mb-1">
+                            {attachment.type.startsWith('image/') ? 'image' : 'description'}
+                          </span>
+                          <span className="text-[10px] font-sans font-bold truncate w-16 text-center" title={attachment.name}>{attachment.name}</span>
+                          <div 
+                            className="absolute -top-2 -right-2 bg-surface border border-border-dim rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-critical/20 hover:border-critical"
+                            onClick={() => {
+                              setSelectedTicket({
+                                ...selectedTicket,
+                                attachments: selectedTicket.attachments?.filter((_, i) => i !== idx)
+                              });
+                            }}
+                          >
+                            <span className="material-symbols-outlined text-[12px] text-critical">close</span>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>

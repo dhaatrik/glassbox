@@ -12,6 +12,7 @@ export function Submit() {
   const [isTransmitting, setIsTransmitting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [transmitStatus, setTransmitStatus] = useState("");
+  const [attachments, setAttachments] = useState<{ name: string; type: string }[]>([]);
 
   const handleSubmit = async () => {
     if (!text.trim() || isTransmitting) return;
@@ -69,7 +70,8 @@ export function Submit() {
           time: "JUST NOW",
           dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           lastUpdatedBy: isAnonymous ? "Anonymous" : "Current User",
-          isFavorite: false
+          isFavorite: false,
+          attachments: attachments.length > 0 ? attachments : undefined
         };
         localStorage.setItem("glassbox_tickets", JSON.stringify([newTicket, ...existingTickets]));
 
@@ -77,6 +79,7 @@ export function Submit() {
           setFlashing(false);
           setIsTransmitting(false);
           setText("");
+          setAttachments([]);
           setProgress(0);
         }, 800);
       }
@@ -362,6 +365,55 @@ export function Submit() {
               <span className="w-1.5 h-1.5 rounded-full bg-stable animate-pulse"></span>
               Buffer OK
             </span>
+          </div>
+        </motion.section>
+
+        {/* Section 6: Attachments */}
+        <motion.section 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6 }}
+          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
+        >
+          <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
+            06 // Attachments
+          </h3>
+          <div className="flex gap-3 flex-wrap mt-2">
+            <label htmlFor="submit-file-upload" className="flex flex-col items-center justify-center w-20 h-20 bg-surface-dim/50 border border-border-dim border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary">
+              <span className="material-symbols-outlined text-2xl mb-1">add_photo_alternate</span>
+              <span className="text-[10px] font-sans font-bold">Add</span>
+              <input 
+                type="file" 
+                id="submit-file-upload" 
+                className="hidden" 
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const newAttachments = Array.from(e.target.files).map(file => ({
+                      name: file.name,
+                      type: file.type || 'unknown'
+                    }));
+                    setAttachments([...attachments, ...newAttachments]);
+                  }
+                }}
+              />
+            </label>
+            {attachments.map((attachment, idx) => (
+              <div key={idx} className="flex flex-col items-center justify-center w-20 h-20 bg-surface-dim/50 border border-border-dim rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary relative group">
+                <span className="material-symbols-outlined text-2xl mb-1">
+                  {attachment.type.startsWith('image/') ? 'image' : 'description'}
+                </span>
+                <span className="text-[10px] font-sans font-bold truncate w-16 text-center" title={attachment.name}>{attachment.name}</span>
+                <div 
+                  className="absolute -top-2 -right-2 bg-surface border border-border-dim rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-critical/20 hover:border-critical"
+                  onClick={() => {
+                    setAttachments(attachments.filter((_, i) => i !== idx));
+                  }}
+                >
+                  <span className="material-symbols-outlined text-[12px] text-critical">close</span>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.section>
       </main>
