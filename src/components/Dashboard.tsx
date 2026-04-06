@@ -130,10 +130,20 @@ export function Dashboard({
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.01, rotateY: 2, rotateX: 2 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="md:col-span-2 md:row-span-2 bento-card glass-panel p-8 flex flex-col items-center justify-center relative overflow-hidden group"
+          className="md:col-span-2 md:row-span-2 bento-card glass-panel p-8 flex flex-col items-center justify-center relative overflow-visible group"
         >
+          {/* Tooltip */}
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-surface-dim border border-border-dim px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 flex flex-col items-center shadow-2xl whitespace-nowrap">
+            <span className="text-xs font-sans font-bold text-white">Exact Velocity: {counts.velocity}%</span>
+            <span className="text-[10px] font-sans text-stable flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">trending_up</span>
+              +2.4% from last week
+            </span>
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-surface-dim border-b border-r border-border-dim transform rotate-45"></div>
+          </div>
+
           {/* Spotlight effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"></div>
           
           <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
             <div className="w-64 h-64 border border-dashed border-primary rounded-full animate-[spin_20s_linear_infinite]"></div>
@@ -163,8 +173,9 @@ export function Dashboard({
               ></circle>
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xs text-text-muted font-sans font-medium tracking-widest mb-1 uppercase">
+              <span className="text-xs text-text-muted font-sans font-medium tracking-widest mb-1 uppercase flex items-center gap-1">
                 Velocity
+                <span className="material-symbols-outlined text-[14px] text-stable">arrow_upward</span>
               </span>
               <h1 className="text-6xl font-display text-white tracking-tighter drop-shadow-[0_0_16px_var(--theme-primary-dim)]">
                 {counts.velocity}<span className="text-3xl text-primary">%</span>

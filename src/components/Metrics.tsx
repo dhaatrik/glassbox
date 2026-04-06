@@ -13,6 +13,7 @@ export function Metrics({
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [insights, setInsights] = useState<any>(null);
+  const [feedbackSearchQuery, setFeedbackSearchQuery] = useState("");
 
   const [deptStats, setDeptStats] = useState<Record<string, string>>({
     "[ENG]": "0.4d",
@@ -72,6 +73,14 @@ export function Metrics({
   const posPct = Math.round((posCount / totalCount) * 100);
   const neuPct = Math.round((neuCount / totalCount) * 100);
   const negPct = Math.round((negCount / totalCount) * 100);
+
+  const filteredFeedbacks = feedbacks.filter((fb) => {
+    const searchLower = feedbackSearchQuery.toLowerCase();
+    return (
+      fb.text.toLowerCase().includes(searchLower) ||
+      (fb.isAnonymous ? "anonymous" : "authenticated user").includes(searchLower)
+    );
+  });
 
   return (
     <motion.div
@@ -538,12 +547,26 @@ export function Metrics({
 
           {/* Recent Feedback Log */}
           <section className="space-y-3 pt-6 border-t border-border-dim">
-            <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest px-2">
-              04 // Recent Feedback Log
-            </h3>
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
+                04 // Recent Feedback Log
+              </h3>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search feedback..."
+                  value={feedbackSearchQuery}
+                  onChange={(e) => setFeedbackSearchQuery(e.target.value)}
+                  className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full focus:border-primary outline-none w-48 transition-colors"
+                />
+                <span className="material-symbols-outlined absolute right-2 top-1.5 text-text-muted text-[16px]">
+                  search
+                </span>
+              </div>
+            </div>
             <div className="space-y-3">
-              {feedbacks.length > 0 ? (
-                feedbacks.slice().reverse().map((fb) => (
+              {filteredFeedbacks.length > 0 ? (
+                filteredFeedbacks.slice().reverse().map((fb) => (
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}

@@ -14,6 +14,9 @@ type Ticket = {
   status: string;
   time: string;
   description: string;
+  dueDate?: string;
+  lastUpdatedBy?: string;
+  isFavorite?: boolean;
 };
 
 const initialTickets: Ticket[] = [
@@ -25,6 +28,9 @@ const initialTickets: Ticket[] = [
     time: "T+02 DAYS",
     description:
       "The Q4 marketing campaign budget has been pending approval in the finance queue for over 48 hours. This delay is impacting vendor commitments and media buys. Requesting immediate review to avoid missing launch window.",
+    dueDate: "2026-04-10",
+    lastUpdatedBy: "J. Belfort",
+    isFavorite: false,
   },
   {
     id: "#TKT-9945",
@@ -34,6 +40,9 @@ const initialTickets: Ticket[] = [
     time: "T+05 DAYS",
     description:
       "Build times have increased by 40% during the 1PM-4PM window. Suspect runner starvation or caching issues. Needs investigation by DevEx team.",
+    dueDate: "2026-04-08",
+    lastUpdatedBy: "A. Lovelace",
+    isFavorite: true,
   },
   {
     id: "#TKT-9981",
@@ -42,6 +51,9 @@ const initialTickets: Ticket[] = [
     status: "QUEUED",
     time: "T+01 DAYS",
     description: "Update remote work policy documentation on internal wiki.",
+    dueDate: "2026-04-15",
+    lastUpdatedBy: "T. Flenderson",
+    isFavorite: false,
   },
   {
     id: "#TKT-9820",
@@ -50,6 +62,9 @@ const initialTickets: Ticket[] = [
     status: "PROCESSING",
     time: "RUNNING...",
     description: "Server migration protocol review in progress.",
+    dueDate: "2026-04-06",
+    lastUpdatedBy: "System",
+    isFavorite: false,
   },
   {
     id: "#TKT-9899",
@@ -58,6 +73,9 @@ const initialTickets: Ticket[] = [
     status: "PROCESSING",
     time: "T+12 DAYS",
     description: "Design system token alignment for mobile views.",
+    dueDate: "2026-04-20",
+    lastUpdatedBy: "S. Jobs",
+    isFavorite: false,
   },
   {
     id: "#TKT-4921",
@@ -66,6 +84,9 @@ const initialTickets: Ticket[] = [
     status: "STALLED",
     time: "42 DAYS",
     description: "Quarterly bonus structure transparency request.",
+    dueDate: "2026-03-01",
+    lastUpdatedBy: "System",
+    isFavorite: true,
   },
   {
     id: "#TKT-5502",
@@ -74,6 +95,9 @@ const initialTickets: Ticket[] = [
     status: "STALLED",
     time: "31 DAYS",
     description: "Elevator B maintenance request pending approval.",
+    dueDate: "2026-03-15",
+    lastUpdatedBy: "System",
+    isFavorite: false,
   },
   {
     id: "#TKT-9100",
@@ -82,6 +106,9 @@ const initialTickets: Ticket[] = [
     status: "RESOLVED",
     time: "DONE",
     description: "Q3 Expense report template update.",
+    dueDate: "2026-02-28",
+    lastUpdatedBy: "System",
+    isFavorite: false,
   },
 ];
 
@@ -103,6 +130,7 @@ export function Grid({
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDept, setFilterDept] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterFavorite, setFilterFavorite] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -124,13 +152,15 @@ export function Grid({
     const { source, destination } = result;
 
     if (source.droppableId !== destination.droppableId) {
-      const newTickets = [...tickets];
-      const ticketIndex = newTickets.findIndex(
-        (t) => t.id === result.draggableId,
-      );
-      if (ticketIndex > -1) {
-        newTickets[ticketIndex].status = destination.droppableId;
-        setTickets(newTickets);
+      if (window.confirm(`Are you sure you want to move this ticket to ${destination.droppableId}?`)) {
+        const newTickets = [...tickets];
+        const ticketIndex = newTickets.findIndex(
+          (t) => t.id === result.draggableId,
+        );
+        if (ticketIndex > -1) {
+          newTickets[ticketIndex].status = destination.droppableId;
+          setTickets(newTickets);
+        }
       }
     }
   };
@@ -143,6 +173,9 @@ export function Grid({
       status: "QUEUED",
       time: "T+00 DAYS",
       description: "Description here...",
+      dueDate: new Date().toISOString().split('T')[0],
+      lastUpdatedBy: "Current User",
+      isFavorite: false,
     };
     setTickets([newTicket, ...tickets]);
     setSelectedTicket(newTicket);
@@ -193,6 +226,11 @@ export function Grid({
     setOriginalTicket(null);
   };
 
+  const toggleFavorite = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setTickets(tickets.map(t => t.id === id ? { ...t, isFavorite: !t.isFavorite } : t));
+  };
+
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
       const matchesSearch =
@@ -200,9 +238,10 @@ export function Grid({
         t.id.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesDept = filterDept ? t.dept === filterDept : true;
       const matchesStatus = filterStatus ? t.status === filterStatus : true;
-      return matchesSearch && matchesDept && matchesStatus;
+      const matchesFavorite = filterFavorite ? t.isFavorite : true;
+      return matchesSearch && matchesDept && matchesStatus && matchesFavorite;
     });
-  }, [tickets, searchQuery, filterDept, filterStatus]);
+  }, [tickets, searchQuery, filterDept, filterStatus, filterFavorite]);
 
   const getTicketsByStatus = (status: string) =>
     filteredTickets.filter((t) => t.status === status);
@@ -239,6 +278,15 @@ export function Grid({
             >
               <span className="material-symbols-outlined text-[18px]">
                 filter_list
+              </span>
+            </button>
+            <button
+              onClick={() => setFilterFavorite(!filterFavorite)}
+              className={`flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full ${filterFavorite ? "text-yellow-500 border-yellow-500" : "text-text-muted hover:text-yellow-500"}`}
+              title="Filter Favorites"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {filterFavorite ? "star" : "star_border"}
               </span>
             </button>
             <div className="w-px h-6 bg-border-dim mx-1"></div>
@@ -418,16 +466,26 @@ export function Grid({
                                       {ticket.dept}
                                     </span>
                                   </div>
-                                  {/* Vibe Check Emoji */}
-                                  <span className="text-lg" title="Vibe Check">
-                                    {ticket.status === "STALLED"
-                                      ? "😡"
-                                      : ticket.status === "PROCESSING"
-                                        ? "🏃"
-                                        : ticket.status === "RESOLVED"
-                                          ? "🥳"
-                                          : "😐"}
-                                  </span>
+                                  {/* Vibe Check Emoji & Favorite */}
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={(e) => toggleFavorite(e, ticket.id)}
+                                      className={`transition-colors ${ticket.isFavorite ? 'text-yellow-500' : 'text-text-muted hover:text-yellow-500'}`}
+                                    >
+                                      <span className="material-symbols-outlined text-[16px]">
+                                        {ticket.isFavorite ? 'star' : 'star_border'}
+                                      </span>
+                                    </button>
+                                    <span className="text-lg" title="Vibe Check">
+                                      {ticket.status === "STALLED"
+                                        ? "😡"
+                                        : ticket.status === "PROCESSING"
+                                          ? "🏃"
+                                          : ticket.status === "RESOLVED"
+                                            ? "🥳"
+                                            : "😐"}
+                                    </span>
+                                  </div>
                                 </div>
                                 <p
                                   className={`text-sm font-sans font-medium leading-snug mb-3 line-clamp-2 ${
@@ -642,6 +700,32 @@ export function Grid({
                   </span>
                 </div>
 
+                <div className="flex justify-between items-center text-xs font-sans font-bold text-text-muted border-b border-border-dim pb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="uppercase tracking-wider">Due Date:</span>
+                    <input
+                      type="date"
+                      value={selectedTicket.dueDate || ""}
+                      onChange={(e) =>
+                        setSelectedTicket({
+                          ...selectedTicket,
+                          dueDate: e.target.value,
+                        })
+                      }
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
+                    />
+                  </div>
+                  <span className="flex items-center gap-2 uppercase tracking-wider">
+                    <span className="material-symbols-outlined text-[16px]">
+                      person
+                    </span>
+                    Last Updated By:{" "}
+                    <span className="text-white bg-surface px-2 py-1 rounded-md">
+                      {selectedTicket.lastUpdatedBy || "Unknown"}
+                    </span>
+                  </span>
+                </div>
+
                 <div className="flex flex-col gap-4">
                   <div>
                     <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-2 block">
@@ -693,6 +777,25 @@ export function Grid({
                       className="text-sm font-sans text-gray-300 leading-relaxed bg-surface/50 border border-border-dim focus:border-primary outline-none w-full min-h-[150px] p-4 rounded-xl resize-y transition-colors"
                       placeholder="Ticket Description"
                     />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-2 block">
+                      Attachments
+                    </label>
+                    <div className="flex gap-3">
+                      <div className="flex flex-col items-center justify-center w-20 h-20 bg-surface/50 border border-border-dim border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary">
+                        <span className="material-symbols-outlined text-2xl mb-1">add_photo_alternate</span>
+                        <span className="text-[10px] font-sans font-bold">Add</span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center w-20 h-20 bg-surface/50 border border-border-dim rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary relative group">
+                        <span className="material-symbols-outlined text-2xl mb-1">description</span>
+                        <span className="text-[10px] font-sans font-bold truncate w-16 text-center">logs.txt</span>
+                        <div className="absolute -top-2 -right-2 bg-surface border border-border-dim rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="material-symbols-outlined text-[12px] text-critical">close</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

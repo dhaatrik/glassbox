@@ -59,6 +59,20 @@ export function Submit() {
         };
         localStorage.setItem("pulse_feedback", JSON.stringify([...existingFeedback, newFeedback]));
 
+        // Also create a ticket in glassbox_tickets for the Dashboard/Grid
+        const existingTickets = JSON.parse(localStorage.getItem("glassbox_tickets") || "[]");
+        const newTicket = {
+          id: `#TKT-${Math.floor(Math.random() * 10000)}`,
+          dept: `[${dept}]`,
+          title: text.length > 60 ? text.substring(0, 60) + "..." : text,
+          status: "QUEUED",
+          time: "JUST NOW",
+          dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          lastUpdatedBy: isAnonymous ? "Anonymous" : "Current User",
+          isFavorite: false
+        };
+        localStorage.setItem("glassbox_tickets", JSON.stringify([newTicket, ...existingTickets]));
+
         setTimeout(() => {
           setFlashing(false);
           setIsTransmitting(false);
