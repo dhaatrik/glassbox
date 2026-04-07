@@ -351,7 +351,7 @@ export function Dashboard({
         
         {/* Ticker Tape (Modernized Pill) */}
         <div className="md:col-span-3 lg:col-span-4 mt-2">
-          <div className="w-full overflow-hidden bento-card glass-panel py-3 px-4 relative group flex items-center">
+          <div className="w-full overflow-hidden bento-card bg-background-dark/40 backdrop-blur-2xl border border-white/10 py-3 px-4 relative group flex items-center shadow-2xl">
             <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background-dark to-transparent z-10"></div>
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background-dark to-transparent z-10"></div>
             

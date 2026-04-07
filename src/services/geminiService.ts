@@ -5,8 +5,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export async function analyzeSentiment(text: string): Promise<"POSITIVE" | "NEGATIVE" | "NEUTRAL"> {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Analyze the sentiment of the following employee feedback. Categorize it strictly as POSITIVE, NEGATIVE, or NEUTRAL.
+      model: "gemma-4-31b-it",
+      contents: `Act as a specialist in organizational psychology and employee sentiment analysis. 
+Your task is to analyze the sentiment of the following employee feedback. 
+Carefully consider the tone, context, and underlying emotion of the text. 
+Categorize it strictly as POSITIVE, NEGATIVE, or NEUTRAL.
 
 Feedback: "${text}"`,
       config: {
@@ -38,18 +41,21 @@ export async function generateInsightsReport(feedbacks: any[]): Promise<any> {
     const feedbackTexts = feedbacks.map(f => `[${f.sentiment}] ${f.classification} - ${f.text}`).join("\n");
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents: `You are an HR data analyst. Analyze the following monthly employee feedback and generate an actionable insights report.
-      
-Feedback Data:
-${feedbackTexts}
+      model: "gemma-4-31b-it",
+      contents: `Act as a specialist in HR Data Analytics and Organizational Behavior.
+Your task is to analyze the following monthly employee feedback and generate a comprehensive, actionable insights report for the executive team.
 
-Generate a report that includes:
-1. Recurring Themes (list of strings)
-2. Areas of Concern (list of strings)
-3. Areas of Praise (list of strings)
-4. Top 3 Takeaways (list of strings)
-5. Recommended Actions (list of strings)`,
+Instructions:
+1. Carefully review the provided feedback data, paying attention to sentiment, classification, and specific details.
+2. Identify recurring themes and patterns across different departments and feedback types.
+3. Highlight critical areas of concern that require immediate attention.
+4. Identify areas of praise to reinforce positive company culture.
+5. Synthesize the data into the top 3 most important takeaways.
+6. Provide concrete, actionable recommended steps that management can take to address the feedback.
+7. Include a short, engaging "TL;DR" that summarizes the overall company vibe.
+
+Feedback Data:
+${feedbackTexts}`,
       config: {
         responseMimeType: "application/json",
         responseSchema: {

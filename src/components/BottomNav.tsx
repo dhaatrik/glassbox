@@ -101,6 +101,27 @@ export function BottomNav({ currentView, onChangeView }: BottomNavProps) {
             METRICS
           </p>
         </button>
+        <button
+          onClick={() => onChangeView("settings")}
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+            currentView === "settings"
+              ? "text-primary"
+              : "text-text-muted hover:text-primary"
+          }`}
+        >
+          {currentView === "settings" && (
+            <motion.div
+              layoutId="nav-indicator"
+              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+            />
+          )}
+          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">
+            settings
+          </span>
+          <p className="text-[10px] font-medium leading-normal tracking-wider font-display">
+            SETTINGS
+          </p>
+        </button>
       </div>
     </nav>
   );

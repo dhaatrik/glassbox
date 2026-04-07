@@ -412,8 +412,15 @@ export function Submit() {
             >
               <option className="bg-background-dark text-white">ROUTE_TO: [ ENGINEERING ]</option>
               <option className="bg-background-dark text-white">ROUTE_TO: [ MARKETING ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ HUMAN_RES ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ HUMAN RESOURCES ]</option>
               <option className="bg-background-dark text-white">ROUTE_TO: [ EXECUTIVE ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ DESIGN ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ FACILITIES ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ FINANCE ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ OPERATIONS ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ SALES ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ PRODUCT ]</option>
+              <option className="bg-background-dark text-white">ROUTE_TO: [ LEGAL ]</option>
             </select>
             <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
               <span className="material-symbols-outlined text-text-muted text-lg">

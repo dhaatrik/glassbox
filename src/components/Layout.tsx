@@ -12,6 +12,21 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
   const [aura, setAura] = useState("theme-cyan");
   const [status, setStatus] = useState("🎧 Deep Work");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [profileName, setProfileName] = useState("Alex Chen");
+  const [profileAvatar, setProfileAvatar] = useState("https://picsum.photos/seed/genz/100/100");
+  const [statuses, setStatuses] = useState<string[]>([
+    "🎧 Deep Work", "☕ Need Coffee", "🧠 Brainstorming", "🚀 Shipping"
+  ]);
+
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("glassbox_profile");
+    if (storedProfile) {
+      const p = JSON.parse(storedProfile);
+      if (p.name) setProfileName(p.name);
+      if (p.avatar) setProfileAvatar(p.avatar);
+      if (p.statuses) setStatuses(p.statuses);
+    }
+  }, [currentView]); // Re-run when view changes (e.g. back from settings)
 
   useEffect(() => {
     document.body.className = aura;
@@ -63,6 +78,7 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
               { id: "grid", icon: "view_kanban", label: "The Grid" },
               { id: "submit", icon: "add_circle", label: "New Signal" },
               { id: "metrics", icon: "monitoring", label: "Metrics" },
+              { id: "settings", icon: "settings", label: "Settings" },
             ].map((item) => (
               <button
                 key={item.id}
@@ -116,20 +132,20 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
                 className="flex items-center gap-3 w-full p-2 rounded-2xl hover:bg-white/5 transition-colors text-left"
               >
-                <img src="https://picsum.photos/seed/genz/100/100" alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/10" referrerPolicy="no-referrer" />
+                <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/10" referrerPolicy="no-referrer" />
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-white">Alex Chen</span>
+                  <span className="text-sm font-bold text-white">{profileName}</span>
                   <span className="text-xs text-primary font-medium">{status}</span>
                 </div>
               </button>
               
               {showStatusMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 glass-panel rounded-2xl p-2 flex flex-col gap-1 z-50">
-                  {["🎧 Deep Work", "☕ Need Coffee", "🧠 Brainstorming", "🚀 Shipping"].map(s => (
+                <div className="absolute bottom-full left-0 w-full mb-2 bg-background-dark/90 backdrop-blur-2xl border border-white/20 rounded-2xl p-2 flex flex-col gap-1 z-50 shadow-2xl animate-[fade-in_0.2s_ease-out]">
+                  {statuses.map(s => (
                     <button 
                       key={s}
                       onClick={() => { setStatus(s); setShowStatusMenu(false); }}
-                      className="text-left px-3 py-2 text-sm text-white hover:bg-white/10 rounded-xl transition-colors"
+                      className={`text-left px-3 py-2.5 text-sm rounded-xl transition-all duration-200 ${status === s ? 'bg-primary/10 text-primary font-bold' : 'text-white hover:bg-white/10'}`}
                     >
                       {s}
                     </button>

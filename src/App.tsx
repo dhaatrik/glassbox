@@ -5,6 +5,7 @@ import { Dashboard } from "./components/Dashboard";
 import { Grid } from "./components/Grid";
 import { Submit } from "./components/Submit";
 import { Metrics } from "./components/Metrics";
+import { Settings } from "./components/Settings";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { OnboardingTour } from "./components/OnboardingTour";
 import { AnimatePresence, motion } from "motion/react";
@@ -98,6 +99,18 @@ export default function App() {
                 onChangeView={setCurrentView}
                 onFilterClick={handleFilterClick}
               />
+            </motion.div>
+          )}
+          {currentView === "settings" && (
+            <motion.div
+              key="settings"
+              className="h-full flex flex-col"
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              <Settings />
             </motion.div>
           )}
         </AnimatePresence>

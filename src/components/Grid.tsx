@@ -134,6 +134,7 @@ export function Grid({
   const [filterDept, setFilterDept] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterFavorite, setFilterFavorite] = useState(false);
+  const [sortBy, setSortBy] = useState<"time" | "title" | "dept">("time");
   const [showFilters, setShowFilters] = useState(false);
 
   const [isCreating, setIsCreating] = useState(false);
@@ -151,29 +152,6 @@ export function Grid({
       if (onClearFilter) onClearFilter();
     }
   }, [initialFilter, onClearFilter]);
-
-  const handleSwipe = (ticket: Ticket, info: any) => {
-    const offset = info.offset.x;
-    const velocity = info.velocity.x;
-    
-    if (offset > 100 || velocity > 500) {
-      // Swipe Right -> Move to next status
-      const currentIndex = COLUMNS.indexOf(ticket.status);
-      if (currentIndex < COLUMNS.length - 1) {
-        const newStatus = COLUMNS[currentIndex + 1];
-        const updatedTickets = tickets.map(t => t.id === ticket.id ? { ...t, status: newStatus } : t);
-        setTickets(updatedTickets);
-      }
-    } else if (offset < -100 || velocity < -500) {
-      // Swipe Left -> Move to previous status
-      const currentIndex = COLUMNS.indexOf(ticket.status);
-      if (currentIndex > 0) {
-        const newStatus = COLUMNS[currentIndex - 1];
-        const updatedTickets = tickets.map(t => t.id === ticket.id ? { ...t, status: newStatus } : t);
-        setTickets(updatedTickets);
-      }
-    }
-  };
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -226,13 +204,23 @@ export function Grid({
       setTickets([updatedTicket, ...tickets]);
       setIsCreating(false);
     } else {
-      if (originalTicket && originalTicket.status !== updatedTicket.status) {
-        const newHistoryEntry = {
-          date: new Date().toISOString(),
-          action: `Status changed from ${originalTicket.status} to ${updatedTicket.status}`,
-          user: "Current User"
-        };
-        updatedTicket.history = [...(updatedTicket.history || []), newHistoryEntry];
+      if (originalTicket) {
+        const changes: string[] = [];
+        if (originalTicket.status !== updatedTicket.status) changes.push(`Status changed from ${originalTicket.status} to ${updatedTicket.status}`);
+        if (originalTicket.title !== updatedTicket.title) changes.push(`Title updated`);
+        if (originalTicket.description !== updatedTicket.description) changes.push(`Description updated`);
+        if (originalTicket.dept !== updatedTicket.dept) changes.push(`Department changed from ${originalTicket.dept} to ${updatedTicket.dept}`);
+        if (originalTicket.time !== updatedTicket.time) changes.push(`Time changed from ${originalTicket.time} to ${updatedTicket.time}`);
+        if (originalTicket.dueDate !== updatedTicket.dueDate) changes.push(`Due date changed from ${originalTicket.dueDate} to ${updatedTicket.dueDate}`);
+
+        if (changes.length > 0) {
+          const newHistoryEntry = {
+            date: new Date().toISOString(),
+            action: changes.join(", "),
+            user: "Current User"
+          };
+          updatedTicket.history = [...(updatedTicket.history || []), newHistoryEntry];
+        }
       }
 
       setTickets(
@@ -277,7 +265,7 @@ export function Grid({
   };
 
   const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
+    let result = tickets.filter((t) => {
       const matchesSearch =
         t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         t.id.toLowerCase().includes(searchQuery.toLowerCase());
@@ -286,7 +274,16 @@ export function Grid({
       const matchesFavorite = filterFavorite ? t.isFavorite : true;
       return matchesSearch && matchesDept && matchesStatus && matchesFavorite;
     });
-  }, [tickets, searchQuery, filterDept, filterStatus, filterFavorite]);
+
+    result.sort((a, b) => {
+      if (sortBy === "title") return a.title.localeCompare(b.title);
+      if (sortBy === "dept") return a.dept.localeCompare(b.dept);
+      // Default to time
+      return a.time.localeCompare(b.time);
+    });
+
+    return result;
+  }, [tickets, searchQuery, filterDept, filterStatus, filterFavorite, sortBy]);
 
   const getTicketsByStatus = (status: string) =>
     filteredTickets.filter((t) => t.status === status);
@@ -334,6 +331,16 @@ export function Grid({
                 {filterFavorite ? "star" : "star_border"}
               </span>
             </button>
+            <div className="relative group z-50">
+              <button className="flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full text-text-muted hover:text-primary" title="Sort By">
+                <span className="material-symbols-outlined text-[18px]">sort</span>
+              </button>
+              <div className="absolute top-full right-0 mt-2 w-40 bg-background-dark border border-white/20 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden backdrop-blur-2xl z-50">
+                <button onClick={() => setSortBy("time")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "time" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Time</button>
+                <button onClick={() => setSortBy("title")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "title" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Title</button>
+                <button onClick={() => setSortBy("dept")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "dept" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Dept</button>
+              </div>
+            </div>
             <div className="w-px h-6 bg-border-dim mx-1"></div>
             <button
               onClick={() => window.location.reload()}
@@ -356,14 +363,14 @@ export function Grid({
               className="flex gap-4 mt-3 pt-3 border-t border-border-dim overflow-visible"
             >
               <div className="relative group z-50">
-                <button className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-4 py-1.5 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors">
+                <button className="bg-background-dark/80 backdrop-blur-md border border-white/20 text-white text-xs px-4 py-2 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors shadow-lg">
                   {filterDept || "All Departments"}
                   <span className="material-symbols-outlined text-[14px]">expand_more</span>
                 </button>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-surface border border-border-dim rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-background-dark border border-white/20 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden backdrop-blur-2xl z-50">
                   <button 
                     onClick={() => setFilterDept("")}
-                    className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${!filterDept ? 'text-primary bg-primary/5' : 'text-white'}`}
+                    className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${!filterDept ? 'text-primary bg-primary/10' : 'text-white'}`}
                   >
                     All Departments
                   </button>
@@ -371,7 +378,7 @@ export function Grid({
                     <button
                       key={dept}
                       onClick={() => setFilterDept(dept)}
-                      className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${filterDept === dept ? 'text-primary bg-primary/5' : 'text-white'}`}
+                      className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${filterDept === dept ? 'text-primary bg-primary/10' : 'text-white'}`}
                     >
                       {dept}
                     </button>
@@ -380,14 +387,14 @@ export function Grid({
               </div>
 
               <div className="relative group z-50">
-                <button className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-4 py-1.5 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors">
+                <button className="bg-background-dark/80 backdrop-blur-md border border-white/20 text-white text-xs px-4 py-2 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors shadow-lg">
                   {filterStatus || "All Statuses"}
                   <span className="material-symbols-outlined text-[14px]">expand_more</span>
                 </button>
-                <div className="absolute top-full left-0 mt-2 w-48 bg-surface border border-border-dim rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-background-dark border border-white/20 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden backdrop-blur-2xl z-50">
                   <button 
                     onClick={() => setFilterStatus("")}
-                    className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${!filterStatus ? 'text-primary bg-primary/5' : 'text-white'}`}
+                    className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${!filterStatus ? 'text-primary bg-primary/10' : 'text-white'}`}
                   >
                     All Statuses
                   </button>
@@ -395,7 +402,7 @@ export function Grid({
                     <button
                       key={col}
                       onClick={() => setFilterStatus(col)}
-                      className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${filterStatus === col ? 'text-primary bg-primary/5' : 'text-white'}`}
+                      className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${filterStatus === col ? 'text-primary bg-primary/10' : 'text-white'}`}
                     >
                       {col}
                     </button>
@@ -450,11 +457,11 @@ export function Grid({
                   )}
 
                   <Droppable droppableId={colId}>
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[100px]"
+                        className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[100px] transition-colors rounded-xl ${snapshot.isDraggingOver ? "bg-white/5 border border-dashed border-primary/50" : ""}`}
                       >
                         {columnTickets.map((ticket, index) => (
                           <Draggable
@@ -463,11 +470,7 @@ export function Grid({
                             index={index}
                           >
                             {(provided, snapshot) => (
-                              <motion.div
-                                drag="x"
-                                dragConstraints={{ left: 0, right: 0 }}
-                                dragElastic={0.8}
-                                onDragEnd={(e, info) => handleSwipe(ticket, info)}
+                              <div
                                 ref={provided.innerRef}
                                 {...(provided.draggableProps as any)}
                                 {...(provided.dragHandleProps as any)}
@@ -646,7 +649,7 @@ export function Grid({
                                     </div>
                                   )}
                                 </div>
-                              </motion.div>
+                              </div>
                             )}
                           </Draggable>
                         ))}

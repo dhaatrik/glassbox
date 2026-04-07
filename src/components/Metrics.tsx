@@ -598,7 +598,7 @@ export function Metrics({
                 <select
                   value={filterDept}
                   onChange={(e) => setFilterDept(e.target.value)}
-                  className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full focus:border-primary outline-none transition-colors"
+                  className="bg-background-dark/80 backdrop-blur-md border border-white/20 text-white text-xs px-4 py-2 rounded-full focus:border-primary outline-none transition-colors shadow-lg cursor-pointer [color-scheme:dark]"
                 >
                   <option value="ALL">ALL DEPTS</option>
                   <option value="[ENG]">[ENG]</option>
@@ -619,7 +619,7 @@ export function Metrics({
                     placeholder="Search feedback..."
                     value={feedbackSearchQuery}
                     onChange={(e) => setFeedbackSearchQuery(e.target.value)}
-                    className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full focus:border-primary outline-none w-48 transition-colors"
+                    className="bg-background-dark/80 backdrop-blur-md border border-white/20 text-white text-xs px-4 py-2 rounded-full focus:border-primary outline-none w-48 transition-colors shadow-lg"
                   />
                   <span className="material-symbols-outlined absolute right-2 top-1.5 text-text-muted text-[16px]">
                     search

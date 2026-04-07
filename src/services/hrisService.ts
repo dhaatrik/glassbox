@@ -15,10 +15,14 @@ const mockEmployees: Employee[] = [
 ];
 
 export const fetchEmployees = async (): Promise<Employee[]> => {
-  // Simulate API delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockEmployees);
-    }, 500);
-  });
+  const stored = localStorage.getItem("glassbox_employees");
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  localStorage.setItem("glassbox_employees", JSON.stringify(mockEmployees));
+  return mockEmployees;
+};
+
+export const saveEmployees = async (employees: Employee[]): Promise<void> => {
+  localStorage.setItem("glassbox_employees", JSON.stringify(employees));
 };
