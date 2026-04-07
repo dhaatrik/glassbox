@@ -14,6 +14,9 @@ export function Metrics({
   const [isGenerating, setIsGenerating] = useState(false);
   const [insights, setInsights] = useState<any>(null);
   const [feedbackSearchQuery, setFeedbackSearchQuery] = useState("");
+  const [filterDept, setFilterDept] = useState<string>("ALL");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   const [deptStats, setDeptStats] = useState<Record<string, string>>({
     "[ENG]": "0.4d",
@@ -65,22 +68,38 @@ export function Metrics({
     }
   };
 
-  const posCount = feedbacks.filter(f => f.sentiment === "POSITIVE").length;
-  const neuCount = feedbacks.filter(f => f.sentiment === "NEUTRAL").length;
-  const negCount = feedbacks.filter(f => f.sentiment === "NEGATIVE").length;
-  const totalCount = feedbacks.length || 1; // prevent division by zero
+  const filteredFeedbacks = feedbacks.filter((fb) => {
+    const searchLower = feedbackSearchQuery.toLowerCase();
+    const matchesSearch = fb.text.toLowerCase().includes(searchLower) ||
+      (fb.isAnonymous ? "anonymous" : "authenticated user").includes(searchLower);
+      
+    const matchesDept = filterDept === "ALL" || fb.dept === filterDept;
+
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const fbDate = new Date(fb.timestamp);
+      if (startDate) {
+        matchesDate = matchesDate && fbDate >= new Date(startDate);
+      }
+      if (endDate) {
+        // Add 1 day to end date to include the whole day
+        const end = new Date(endDate);
+        end.setDate(end.getDate() + 1);
+        matchesDate = matchesDate && fbDate < end;
+      }
+    }
+    
+    return matchesSearch && matchesDept && matchesDate;
+  });
+
+  const posCount = filteredFeedbacks.filter(f => f.sentiment === "POSITIVE").length;
+  const neuCount = filteredFeedbacks.filter(f => f.sentiment === "NEUTRAL").length;
+  const negCount = filteredFeedbacks.filter(f => f.sentiment === "NEGATIVE").length;
+  const totalCount = filteredFeedbacks.length || 1; // prevent division by zero
 
   const posPct = Math.round((posCount / totalCount) * 100);
   const neuPct = Math.round((neuCount / totalCount) * 100);
   const negPct = Math.round((negCount / totalCount) * 100);
-
-  const filteredFeedbacks = feedbacks.filter((fb) => {
-    const searchLower = feedbackSearchQuery.toLowerCase();
-    return (
-      fb.text.toLowerCase().includes(searchLower) ||
-      (fb.isAnonymous ? "anonymous" : "authenticated user").includes(searchLower)
-    );
-  });
 
   return (
     <motion.div
@@ -370,38 +389,51 @@ export function Metrics({
         >
           {/* Sentiment Analysis */}
           <section className="space-y-3 glass-panel bento-card p-5">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
                 01 // Sentiment Analysis
               </h3>
-              <span className="text-[10px] font-sans font-bold text-primary bg-primary/10 px-2 py-1 rounded-full uppercase">
-                {feedbacks.length > 0 ? "Live Data" : "No Data"}
-              </span>
+              <div className="flex items-center gap-2 bg-surface-dim/50 border border-border-dim rounded-xl px-3 py-1.5">
+                <span className="material-symbols-outlined text-text-muted text-sm">calendar_today</span>
+                <input 
+                  type="date" 
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-transparent text-white text-xs outline-none [color-scheme:dark]"
+                />
+                <span className="text-text-muted text-xs">to</span>
+                <input 
+                  type="date" 
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="bg-transparent text-white text-xs outline-none [color-scheme:dark]"
+                />
+              </div>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 mt-2">
               <div className="flex justify-between items-end">
                 <div className="text-4xl font-mono font-bold text-white tracking-tighter">
-                  {feedbacks.length > 0 ? posPct : 0}<span className="text-xl text-text-muted font-sans">%</span>
+                  {filteredFeedbacks.length > 0 ? posPct : 0}<span className="text-xl text-text-muted font-sans">%</span>
                 </div>
                 <div className="text-xs font-sans font-bold text-stable flex items-center gap-1 uppercase tracking-wider bg-stable/10 px-2 py-1 rounded-full">
                   <span className="material-symbols-outlined text-[14px]">
                     {posPct > 50 ? "trending_up" : "trending_down"}
                   </span>
-                  {feedbacks.length} Total Feedbacks
+                  {filteredFeedbacks.length} Total Feedbacks
                 </div>
               </div>
 
               {/* Sentiment Bar */}
               <div className="h-3 w-full bg-surface-dim flex rounded-full overflow-hidden shadow-inner">
-                <div className="h-full bg-stable transition-all" style={{ width: `${feedbacks.length > 0 ? posPct : 0}%` }}></div>
-                <div className="h-full bg-yellow-500 transition-all" style={{ width: `${feedbacks.length > 0 ? neuPct : 0}%` }}></div>
-                <div className="h-full bg-critical transition-all" style={{ width: `${feedbacks.length > 0 ? negPct : 0}%` }}></div>
+                <div className="h-full bg-stable transition-all" style={{ width: `${filteredFeedbacks.length > 0 ? posPct : 0}%` }}></div>
+                <div className="h-full bg-yellow-500 transition-all" style={{ width: `${filteredFeedbacks.length > 0 ? neuPct : 0}%` }}></div>
+                <div className="h-full bg-critical transition-all" style={{ width: `${filteredFeedbacks.length > 0 ? negPct : 0}%` }}></div>
               </div>
 
               <div className="flex justify-between text-xs font-sans font-bold uppercase tracking-wider">
-                <span className="text-stable">Pos: {feedbacks.length > 0 ? posPct : 0}%</span>
-                <span className="text-yellow-500">Neu: {feedbacks.length > 0 ? neuPct : 0}%</span>
-                <span className="text-critical">Neg: {feedbacks.length > 0 ? negPct : 0}%</span>
+                <span className="text-stable">Pos: {filteredFeedbacks.length > 0 ? posPct : 0}%</span>
+                <span className="text-yellow-500">Neu: {filteredFeedbacks.length > 0 ? neuPct : 0}%</span>
+                <span className="text-critical">Neg: {filteredFeedbacks.length > 0 ? negPct : 0}%</span>
               </div>
             </div>
           </section>
@@ -413,10 +445,10 @@ export function Metrics({
                 02 // Actionable Insights
               </h3>
               <motion.button
-                whileHover={!isGenerating && feedbacks.length > 0 ? { scale: 1.05 } : {}}
-                whileTap={!isGenerating && feedbacks.length > 0 ? { scale: 0.95 } : {}}
+                whileHover={!isGenerating && filteredFeedbacks.length > 0 ? { scale: 1.05 } : {}}
+                whileTap={!isGenerating && filteredFeedbacks.length > 0 ? { scale: 0.95 } : {}}
                 onClick={handleGenerateInsights}
-                disabled={isGenerating || feedbacks.length === 0}
+                disabled={isGenerating || filteredFeedbacks.length === 0}
                 className="text-xs font-sans font-bold text-black bg-primary px-3 py-1.5 rounded-full hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,240,255,0.3)] transition-all uppercase tracking-wider"
               >
                 {isGenerating ? (
@@ -516,7 +548,7 @@ export function Metrics({
                   </span>
                 </div>
                 <p className="text-sm font-sans text-text-muted max-w-xs">
-                  {feedbacks.length > 0
+                  {filteredFeedbacks.length > 0
                     ? "Click 'Generate AI Report' to analyze recent feedback."
                     : "No feedback data available. Submit feedback to generate insights."}
                 </p>
@@ -562,17 +594,37 @@ export function Metrics({
               <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
                 04 // Recent Feedback Log
               </h3>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search feedback..."
-                  value={feedbackSearchQuery}
-                  onChange={(e) => setFeedbackSearchQuery(e.target.value)}
-                  className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full focus:border-primary outline-none w-48 transition-colors"
-                />
-                <span className="material-symbols-outlined absolute right-2 top-1.5 text-text-muted text-[16px]">
-                  search
-                </span>
+              <div className="flex items-center gap-3">
+                <select
+                  value={filterDept}
+                  onChange={(e) => setFilterDept(e.target.value)}
+                  className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full focus:border-primary outline-none transition-colors"
+                >
+                  <option value="ALL">ALL DEPTS</option>
+                  <option value="[ENG]">[ENG]</option>
+                  <option value="[SALES]">[SALES]</option>
+                  <option value="[PRODUCT]">[PRODUCT]</option>
+                  <option value="[LEGAL]">[LEGAL]</option>
+                  <option value="[HR]">[HR]</option>
+                  <option value="[MKT]">[MKT]</option>
+                  <option value="[OPS]">[OPS]</option>
+                  <option value="[DES]">[DES]</option>
+                  <option value="[EXEC]">[EXEC]</option>
+                  <option value="[FAC]">[FAC]</option>
+                  <option value="[FIN]">[FIN]</option>
+                </select>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search feedback..."
+                    value={feedbackSearchQuery}
+                    onChange={(e) => setFeedbackSearchQuery(e.target.value)}
+                    className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full focus:border-primary outline-none w-48 transition-colors"
+                  />
+                  <span className="material-symbols-outlined absolute right-2 top-1.5 text-text-muted text-[16px]">
+                    search
+                  </span>
+                </div>
               </div>
             </div>
             <div className="space-y-3">

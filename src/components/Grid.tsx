@@ -18,6 +18,8 @@ type Ticket = {
   lastUpdatedBy?: string;
   isFavorite?: boolean;
   attachments?: { name: string; type: string }[];
+  history?: { date: string; action: string; user: string }[];
+  reactions?: Record<string, number>;
 };
 
 const initialTickets: Ticket[] = [
@@ -134,6 +136,8 @@ export function Grid({
   const [filterFavorite, setFilterFavorite] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  const [isCreating, setIsCreating] = useState(false);
+
   useEffect(() => {
     localStorage.setItem("glassbox_tickets", JSON.stringify(tickets));
   }, [tickets]);
@@ -193,21 +197,23 @@ export function Grid({
     const newTicket: Ticket = {
       id: `#TKT-${Math.floor(Math.random() * 10000)}`,
       dept: "[NEW]",
-      title: "New Ticket",
+      title: "",
       status: "QUEUED",
       time: "T+00 DAYS",
-      description: "Description here...",
+      description: "",
       dueDate: new Date().toISOString().split('T')[0],
       lastUpdatedBy: "Current User",
       isFavorite: false,
     };
-    setTickets([newTicket, ...tickets]);
     setSelectedTicket(newTicket);
+    setOriginalTicket(newTicket);
+    setIsCreating(true);
   };
 
   const handleSelectTicket = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setOriginalTicket(ticket);
+    setIsCreating(false);
   };
 
   const handleUpdateTicket = (updatedTicket: Ticket) => {
@@ -215,9 +221,24 @@ export function Grid({
       alert("Title and Description cannot be empty.");
       return;
     }
-    setTickets(
-      tickets.map((t) => (t.id === updatedTicket.id ? updatedTicket : t)),
-    );
+    
+    if (isCreating) {
+      setTickets([updatedTicket, ...tickets]);
+      setIsCreating(false);
+    } else {
+      if (originalTicket && originalTicket.status !== updatedTicket.status) {
+        const newHistoryEntry = {
+          date: new Date().toISOString(),
+          action: `Status changed from ${originalTicket.status} to ${updatedTicket.status}`,
+          user: "Current User"
+        };
+        updatedTicket.history = [...(updatedTicket.history || []), newHistoryEntry];
+      }
+
+      setTickets(
+        tickets.map((t) => (t.id === updatedTicket.id ? updatedTicket : t)),
+      );
+    }
     setSelectedTicket(null);
     setOriginalTicket(null);
   };
@@ -332,44 +353,55 @@ export function Grid({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="flex gap-4 mt-3 pt-3 border-t border-border-dim overflow-hidden"
+              className="flex gap-4 mt-3 pt-3 border-t border-border-dim overflow-visible"
             >
-              <select
-                value={filterDept}
-                onChange={(e) => setFilterDept(e.target.value)}
-                className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full outline-none [color-scheme:dark]"
-              >
-                <option value="" className="bg-background-dark text-white">
-                  All Departments
-                </option>
-                {Array.from(new Set(tickets.map((t) => t.dept))).map((dept) => (
-                  <option
-                    key={dept}
-                    value={dept}
-                    className="bg-background-dark text-white"
+              <div className="relative group z-50">
+                <button className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-4 py-1.5 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors">
+                  {filterDept || "All Departments"}
+                  <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-surface border border-border-dim rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden">
+                  <button 
+                    onClick={() => setFilterDept("")}
+                    className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${!filterDept ? 'text-primary bg-primary/5' : 'text-white'}`}
                   >
-                    {dept}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-3 py-1.5 rounded-full outline-none [color-scheme:dark]"
-              >
-                <option value="" className="bg-background-dark text-white">
-                  All Statuses
-                </option>
-                {COLUMNS.map((col) => (
-                  <option
-                    key={col}
-                    value={col}
-                    className="bg-background-dark text-white"
+                    All Departments
+                  </button>
+                  {Array.from(new Set(tickets.map((t) => t.dept))).map((dept) => (
+                    <button
+                      key={dept}
+                      onClick={() => setFilterDept(dept)}
+                      className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${filterDept === dept ? 'text-primary bg-primary/5' : 'text-white'}`}
+                    >
+                      {dept}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative group z-50">
+                <button className="bg-surface-dim/50 backdrop-blur-md border border-border-dim text-white text-xs px-4 py-1.5 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors">
+                  {filterStatus || "All Statuses"}
+                  <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-surface border border-border-dim rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden">
+                  <button 
+                    onClick={() => setFilterStatus("")}
+                    className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${!filterStatus ? 'text-primary bg-primary/5' : 'text-white'}`}
                   >
-                    {col}
-                  </option>
-                ))}
-              </select>
+                    All Statuses
+                  </button>
+                  {COLUMNS.map((col) => (
+                    <button
+                      key={col}
+                      onClick={() => setFilterStatus(col)}
+                      className={`text-left px-4 py-2 text-xs hover:bg-surface-dim transition-colors ${filterStatus === col ? 'text-primary bg-primary/5' : 'text-white'}`}
+                    >
+                      {col}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -437,8 +469,8 @@ export function Grid({
                                 dragElastic={0.8}
                                 onDragEnd={(e, info) => handleSwipe(ticket, info)}
                                 ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
+                                {...(provided.draggableProps as any)}
+                                {...(provided.dragHandleProps as any)}
                                 onClick={() => handleSelectTicket(ticket)}
                                 style={{
                                   ...provided.draggableProps.style,
@@ -643,12 +675,20 @@ export function Grid({
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="glass-panel bento-card w-full max-w-2xl flex flex-col shadow-2xl overflow-hidden"
+              className="glass-panel bento-card w-full max-w-2xl flex flex-col shadow-2xl overflow-hidden max-h-[90vh]"
             >
-              <div className="flex items-center justify-between p-5 border-b border-border-dim bg-surface-dim/50">
+              <div className="flex items-center justify-between p-5 border-b border-border-dim bg-surface-dim/50 shrink-0">
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs font-mono px-3 py-1 rounded-full font-bold ${
+                  <input
+                    type="text"
+                    value={selectedTicket.id}
+                    onChange={(e) =>
+                      setSelectedTicket({
+                        ...selectedTicket,
+                        id: e.target.value,
+                      })
+                    }
+                    className={`text-xs font-mono px-3 py-1 rounded-full font-bold outline-none border border-transparent hover:border-primary focus:border-primary transition-colors ${
                       selectedTicket.status === "QUEUED"
                         ? "bg-primary/10 text-primary"
                         : selectedTicket.status === "PROCESSING"
@@ -657,9 +697,7 @@ export function Grid({
                             ? "bg-critical/20 text-critical"
                             : "bg-stable/20 text-stable"
                     }`}
-                  >
-                    {selectedTicket.id}
-                  </span>
+                  />
                   <input
                     type="text"
                     value={selectedTicket.dept}
@@ -692,7 +730,7 @@ export function Grid({
                 </button>
               </div>
 
-              <div className="p-6 flex flex-col gap-6">
+              <div className="p-6 flex flex-col gap-6 overflow-y-auto scrollbar-hide">
                 <div className="flex justify-between items-center text-xs font-sans font-bold text-text-muted border-b border-border-dim pb-4">
                   <div className="flex items-center gap-3">
                     <span className="uppercase tracking-wider">Status:</span>
@@ -722,9 +760,17 @@ export function Grid({
                       schedule
                     </span>
                     Time in state:{" "}
-                    <span className="text-white bg-surface px-2 py-1 rounded-md">
-                      {selectedTicket.time}
-                    </span>
+                    <input
+                      type="text"
+                      value={selectedTicket.time}
+                      onChange={(e) =>
+                        setSelectedTicket({
+                          ...selectedTicket,
+                          time: e.target.value,
+                        })
+                      }
+                      className="text-white bg-surface px-2 py-1 rounded-md border border-border-dim hover:border-primary focus:border-primary outline-none transition-colors w-24"
+                    />
                   </span>
                 </div>
 
@@ -855,21 +901,70 @@ export function Grid({
                       ))}
                     </div>
                   </div>
+
+                  <div>
+                    <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-2 block">
+                      Reactions
+                    </label>
+                    <div className="flex gap-2">
+                      {['🔥', '💀', '👀', '💯', '🚩'].map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => {
+                            const currentCount = selectedTicket.reactions?.[emoji] || 0;
+                            setSelectedTicket({
+                              ...selectedTicket,
+                              reactions: {
+                                ...selectedTicket.reactions,
+                                [emoji]: currentCount + 1
+                              }
+                            });
+                          }}
+                          className="bg-surface/50 border border-border-dim hover:border-primary px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 transition-colors"
+                        >
+                          <span>{emoji}</span>
+                          <span className="text-xs font-mono text-text-muted">{selectedTicket.reactions?.[emoji] || 0}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {selectedTicket.history && selectedTicket.history.length > 0 && (
+                    <div>
+                      <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-2 block">
+                        History
+                      </label>
+                      <div className="space-y-2">
+                        {selectedTicket.history.map((entry, idx) => (
+                          <div key={idx} className="flex items-center gap-3 text-xs font-sans text-gray-400 bg-surface/30 p-2 rounded-lg border border-border-dim/50">
+                            <span className="material-symbols-outlined text-[14px] text-text-muted">history</span>
+                            <span className="font-mono text-[10px] text-text-muted">{new Date(entry.date).toLocaleString()}</span>
+                            <span>{entry.action}</span>
+                            <span className="ml-auto text-[10px] bg-surface px-2 py-0.5 rounded-md">{entry.user}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="p-5 border-t border-border-dim bg-surface-dim/50 flex justify-between items-center">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleDeleteTicket(selectedTicket.id)}
-                  className="px-4 py-2.5 text-xs font-sans font-bold text-critical hover:bg-critical/10 border border-transparent hover:border-critical rounded-xl transition-all flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-sm">
-                    delete
-                  </span>
-                  DELETE
-                </motion.button>
+              <div className="p-5 border-t border-border-dim bg-surface-dim/50 flex justify-between items-center shrink-0">
+                {!isCreating ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleDeleteTicket(selectedTicket.id)}
+                    className="px-4 py-2.5 text-xs font-sans font-bold text-critical hover:bg-critical/10 border border-transparent hover:border-critical rounded-xl transition-all flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-sm">
+                      delete
+                    </span>
+                    DELETE
+                  </motion.button>
+                ) : (
+                  <div></div>
+                )}
                 <div className="flex gap-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -886,9 +981,9 @@ export function Grid({
                     className="px-5 py-2.5 text-xs font-sans font-bold bg-primary text-black hover:bg-primary/90 rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all flex items-center gap-2"
                   >
                     <span className="material-symbols-outlined text-sm">
-                      save
+                      {isCreating ? "add" : "save"}
                     </span>
-                    SAVE CHANGES
+                    {isCreating ? "CREATE TICKET" : "SAVE CHANGES"}
                   </motion.button>
                 </div>
               </div>

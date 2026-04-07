@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
 import { analyzeSentiment } from "../services/geminiService";
+import { fetchEmployees, Employee } from "../services/hrisService";
 
 export function Submit() {
   const [classification, setClassification] = useState("PROCESS");
@@ -17,6 +18,18 @@ export function Submit() {
   const [isRecording, setIsRecording] = useState(false);
   const [aiPersona, setAiPersona] = useState<"NONE" | "BESTIE" | "ROAST">("NONE");
   const [aiResponse, setAiResponse] = useState<string | null>(null);
+  
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
+
+  useEffect(() => {
+    fetchEmployees().then(data => {
+      setEmployees(data);
+      if (data.length > 0) {
+        setSelectedEmployeeId(data[0].id);
+      }
+    });
+  }, []);
 
   const recognitionRef = useRef<any>(null);
 
@@ -142,14 +155,18 @@ export function Submit() {
 
         // Also create a ticket in glassbox_tickets for the Dashboard/Grid
         const existingTickets = JSON.parse(localStorage.getItem("glassbox_tickets") || "[]");
+        const selectedEmployee = employees.find(e => e.id === selectedEmployeeId);
+        const authorName = isAnonymous ? "Anonymous" : (selectedEmployee?.name || "Current User");
+
         const newTicket = {
           id: `#TKT-${Math.floor(Math.random() * 10000)}`,
-          dept: `[${dept}]`,
+          dept: `[${dept.replace("ROUTE_TO: [ ", "").replace(" ]", "")}]`,
           title: text.length > 60 ? text.substring(0, 60) + "..." : text,
           status: "QUEUED",
           time: "JUST NOW",
+          description: text,
           dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          lastUpdatedBy: isAnonymous ? "Anonymous" : "Current User",
+          lastUpdatedBy: authorName,
           isFavorite: false,
           attachments: attachments.length > 0 ? attachments : undefined
         };
@@ -233,6 +250,45 @@ export function Submit() {
       </header>
 
       <main className="flex-1 flex flex-col p-5 gap-6 pb-8 max-w-3xl mx-auto w-full">
+        {/* Section 0: HRIS Identity */}
+        <motion.section 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
+              00 // HRIS Identity
+            </h3>
+            <span className="text-[10px] font-sans font-bold text-stable bg-stable/10 px-2 py-1 rounded-full">
+              SYNCED
+            </span>
+          </div>
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-primary text-lg">
+                badge
+              </span>
+            </div>
+            <select
+              value={selectedEmployeeId}
+              onChange={(e) => setSelectedEmployeeId(e.target.value)}
+              className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors tracking-wider [color-scheme:dark]"
+            >
+              {employees.map(emp => (
+                <option key={emp.id} value={emp.id} className="bg-background-dark text-white">
+                  {emp.name} - {emp.role} ({emp.department})
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-text-muted text-lg">
+                unfold_more
+              </span>
+            </div>
+          </div>
+        </motion.section>
+
         {/* Section 1: Classification */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}

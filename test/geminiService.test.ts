@@ -20,6 +20,7 @@ vi.mock('@google/genai', () => {
   };
 });
 
+// @ts-ignore
 import { __generateContentMock } from '@google/genai';
 
 describe('geminiService', () => {
