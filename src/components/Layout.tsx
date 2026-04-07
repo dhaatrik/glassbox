@@ -94,7 +94,7 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
             <div className="flex items-center gap-2 px-2">
               <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest">Aura</span>
               <div className="flex gap-2 ml-auto flex-wrap justify-end w-32">
-                {['theme-cyan', 'theme-matcha', 'theme-lavender', 'theme-peach', 'theme-vaporwave', 'theme-dracula', 'theme-void'].map(t => (
+                {['theme-cyan', 'theme-matcha', 'theme-lavender', 'theme-dracula'].map(t => (
                   <button 
                     key={t}
                     onClick={() => setAura(t)}
@@ -104,8 +104,6 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
                       backgroundColor: t === 'theme-cyan' ? '#00f0ff' : 
                                        t === 'theme-matcha' ? '#a3e635' : 
                                        t === 'theme-lavender' ? '#c084fc' : 
-                                       t === 'theme-peach' ? '#ff8a65' :
-                                       t === 'theme-vaporwave' ? '#ff71ce' :
                                        t === 'theme-dracula' ? '#ff79c6' : '#ffffff'
                     }}
                   />
