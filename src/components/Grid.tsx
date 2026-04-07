@@ -158,15 +158,13 @@ export function Grid({
     const { source, destination } = result;
 
     if (source.droppableId !== destination.droppableId) {
-      if (window.confirm(`Are you sure you want to move this ticket to ${destination.droppableId}?`)) {
-        const newTickets = [...tickets];
-        const ticketIndex = newTickets.findIndex(
-          (t) => t.id === result.draggableId,
-        );
-        if (ticketIndex > -1) {
-          newTickets[ticketIndex].status = destination.droppableId;
-          setTickets(newTickets);
-        }
+      const newTickets = [...tickets];
+      const ticketIndex = newTickets.findIndex(
+        (t) => t.id === result.draggableId,
+      );
+      if (ticketIndex > -1) {
+        newTickets[ticketIndex].status = destination.droppableId;
+        setTickets(newTickets);
       }
     }
   };
@@ -196,7 +194,6 @@ export function Grid({
 
   const handleUpdateTicket = (updatedTicket: Ticket) => {
     if (!updatedTicket.title.trim() || !updatedTicket.description.trim()) {
-      alert("Title and Description cannot be empty.");
       return;
     }
     
@@ -232,29 +229,12 @@ export function Grid({
   };
 
   const handleDeleteTicket = (id: string) => {
-    if (
-      window.confirm("Are you sure you want to permanently delete this ticket?")
-    ) {
-      setTickets(tickets.filter((t) => t.id !== id));
-      setSelectedTicket(null);
-      setOriginalTicket(null);
-    }
+    setTickets(tickets.filter((t) => t.id !== id));
+    setSelectedTicket(null);
+    setOriginalTicket(null);
   };
 
   const handleCloseModal = () => {
-    if (selectedTicket && originalTicket) {
-      const hasChanges =
-        JSON.stringify(selectedTicket) !== JSON.stringify(originalTicket);
-      if (hasChanges) {
-        if (
-          !window.confirm(
-            "You have unsaved changes. Are you sure you want to close?",
-          )
-        ) {
-          return;
-        }
-      }
-    }
     setSelectedTicket(null);
     setOriginalTicket(null);
   };
