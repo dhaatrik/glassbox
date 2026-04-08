@@ -171,13 +171,7 @@ export function Settings() {
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col flex-1 h-full overflow-hidden"
-    >
+    <>
       <header className="flex-none border-b border-border-dim bg-surface-dim/80 backdrop-blur-2xl z-40">
         <div className="flex flex-col gap-2 p-4 pb-2">
           <div className="flex items-center justify-between">
@@ -213,9 +207,8 @@ export function Settings() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-        <div className="max-w-5xl mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Profile Settings */}
         <section className="glass-panel bento-card p-4 sm:p-6 flex flex-col gap-4">
           <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2">
@@ -433,9 +426,8 @@ export function Settings() {
             </button>
           </div>
         </section>
-          </div>
-        </div>
-      </main>
+      </div>
+    </main>
 
       <AnimatePresence>
         {/* Delete Status Modal */}
@@ -478,6 +470,6 @@ export function Settings() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </>
   );
 }

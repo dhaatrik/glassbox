@@ -159,9 +159,7 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
 
       {/* Main Container */}
       <div className="relative z-30 flex flex-col flex-1 w-full h-full overflow-hidden">
-        <div className="flex-1 flex flex-col overflow-y-auto relative hide-scrollbar">
-          {children}
-        </div>
+        {children}
 
         {/* Mobile Bottom Nav (hidden on desktop) */}
         <div className="md:hidden z-50 glass-panel border-x-0 border-b-0">

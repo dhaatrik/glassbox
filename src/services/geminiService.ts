@@ -38,7 +38,7 @@ Feedback: "${text}"`,
 
 export async function generateInsightsReport(feedbacks: any[]): Promise<any> {
   try {
-    const feedbackTexts = feedbacks.map(f => `[${f.sentiment}] ${f.classification} - ${f.text}`).join("\n");
+    const feedbackTexts = feedbacks.map(f => `[${f.sentiment}] ${f.text}`).join("\n");
 
     const response = await ai.models.generateContent({
       model: "gemma-4-31b-it",

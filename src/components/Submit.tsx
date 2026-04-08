@@ -5,7 +5,6 @@ import { analyzeSentiment } from "../services/geminiService";
 import { fetchEmployees, Employee } from "../services/hrisService";
 
 export function Submit() {
-  const [classification, setClassification] = useState("PROCESS");
   const [severity, setSeverity] = useState("MED");
   const [dept, setDept] = useState("ROUTE_TO: [ ENGINEERING ]");
   const [text, setText] = useState("");
@@ -16,8 +15,6 @@ export function Submit() {
   const [transmitStatus, setTransmitStatus] = useState("");
   const [attachments, setAttachments] = useState<{ name: string; type: string }[]>([]);
   const [isRecording, setIsRecording] = useState(false);
-  const [aiPersona, setAiPersona] = useState<"NONE" | "BESTIE" | "ROAST">("NONE");
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
   
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
@@ -132,18 +129,10 @@ export function Submit() {
           colors: ['#00f0ff', '#ff2a6d', '#05ff00']
         });
 
-        if (aiPersona !== "NONE") {
-          const response = aiPersona === "BESTIE" 
-            ? "Omg bestie, I totally get it. Validating your feelings rn. 💖 We'll get this sorted!"
-            : "Skill issue tbh. But fine, I'll log it. 🙄💀";
-          setAiResponse(response);
-        }
-
         // Save to localStorage
         const existingFeedback = JSON.parse(localStorage.getItem("pulse_feedback") || "[]");
         const newFeedback = {
           id: Date.now().toString(),
-          classification,
           severity,
           dept,
           text,
@@ -289,71 +278,15 @@ export function Submit() {
           </div>
         </motion.section>
 
-        {/* Section 1: Classification */}
+        {/* Section 1: Severity / Vibe Check */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
           className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-              01 // Classification
-            </h3>
-            <span className="text-[10px] font-sans font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">
-              REQUIRED
-            </span>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {["PROCESS", "CULTURE", "COMP", "TOOLS"].map((item) => (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                key={item}
-                onClick={() => setClassification(item)}
-                className="flex-shrink-0 relative group"
-              >
-                {classification === item ? (
-                  <div className="relative px-6 py-3 border border-primary bg-primary/10 text-primary font-bold text-sm tracking-wide uppercase rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.15)] transition-all flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">
-                      {item === "PROCESS"
-                        ? "settings"
-                        : item === "CULTURE"
-                          ? "diversity_3"
-                          : item === "COMP"
-                            ? "attach_money"
-                            : "build"}
-                    </span>
-                    <span>{item}</span>
-                  </div>
-                ) : (
-                  <div className="relative px-6 py-3 border border-border-dim bg-surface-dim/50 text-text-muted font-medium text-sm tracking-wide uppercase rounded-xl hover:border-primary/50 hover:text-white transition-all flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">
-                      {item === "PROCESS"
-                        ? "settings"
-                        : item === "CULTURE"
-                          ? "diversity_3"
-                          : item === "COMP"
-                            ? "attach_money"
-                            : "build"}
-                    </span>
-                    <span>{item}</span>
-                  </div>
-                )}
-              </motion.button>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Section 2: Severity / Vibe Check */}
-        <motion.section 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
-        >
           <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-            02 // Vibe Check (Severity)
+            01 // Vibe Check (Severity)
           </h3>
           <div className="grid grid-cols-3 gap-3">
             <motion.button
@@ -389,15 +322,15 @@ export function Submit() {
           </p>
         </motion.section>
 
-        {/* Section 3: Routing */}
+        {/* Section 2: Routing */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
           <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-            03 // Target Dept
+            02 // Target Dept
           </h3>
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -430,15 +363,15 @@ export function Submit() {
           </div>
         </motion.section>
 
-        {/* Section 4: Anonymity Toggle */}
+        {/* Section 3: Anonymity Toggle */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.3 }}
           className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
           <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-            04 // Identity Protocol
+            03 // Identity Protocol
           </h3>
           <motion.div
             whileTap={{ scale: 0.99 }}
@@ -476,16 +409,16 @@ export function Submit() {
           </motion.div>
         </motion.section>
 
-        {/* Section 5: Observation Log */}
+        {/* Section 4: Observation Log */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.4 }}
           className="flex flex-col gap-3 flex-1 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-              05 // The Tea (Input Data)
+              04 // The Tea (Input Data)
             </h3>
             <div className="flex items-center gap-2">
               <button 
@@ -522,15 +455,15 @@ export function Submit() {
           </div>
         </motion.section>
 
-        {/* Section 6: Attachments */}
+        {/* Section 5: Attachments */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.5 }}
           className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
           <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-            06 // Attachments
+            05 // Attachments
           </h3>
           <div className="flex gap-3 flex-wrap mt-2">
             <label htmlFor="submit-file-upload" className="flex flex-col items-center justify-center w-20 h-20 bg-surface-dim/50 border border-border-dim border-dashed rounded-xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary">
@@ -577,57 +510,9 @@ export function Submit() {
             ))}
           </div>
         </motion.section>
-
-        {/* Section 7: AI Persona */}
-        <motion.section 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.7 }}
-          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
-        >
-          <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-            07 // AI Persona Response
-          </h3>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setAiPersona("NONE")}
-              className={`flex-1 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${aiPersona === "NONE" ? "border-primary bg-primary/10 text-primary" : "border-border-dim bg-surface-dim/50 text-text-muted hover:border-primary/50"}`}
-            >
-              Boring (None)
-            </button>
-            <button
-              onClick={() => setAiPersona("BESTIE")}
-              className={`flex-1 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${aiPersona === "BESTIE" ? "border-pink-500 bg-pink-500/10 text-pink-500" : "border-border-dim bg-surface-dim/50 text-text-muted hover:border-pink-500/50"}`}
-            >
-              💖 Bestie
-            </button>
-            <button
-              onClick={() => setAiPersona("ROAST")}
-              className={`flex-1 py-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${aiPersona === "ROAST" ? "border-orange-500 bg-orange-500/10 text-orange-500" : "border-border-dim bg-surface-dim/50 text-text-muted hover:border-orange-500/50"}`}
-            >
-              🔥 Roast Me
-            </button>
-          </div>
-        </motion.section>
       </main>
 
       <AnimatePresence>
-        {aiResponse && (
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[100] glass-panel p-6 rounded-2xl border-primary/50 shadow-[0_0_30px_rgba(0,240,255,0.2)] max-w-md w-full"
-          >
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-widest">AI Response</span>
-              <button onClick={() => setAiResponse(null)} className="text-text-muted hover:text-white">
-                <span className="material-symbols-outlined text-sm">close</span>
-              </button>
-            </div>
-            <p className="text-white font-sans text-lg">{aiResponse}</p>
-          </motion.div>
-        )}
       </AnimatePresence>
 
       {/* Sticky Footer - Transmit */}

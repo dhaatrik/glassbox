@@ -334,9 +334,9 @@ export function Metrics({
             whileHover={{ scale: 1.02, x: 4 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onFilterClick({ dept: "[HR]" })}
-            className="group relative glass-panel bento-card border-critical/50 hover:bg-critical/5 transition-all duration-300 cursor-pointer mt-8 p-0"
+            className="group relative glass-panel bento-card border-critical/50 hover:bg-critical/5 transition-all duration-300 cursor-pointer mt-8 p-0 !overflow-visible"
           >
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-surface-dim px-3 py-1 rounded-full border border-critical text-[10px] text-critical font-sans font-bold uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(255,68,68,0.3)]">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-surface-dim px-3 py-1 rounded-full border border-critical text-[10px] text-critical font-sans font-bold uppercase tracking-widest flex items-center gap-1 shadow-[0_0_10px_rgba(255,68,68,0.3)] z-10">
               <span className="material-symbols-outlined text-xs">warning</span>
               Bottleneck Detected
             </div>
@@ -644,9 +644,6 @@ export function Metrics({
                           "bg-yellow-500/10 text-yellow-500 border border-yellow-500/30"
                         }`}>
                           {fb.sentiment}
-                        </span>
-                        <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-text-muted border border-border-dim bg-surface-dim/50 px-2 py-1 rounded-full">
-                          {fb.classification}
                         </span>
                       </div>
                       <span className="text-xs font-mono text-text-muted">
