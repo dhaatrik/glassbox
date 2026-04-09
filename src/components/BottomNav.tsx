@@ -1,26 +1,26 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 
-interface BottomNavProps {
-  currentView: string;
-  onChangeView: (view: string) => void;
-}
+export function BottomNav() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname.substring(1) || "login";
 
-export function BottomNav({ currentView, onChangeView }: BottomNavProps) {
-  if (currentView === "login") return null;
+  if (currentPath === "login") return null;
 
   return (
     <nav className="flex-none z-50 sticky bottom-0 border-t border-border-dim bg-background-dark/80 backdrop-blur-xl">
       <div className="flex gap-2 px-4 pb-6 pt-3 md:pb-3 max-w-2xl mx-auto w-full">
         <button
-          onClick={() => onChangeView("dashboard")}
+          onClick={() => navigate("/dashboard")}
           className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
-            currentView === "dashboard"
+            currentPath === "dashboard"
               ? "text-primary"
               : "text-text-muted hover:text-primary"
           }`}
         >
-          {currentView === "dashboard" && (
+          {currentPath === "dashboard" && (
             <motion.div
               layoutId="nav-indicator"
               className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
@@ -35,14 +35,14 @@ export function BottomNav({ currentView, onChangeView }: BottomNavProps) {
         </button>
 
         <button
-          onClick={() => onChangeView("grid")}
+          onClick={() => navigate("/grid")}
           className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
-            currentView === "grid"
+            currentPath === "grid"
               ? "text-primary"
               : "text-text-muted hover:text-primary"
           }`}
         >
-          {currentView === "grid" && (
+          {currentPath === "grid" && (
             <motion.div
               layoutId="nav-indicator"
               className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
@@ -57,21 +57,21 @@ export function BottomNav({ currentView, onChangeView }: BottomNavProps) {
         </button>
 
         <button
-          onClick={() => onChangeView("submit")}
+          onClick={() => navigate("/submit")}
           className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
-            currentView === "submit"
+            currentPath === "submit"
               ? "text-primary"
               : "text-text-muted hover:text-primary"
           }`}
         >
-          {currentView === "submit" && (
+          {currentPath === "submit" && (
             <motion.div
               layoutId="nav-indicator"
               className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
             />
           )}
           <div
-            className={`h-10 w-10 flex items-center justify-center rounded-full bg-black border ${currentView === "submit" ? "border-primary shadow-[0_0_10px_rgba(0,240,255,0.3)]" : "border-border-dim"} text-primary -mt-6 transition-all`}
+            className={`h-10 w-10 flex items-center justify-center rounded-full bg-black border ${currentPath === "submit" ? "border-primary shadow-[0_0_10px_rgba(0,240,255,0.3)]" : "border-border-dim"} text-primary -mt-6 transition-all`}
           >
             <span className="material-symbols-outlined text-2xl">add</span>
           </div>
@@ -81,14 +81,14 @@ export function BottomNav({ currentView, onChangeView }: BottomNavProps) {
         </button>
 
         <button
-          onClick={() => onChangeView("metrics")}
+          onClick={() => navigate("/metrics")}
           className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
-            currentView === "metrics"
+            currentPath === "metrics"
               ? "text-primary"
               : "text-text-muted hover:text-primary"
           }`}
         >
-          {currentView === "metrics" && (
+          {currentPath === "metrics" && (
             <motion.div
               layoutId="nav-indicator"
               className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
@@ -102,14 +102,14 @@ export function BottomNav({ currentView, onChangeView }: BottomNavProps) {
           </p>
         </button>
         <button
-          onClick={() => onChangeView("settings")}
+          onClick={() => navigate("/settings")}
           className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
-            currentView === "settings"
+            currentPath === "settings"
               ? "text-primary"
               : "text-text-muted hover:text-primary"
           }`}
         >
-          {currentView === "settings" && (
+          {currentPath === "settings" && (
             <motion.div
               layoutId="nav-indicator"
               className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"

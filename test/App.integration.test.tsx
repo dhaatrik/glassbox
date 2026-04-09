@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import App from '../src/App';
 import * as geminiService from '../src/services/geminiService';
 
@@ -34,7 +35,11 @@ describe('App Integration - Full User Journey', () => {
 
   it('should complete the full user journey: login -> submit -> dashboard', async () => {
     // 1. Render <App /> and use userEvent.click() on the Login button.
-    render(<App />);
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <App />
+      </MemoryRouter>
+    );
     
     const loginButton = screen.getByText(/Continue with SSO/i);
     await userEvent.click(loginButton);

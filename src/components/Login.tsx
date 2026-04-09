@@ -1,11 +1,22 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin?: () => void;
 }
 
 export function Login({ onLogin }: LoginProps) {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    if (onLogin) {
+      onLogin();
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 20 }}
@@ -54,7 +65,7 @@ export function Login({ onLogin }: LoginProps) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={onLogin}
+              onClick={handleLogin}
               className="w-full relative overflow-hidden bg-white text-black font-bold rounded-2xl py-4 px-6 focus:outline-none shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-shadow"
             >
               <div className="relative flex items-center justify-center gap-2">

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { generateInsightsReport } from "../services/geminiService";
 
 export function Metrics({ 
-  onChangeView, 
   onFilterClick 
 }: { 
-  onChangeView: (view: string) => void;
   onFilterClick: (filter: { dept?: string; status?: string }) => void;
 }) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("RANK"); // 'RANK' | 'TRENDS'
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -107,7 +107,7 @@ export function Metrics({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col flex-1 h-full overflow-hidden"
+      className="flex flex-col flex-1 min-h-0 overflow-hidden"
     >
       <header className="flex-none border-b border-border-dim bg-surface-dim/80 backdrop-blur-2xl z-40">
         <div className="flex flex-col gap-2 p-4 pb-2">

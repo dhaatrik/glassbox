@@ -184,7 +184,7 @@ export function Submit() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className={`flex flex-col flex-1 relative ${severity === 'CRITICAL' ? 'animate-shake' : ''}`}
+      className={`flex flex-col flex-1 relative min-h-0 overflow-hidden ${severity === 'CRITICAL' ? 'animate-shake' : ''}`}
     >
       {flashing && (
         <div className="fixed inset-0 bg-white z-[100] transition-opacity duration-500 opacity-0 animate-[flash_0.5s_ease-out]"></div>
@@ -238,13 +238,14 @@ export function Submit() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col p-5 gap-6 pb-8 max-w-3xl mx-auto w-full">
-        {/* Section 0: HRIS Identity */}
-        <motion.section 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
-        >
+      <main className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex flex-col p-5 gap-6 pb-8 max-w-3xl mx-auto w-full">
+          {/* Section 0: HRIS Identity */}
+          <motion.section 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
+          >
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
               00 // HRIS Identity
@@ -414,7 +415,7 @@ export function Submit() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex flex-col gap-3 flex-1 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
+          className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
@@ -438,11 +439,11 @@ export function Submit() {
               </div>
             </div>
           </div>
-          <div className="relative flex-1 min-h-[200px] group mt-2">
+          <div className="relative group mt-2">
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full h-full bg-surface-dim/30 border border-border-dim focus:border-primary focus:ring-1 focus:ring-primary/50 text-white font-sans text-base p-4 resize-none rounded-xl placeholder-text-muted/50 selection:bg-primary/30 selection:text-white outline-none transition-all"
+              className="w-full h-[200px] bg-surface-dim/30 border border-border-dim focus:border-primary focus:ring-1 focus:ring-primary/50 text-white font-sans text-base p-4 resize-none rounded-xl placeholder-text-muted/50 selection:bg-primary/30 selection:text-white outline-none transition-all"
               placeholder="Spill the tea here... What's working? What's broken?"
             ></textarea>
           </div>
@@ -510,6 +511,7 @@ export function Submit() {
             ))}
           </div>
         </motion.section>
+        </div>
       </main>
 
       <AnimatePresence>

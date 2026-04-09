@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { Dashboard } from '../src/components/Dashboard';
 
 describe('Dashboard Component', () => {
@@ -10,7 +11,11 @@ describe('Dashboard Component', () => {
   });
 
   it('should fall back to hardcoded initial state when localStorage is empty', () => {
-    render(<Dashboard onChangeView={vi.fn()} onFilterClick={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <Dashboard onFilterClick={vi.fn()} />
+      </MemoryRouter>
+    );
     
     // Initial state: 5 open, 1 resolved, 2 stalled, 84 velocity
     expect(screen.getByText('05')).toBeInTheDocument(); // Open
@@ -33,7 +38,11 @@ describe('Dashboard Component', () => {
     
     localStorage.setItem('glassbox_tickets', JSON.stringify(mockTickets));
     
-    render(<Dashboard onChangeView={vi.fn()} onFilterClick={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <Dashboard onFilterClick={vi.fn()} />
+      </MemoryRouter>
+    );
     
     // Open = QUEUED (1) + PROCESSING (1) = 2
     expect(screen.getAllByText('02')[0]).toBeInTheDocument();
@@ -51,7 +60,11 @@ describe('Dashboard Component', () => {
 
   it('should trigger onFilterClick with correct status when metric cards are clicked', () => {
     const onFilterClickMock = vi.fn();
-    render(<Dashboard onChangeView={vi.fn()} onFilterClick={onFilterClickMock} />);
+    render(
+      <MemoryRouter>
+        <Dashboard onFilterClick={onFilterClickMock} />
+      </MemoryRouter>
+    );
     
     // Find the buttons by their text content
     const openCard = screen.getByText(/Open Tickets/i).closest('button');

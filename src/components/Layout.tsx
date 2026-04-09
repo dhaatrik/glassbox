@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 
 interface LayoutProps {
   children: React.ReactNode;
-  currentView: string;
-  onChangeView: (view: string) => void;
 }
 
-export function Layout({ children, currentView, onChangeView }: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname.substring(1) || "login";
+  
   const [time, setTime] = useState("");
   const [aura, setAura] = useState("theme-cyan");
   const [status, setStatus] = useState("🎧 Deep Work");
@@ -26,7 +29,7 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
       if (p.avatar) setProfileAvatar(p.avatar);
       if (p.statuses) setStatuses(p.statuses);
     }
-  }, [currentView]); // Re-run when view changes (e.g. back from settings)
+  }, [currentPath]); // Re-run when view changes (e.g. back from settings)
 
   useEffect(() => {
     document.body.className = aura;
@@ -61,7 +64,7 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
       ></div>
 
       {/* Desktop Sidebar (hidden on mobile) */}
-      {currentView !== "login" && (
+      {currentPath !== "login" && (
         <div className="hidden md:flex flex-col w-72 glass-panel border-y-0 border-l-0 z-40 p-6 relative">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_15px_var(--theme-primary-dim)]">
@@ -82,14 +85,14 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
             ].map((item) => (
               <button
                 key={item.id}
-                onClick={() => onChangeView(item.id)}
+                onClick={() => navigate(`/${item.id}`)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative group overflow-hidden ${
-                  currentView === item.id
+                  currentPath === item.id
                     ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
                     : "text-text-muted hover:text-white hover:bg-white/5"
                 }`}
               >
-                <span className={`material-symbols-outlined text-[20px] z-10 ${currentView === item.id ? 'text-primary' : ''}`}>
+                <span className={`material-symbols-outlined text-[20px] z-10 ${currentPath === item.id ? 'text-primary' : ''}`}>
                   {item.icon}
                 </span>
                 <span className="text-sm font-semibold tracking-wide z-10">
@@ -163,7 +166,7 @@ export function Layout({ children, currentView, onChangeView }: LayoutProps) {
 
         {/* Mobile Bottom Nav (hidden on desktop) */}
         <div className="md:hidden z-50 glass-panel border-x-0 border-b-0">
-          <BottomNav currentView={currentView} onChangeView={onChangeView} />
+          <BottomNav />
         </div>
       </div>
     </div>
