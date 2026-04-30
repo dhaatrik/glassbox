@@ -7,6 +7,10 @@ import { fetchEmployees, Employee } from "../services/hrisService";
 export function Submit() {
   const [severity, setSeverity] = useState("MED");
   const [dept, setDept] = useState("ROUTE_TO: [ ENGINEERING ]");
+  const [category, setCategory] = useState("Culture");
+  const [pulseWorkload, setPulseWorkload] = useState(3);
+  const [pulseClarity, setPulseClarity] = useState(3);
+  const [pulseMorale, setPulseMorale] = useState(3);
   const [text, setText] = useState("");
   const [flashing, setFlashing] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(true);
@@ -84,7 +88,6 @@ export function Submit() {
       };
 
       mediaRecorder.start();
-      // Stop after 10 seconds for demo purposes
       setTimeout(() => mediaRecorder.stop(), 10000);
     } catch (err) {
       console.error("Error capturing screen:", err);
@@ -99,7 +102,6 @@ export function Submit() {
     setTransmitStatus("ENCRYPTING_PAYLOAD...");
 
     try {
-      // Simulate progress while analyzing sentiment
       const progressInterval = setInterval(() => {
         setProgress((p) => {
           if (p >= 90) return 90;
@@ -129,35 +131,51 @@ export function Submit() {
           colors: ['#00f0ff', '#ff2a6d', '#05ff00']
         });
 
-        // Save to localStorage
+        // Save to pulse_feedback
         const existingFeedback = JSON.parse(localStorage.getItem("pulse_feedback") || "[]");
         const newFeedback = {
           id: Date.now().toString(),
           severity,
           dept,
+          category,
           text,
           sentiment,
           isAnonymous,
           timestamp: Date.now(),
+          pulseMetrics: {
+            workload: pulseWorkload,
+            clarity: pulseClarity,
+            morale: pulseMorale
+          }
         };
         localStorage.setItem("pulse_feedback", JSON.stringify([...existingFeedback, newFeedback]));
 
-        // Also create a ticket in glassbox_tickets for the Dashboard/Grid
+        // Save to glassbox_tickets
         const existingTickets = JSON.parse(localStorage.getItem("glassbox_tickets") || "[]");
         const selectedEmployee = employees.find(e => e.id === selectedEmployeeId);
-        const authorName = isAnonymous ? "Anonymous" : (selectedEmployee?.name || "Current User");
+        
+        // Strict anonymity handling
+        let authorName = "Anonymous";
+        let linkedEmployeeId = null;
+        if (!isAnonymous) {
+          authorName = selectedEmployee?.name || "Current User";
+          linkedEmployeeId = selectedEmployee?.id;
+        }
 
         const newTicket = {
           id: `#TKT-${Math.floor(Math.random() * 10000)}`,
           dept: `[${dept.replace("ROUTE_TO: [ ", "").replace(" ]", "")}]`,
+          category,
           title: text.length > 60 ? text.substring(0, 60) + "..." : text,
           status: "QUEUED",
           time: "JUST NOW",
           description: text,
           dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           lastUpdatedBy: authorName,
+          authorId: linkedEmployeeId, // Excluded if anonymous
           isFavorite: false,
-          attachments: attachments.length > 0 ? attachments : undefined
+          attachments: attachments.length > 0 ? attachments : undefined,
+          dependencies: []
         };
         localStorage.setItem("glassbox_tickets", JSON.stringify([newTicket, ...existingTickets]));
 
@@ -167,6 +185,9 @@ export function Submit() {
           setText("");
           setAttachments([]);
           setProgress(0);
+          setPulseWorkload(3);
+          setPulseClarity(3);
+          setPulseMorale(3);
         }, 800);
       }
     } catch (err) {
@@ -323,7 +344,7 @@ export function Submit() {
           </p>
         </motion.section>
 
-        {/* Section 2: Routing */}
+        {/* Section 2: Routing & Category */}
         <motion.section 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -331,35 +352,128 @@ export function Submit() {
           className="flex flex-col gap-3 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
         >
           <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
-            02 // Target Dept
+            02 // Routing & Categorization
           </h3>
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-primary text-lg">
-                router
-              </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span className="material-symbols-outlined text-primary text-lg">
+                  router
+                </span>
+              </div>
+              <select
+                value={dept}
+                onChange={(e) => setDept(e.target.value)}
+                className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider [color-scheme:dark]"
+              >
+                <option className="bg-background-dark text-white">ROUTE_TO: [ ENGINEERING ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ MARKETING ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ HUMAN RESOURCES ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ EXECUTIVE ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ DESIGN ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ FACILITIES ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ FINANCE ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ OPERATIONS ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ SALES ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ PRODUCT ]</option>
+                <option className="bg-background-dark text-white">ROUTE_TO: [ LEGAL ]</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <span className="material-symbols-outlined text-text-muted text-lg">
+                  unfold_more
+                </span>
+              </div>
             </div>
-            <select
-              value={dept}
-              onChange={(e) => setDept(e.target.value)}
-              className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider [color-scheme:dark]"
-            >
-              <option className="bg-background-dark text-white">ROUTE_TO: [ ENGINEERING ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ MARKETING ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ HUMAN RESOURCES ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ EXECUTIVE ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ DESIGN ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ FACILITIES ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ FINANCE ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ OPERATIONS ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ SALES ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ PRODUCT ]</option>
-              <option className="bg-background-dark text-white">ROUTE_TO: [ LEGAL ]</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-text-muted text-lg">
-                unfold_more
-              </span>
+
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span className="material-symbols-outlined text-primary text-lg">
+                  category
+                </span>
+              </div>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider [color-scheme:dark]"
+              >
+                <option className="bg-background-dark text-white" value="Culture">TAG: [ Culture ]</option>
+                <option className="bg-background-dark text-white" value="Workload">TAG: [ Workload ]</option>
+                <option className="bg-background-dark text-white" value="Management">TAG: [ Management ]</option>
+                <option className="bg-background-dark text-white" value="Tools">TAG: [ Tools ]</option>
+                <option className="bg-background-dark text-white" value="Other">TAG: [ Other ]</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <span className="material-symbols-outlined text-text-muted text-lg">
+                  unfold_more
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Section 2.5: Pulse Check */}
+        <motion.section 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.25 }}
+          className="flex flex-col gap-5 glass-panel bento-card p-5 hover:border-primary/40 transition-colors"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
+              Pulse Check // High-Level Metrics
+            </h3>
+            <span className="text-[10px] font-sans font-bold text-stable bg-stable/10 px-2 py-1 rounded-full text-primary border border-primary/20 bg-primary/10">
+              OPTIONAL
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-text-muted font-bold tracking-wider">Workload Level</label>
+              <input 
+                type="range" 
+                min="1" max="5" 
+                value={pulseWorkload} 
+                onChange={(e) => setPulseWorkload(Number(e.target.value))}
+                className="w-full accent-primary h-1 bg-surface-dim rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-text-muted font-mono">
+                <span>Light</span>
+                <span className="text-white bg-surface px-2 py-0.5 rounded">{pulseWorkload}/5</span>
+                <span>Overload</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-text-muted font-bold tracking-wider">Role Clarity</label>
+              <input 
+                type="range" 
+                min="1" max="5" 
+                value={pulseClarity} 
+                onChange={(e) => setPulseClarity(Number(e.target.value))}
+                className="w-full accent-primary h-1 bg-surface-dim rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-text-muted font-mono">
+                <span>Confused</span>
+                <span className="text-white bg-surface px-2 py-0.5 rounded">{pulseClarity}/5</span>
+                <span>Crystal Clear</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-text-muted font-bold tracking-wider">Team Morale</label>
+              <input 
+                type="range" 
+                min="1" max="5" 
+                value={pulseMorale} 
+                onChange={(e) => setPulseMorale(Number(e.target.value))}
+                className="w-full accent-primary h-1 bg-surface-dim rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-text-muted font-mono">
+                <span>Low</span>
+                <span className="text-white bg-surface px-2 py-0.5 rounded">{pulseMorale}/5</span>
+                <span>High</span>
+              </div>
             </div>
           </div>
         </motion.section>

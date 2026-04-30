@@ -10,6 +10,7 @@ import {
 type Ticket = {
   id: string;
   dept: string;
+  category?: string;
   title: string;
   status: string;
   time: string;
@@ -20,12 +21,14 @@ type Ticket = {
   attachments?: { name: string; type: string }[];
   history?: { date: string; action: string; user: string }[];
   reactions?: Record<string, number>;
+  dependencies?: string[];
 };
 
 const initialTickets: Ticket[] = [
   {
     id: "#TKT-9942",
     dept: "[MKT]",
+    category: "Culture",
     title: "Campaign budget approval stuck in finance review for Q4 launch.",
     status: "QUEUED",
     time: "T+02 DAYS",
@@ -34,10 +37,12 @@ const initialTickets: Ticket[] = [
     dueDate: "2026-04-10",
     lastUpdatedBy: "J. Belfort",
     isFavorite: false,
+    dependencies: [],
   },
   {
     id: "#TKT-9945",
     dept: "[ENG]",
+    category: "Tools",
     title: "CI/CD pipeline latency increasing during peak hours.",
     status: "QUEUED",
     time: "T+05 DAYS",
@@ -46,6 +51,7 @@ const initialTickets: Ticket[] = [
     dueDate: "2026-04-08",
     lastUpdatedBy: "A. Lovelace",
     isFavorite: true,
+    dependencies: ["#TKT-9820"],
   },
   {
     id: "#TKT-9981",
@@ -121,18 +127,17 @@ export function Grid({
   initialFilter,
   onClearFilter,
 }: {
-  initialFilter?: { dept?: string; status?: string } | null;
+  initialFilter?: { dept?: string; status?: string; category?: string } | null;
   onClearFilter?: () => void;
 }) {
-  const [tickets, setTickets] = useState<Ticket[]>(() => {
-    const stored = localStorage.getItem("glassbox_tickets");
-    return stored ? JSON.parse(stored) : initialTickets;
-  });
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [originalTicket, setOriginalTicket] = useState<Ticket | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDept, setFilterDept] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
   const [filterFavorite, setFilterFavorite] = useState(false);
   const [sortBy, setSortBy] = useState<"time" | "title" | "dept">("time");
   const [showFilters, setShowFilters] = useState(false);
@@ -140,15 +145,32 @@ export function Grid({
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("glassbox_tickets", JSON.stringify(tickets));
-  }, [tickets]);
+    const fetchTickets = () => {
+      const stored = localStorage.getItem("glassbox_tickets");
+      if (stored) {
+        setTickets(JSON.parse(stored));
+      } else {
+        setTickets(initialTickets);
+      }
+      setIsLoading(false);
+    };
+    
+    // Simulate slight network delay for the skeleton loading effect
+    setTimeout(fetchTickets, 600);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem("glassbox_tickets", JSON.stringify(tickets));
+    }
+  }, [tickets, isLoading]);
 
   useEffect(() => {
     if (initialFilter) {
       if (initialFilter.dept) setFilterDept(initialFilter.dept);
       if (initialFilter.status) setFilterStatus(initialFilter.status);
+      if (initialFilter.category) setFilterCategory(initialFilter.category);
       setShowFilters(true);
-      // Clear the filter from parent after applying
       if (onClearFilter) onClearFilter();
     }
   }, [initialFilter, onClearFilter]);
@@ -162,7 +184,22 @@ export function Grid({
       const ticketIndex = newTickets.findIndex(
         (t) => t.id === result.draggableId,
       );
+
       if (ticketIndex > -1) {
+        const movedTicket = newTickets[ticketIndex];
+
+        // Ensure dependencies are met if moving to RESOLVED
+        if (destination.droppableId === "RESOLVED" && movedTicket.dependencies && movedTicket.dependencies.length > 0) {
+          const unresolvedDeps = movedTicket.dependencies.filter(depId => {
+            const depTicket = tickets.find(t => t.id === depId);
+            return depTicket && depTicket.status !== "RESOLVED";
+          });
+          if (unresolvedDeps.length > 0) {
+            alert(`Cannot resolve ticket. Waiting on dependencies: ${unresolvedDeps.join(", ")}`);
+            return;
+          }
+        }
+
         newTickets[ticketIndex].status = destination.droppableId;
         setTickets(newTickets);
       }
@@ -251,19 +288,19 @@ export function Grid({
         t.id.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesDept = filterDept ? t.dept === filterDept : true;
       const matchesStatus = filterStatus ? t.status === filterStatus : true;
+      const matchesCategory = filterCategory ? t.category === filterCategory : true;
       const matchesFavorite = filterFavorite ? t.isFavorite : true;
-      return matchesSearch && matchesDept && matchesStatus && matchesFavorite;
+      return matchesSearch && matchesDept && matchesStatus && matchesCategory && matchesFavorite;
     });
 
     result.sort((a, b) => {
       if (sortBy === "title") return a.title.localeCompare(b.title);
       if (sortBy === "dept") return a.dept.localeCompare(b.dept);
-      // Default to time
       return a.time.localeCompare(b.time);
     });
 
     return result;
-  }, [tickets, searchQuery, filterDept, filterStatus, filterFavorite, sortBy]);
+  }, [tickets, searchQuery, filterDept, filterStatus, filterCategory, filterFavorite, sortBy]);
 
   const getTicketsByStatus = (status: string) =>
     filteredTickets.filter((t) => t.status === status);
@@ -335,12 +372,12 @@ export function Grid({
         </div>
 
         <AnimatePresence>
-          {showFilters && (
+          {showFilters && !isLoading && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="flex gap-4 mt-3 pt-3 border-t border-border-dim overflow-visible"
+              className="flex flex-wrap gap-4 mt-3 pt-3 border-t border-border-dim overflow-visible"
             >
               <div className="relative group z-50">
                 <button className="bg-background-dark/80 backdrop-blur-md border border-white/20 text-white text-xs px-4 py-2 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors shadow-lg">
@@ -361,6 +398,30 @@ export function Grid({
                       className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${filterDept === dept ? 'text-primary bg-primary/10' : 'text-white'}`}
                     >
                       {dept}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative group z-50">
+                <button className="bg-background-dark/80 backdrop-blur-md border border-white/20 text-white text-xs px-4 py-2 rounded-full outline-none flex items-center gap-2 hover:border-primary transition-colors shadow-lg">
+                  {filterCategory || "All Categories"}
+                  <span className="material-symbols-outlined text-[14px]">expand_more</span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 w-48 bg-background-dark border border-white/20 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden backdrop-blur-2xl z-50">
+                  <button 
+                    onClick={() => setFilterCategory("")}
+                    className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${!filterCategory ? 'text-primary bg-primary/10' : 'text-white'}`}
+                  >
+                    All Categories
+                  </button>
+                  {Array.from(new Set(tickets.filter(t => t.category).map((t) => t.category as string))).map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setFilterCategory(cat)}
+                      className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${filterCategory === cat ? 'text-primary bg-primary/10' : 'text-white'}`}
+                    >
+                      {cat}
                     </button>
                   ))}
                 </div>
@@ -395,253 +456,295 @@ export function Grid({
       </header>
 
       <main className="flex-1 overflow-x-auto overflow-y-hidden z-30 relative scroll-smooth">
-        <DragDropContext onDragEnd={handleDragEnd}>
+        {isLoading ? (
           <div className="flex h-full min-w-full w-max p-4 gap-4 snap-x snap-mandatory">
-            {COLUMNS.map((colId) => {
-              const columnTickets = getTicketsByStatus(colId);
-              return (
-                <div
-                  key={colId}
-                  className={`flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full glass-panel bento-card snap-center ${colId === "STALLED" ? "border-critical/30" : "border-border-dim"}`}
-                >
-                  <div
-                    className={`flex items-center justify-between p-4 border-b bg-surface-dim/30 backdrop-blur-md sticky top-0 z-10 ${colId === "STALLED" ? "border-critical/30" : "border-border-dim"}`}
-                  >
-                    <h2
-                      className={`text-sm font-sans font-bold tracking-widest uppercase flex items-center gap-2 ${colId === "PROCESSING" ? "text-primary" : colId === "STALLED" ? "text-critical" : colId === "RESOLVED" ? "text-stable" : "text-text-muted"}`}
-                    >
-                      {colId === "STALLED" && (
-                        <span className="material-symbols-outlined text-[16px] animate-pulse">
-                          warning
-                        </span>
-                      )}
-                      {colId}
-                    </h2>
-                    <span
-                      className={`font-display text-xl ${colId === "PROCESSING" ? "text-white" : colId === "STALLED" ? "text-critical" : colId === "RESOLVED" ? "text-stable" : "text-primary"}`}
-                    >
-                      {columnTickets.length.toString().padStart(2, "0")}
-                    </span>
+            {COLUMNS.map((colId) => (
+              <div key={`skeleton-${colId}`} className="flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full glass-panel bento-card p-4 gap-4 opacity-50 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+                <div className="h-6 w-32 bg-surface-dim rounded mb-4"></div>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex flex-col p-4 bg-surface-dim/50 rounded-2xl gap-3">
+                    <div className="flex justify-between">
+                      <div className="h-4 w-16 bg-surface-dim rounded"></div>
+                      <div className="h-4 w-12 bg-surface-dim rounded"></div>
+                    </div>
+                    <div className="h-10 w-full bg-surface-dim rounded"></div>
+                    <div className="h-8 w-full bg-surface-dim rounded"></div>
                   </div>
-
-                  {colId === "QUEUED" && (
-                    <button
-                      onClick={handleCreateTicket}
-                      className="m-3 py-2 border border-dashed border-border-dim rounded-xl text-text-muted hover:text-primary hover:border-primary hover:bg-primary/5 text-xs font-sans font-bold transition-all flex items-center justify-center gap-1"
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="flex h-full min-w-full w-max p-4 gap-4 snap-x snap-mandatory">
+              {COLUMNS.map((colId) => {
+                const columnTickets = getTicketsByStatus(colId);
+                return (
+                  <div
+                    key={colId}
+                    className={`flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full glass-panel bento-card snap-center ${colId === "STALLED" ? "border-critical/30" : "border-border-dim"}`}
+                  >
+                    <div
+                      className={`flex items-center justify-between p-4 border-b bg-surface-dim/30 backdrop-blur-md sticky top-0 z-10 ${colId === "STALLED" ? "border-critical/30" : "border-border-dim"}`}
                     >
-                      <span className="material-symbols-outlined text-[16px]">
-                        add
-                      </span>
-                      NEW TICKET
-                    </button>
-                  )}
-
-                  <Droppable droppableId={colId}>
-                    {(provided, snapshot) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[100px] transition-colors rounded-xl ${snapshot.isDraggingOver ? "bg-white/5 border border-dashed border-primary/50" : ""}`}
+                      <h2
+                        className={`text-sm font-sans font-bold tracking-widest uppercase flex items-center gap-2 ${colId === "PROCESSING" ? "text-primary" : colId === "STALLED" ? "text-critical" : colId === "RESOLVED" ? "text-stable" : "text-text-muted"}`}
                       >
-                        {columnTickets.map((ticket, index) => (
-                          <Draggable
-                            key={ticket.id}
-                            draggableId={ticket.id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...(provided.draggableProps as any)}
-                                {...(provided.dragHandleProps as any)}
-                                onClick={() => handleSelectTicket(ticket)}
-                                style={{
-                                  ...provided.draggableProps.style,
-                                  transform: snapshot.isDragging
-                                    ? `${provided.draggableProps.style?.transform} scale(1.02)`
-                                    : provided.draggableProps.style?.transform,
-                                }}
-                                className={`group relative flex flex-col p-4 bg-surface-dim/80 backdrop-blur-md border transition-all rounded-2xl cursor-pointer ${
-                                  snapshot.isDragging
-                                    ? "shadow-2xl z-50 border-primary/50"
-                                    : ""
-                                } ${
-                                  ticket.status === "PROCESSING"
-                                    ? "border-primary/30 shadow-[0_0_15px_rgba(0,240,255,0.1)] hover:border-primary/60"
-                                    : ticket.status === "STALLED"
-                                      ? "border-critical/50 hover:border-critical"
-                                      : ticket.status === "RESOLVED"
-                                        ? "border-border-dim/50 opacity-75 hover:opacity-100"
-                                        : "border-border-dim hover:border-primary/40"
-                                }`}
-                              >
-                                {ticket.status === "PROCESSING" && (
-                                  <div className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-bl-lg rounded-tr-xl"></div>
-                                )}
+                        {colId === "STALLED" && (
+                          <span className="material-symbols-outlined text-[16px] animate-pulse">
+                            warning
+                          </span>
+                        )}
+                        {colId}
+                      </h2>
+                      <span
+                        className={`font-display text-xl ${colId === "PROCESSING" ? "text-white" : colId === "STALLED" ? "text-critical" : colId === "RESOLVED" ? "text-stable" : "text-primary"}`}
+                      >
+                        {columnTickets.length.toString().padStart(2, "0")}
+                      </span>
+                    </div>
+
+                    {colId === "QUEUED" && (
+                      <button
+                        onClick={handleCreateTicket}
+                        className="m-3 py-2 border border-dashed border-border-dim rounded-xl text-text-muted hover:text-primary hover:border-primary hover:bg-primary/5 text-xs font-sans font-bold transition-all flex items-center justify-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">
+                          add
+                        </span>
+                        NEW TICKET
+                      </button>
+                    )}
+
+                    <Droppable droppableId={colId}>
+                      {(provided, snapshot) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[100px] transition-colors rounded-xl ${snapshot.isDraggingOver ? "bg-white/5 border border-dashed border-primary/50" : ""}`}
+                        >
+                          {columnTickets.map((ticket, index) => (
+                            <Draggable
+                              key={ticket.id}
+                              draggableId={ticket.id}
+                              index={index}
+                            >
+                              {(provided, snapshot) => (
                                 <div
-                                  className={`flex justify-between items-start mb-3 ${ticket.status === "RESOLVED" ? "opacity-60" : ""}`}
+                                  ref={provided.innerRef}
+                                  {...(provided.draggableProps as any)}
+                                  {...(provided.dragHandleProps as any)}
+                                  onClick={() => handleSelectTicket(ticket)}
+                                  style={{
+                                    ...provided.draggableProps.style,
+                                    transform: snapshot.isDragging
+                                      ? `${provided.draggableProps.style?.transform} scale(1.02)`
+                                      : provided.draggableProps.style?.transform,
+                                  }}
+                                  className={`group relative flex flex-col p-4 bg-surface-dim/80 backdrop-blur-md border transition-all rounded-2xl cursor-pointer ${
+                                    snapshot.isDragging
+                                      ? "shadow-2xl z-50 border-primary/50"
+                                      : ""
+                                  } ${
+                                    ticket.status === "PROCESSING"
+                                      ? "border-primary/30 shadow-[0_0_15px_rgba(0,240,255,0.1)] hover:border-primary/60"
+                                      : ticket.status === "STALLED"
+                                        ? "border-critical/50 hover:border-critical"
+                                        : ticket.status === "RESOLVED"
+                                          ? "border-border-dim/50 opacity-75 hover:opacity-100"
+                                          : "border-border-dim hover:border-primary/40"
+                                  }`}
                                 >
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                                        ticket.status === "PROCESSING"
-                                          ? "text-black bg-primary font-bold"
-                                          : ticket.status === "STALLED"
-                                            ? "text-black bg-critical font-bold"
+                                  {ticket.status === "PROCESSING" && (
+                                    <div className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-bl-lg rounded-tr-xl"></div>
+                                  )}
+                                  <div
+                                    className={`flex justify-between items-start mb-3 ${ticket.status === "RESOLVED" ? "opacity-60" : ""}`}
+                                  >
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span
+                                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                                          ticket.status === "PROCESSING"
+                                            ? "text-black bg-primary font-bold"
+                                            : ticket.status === "STALLED"
+                                              ? "text-black bg-critical font-bold"
+                                              : ticket.status === "RESOLVED"
+                                                ? "text-gray-400 bg-surface"
+                                                : "text-primary bg-primary/10"
+                                        }`}
+                                      >
+                                        {ticket.id}
+                                      </span>
+                                      <span
+                                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-surface border border-border-dim ${
+                                          ticket.status === "PROCESSING"
+                                            ? "text-primary"
+                                            : ticket.status === "STALLED"
+                                              ? "text-critical"
+                                              : ticket.status === "RESOLVED"
+                                                ? "text-gray-500"
+                                                : "text-text-muted"
+                                        }`}
+                                      >
+                                        {ticket.dept}
+                                      </span>
+                                      {ticket.category && (
+                                        <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-surface border border-border-dim text-white/70">
+                                          {ticket.category}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {/* Vibe Check Emoji & Favorite */}
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                      <button
+                                        onClick={(e) => toggleFavorite(e, ticket.id)}
+                                        className={`transition-colors ${ticket.isFavorite ? 'text-yellow-500' : 'text-text-muted hover:text-yellow-500'}`}
+                                      >
+                                        <span className="material-symbols-outlined text-[16px]">
+                                          {ticket.isFavorite ? 'star' : 'star_border'}
+                                        </span>
+                                      </button>
+                                      <span className="text-lg" title="Vibe Check">
+                                        {ticket.status === "STALLED"
+                                          ? "😡"
+                                          : ticket.status === "PROCESSING"
+                                            ? "🏃"
                                             : ticket.status === "RESOLVED"
-                                              ? "text-gray-400 bg-surface"
-                                              : "text-primary bg-primary/10"
-                                      }`}
-                                    >
-                                      {ticket.id}
-                                    </span>
+                                              ? "🥳"
+                                              : "😐"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <p
+                                    className={`text-sm font-sans font-medium leading-snug mb-3 line-clamp-2 ${
+                                      ticket.status === "PROCESSING" ||
+                                      ticket.status === "STALLED"
+                                        ? "text-white"
+                                        : ticket.status === "RESOLVED"
+                                          ? "text-gray-400"
+                                          : "text-gray-200"
+                                    }`}
+                                  >
+                                    {ticket.title}
+                                  </p>
+
+                                  {/* AI TL;DR Summary */}
+                                  {ticket.status !== "RESOLVED" && (
+                                    <div className="mb-3 p-2 bg-surface rounded-lg border border-border-dim/50 flex flex-col gap-1.5">
+                                      <div className="flex items-start gap-2">
+                                        <span className="text-xs">✨</span>
+                                        <p className="text-[10px] font-sans text-text-muted leading-tight line-clamp-2">
+                                          {ticket.status === "STALLED"
+                                            ? "Blocked by external dependency. Needs escalation."
+                                            : ticket.status === "PROCESSING"
+                                              ? "Active investigation. Logs show anomaly in region us-east."
+                                              : "Awaiting initial triage and assignment."}
+                                        </p>
+                                      </div>
+                                      {ticket.dependencies && ticket.dependencies.length > 0 && (
+                                        <div className="pt-2 border-t border-border-dim/30 flex items-center gap-1.5 flex-wrap mt-1">
+                                          <span className="text-[9px] font-sans text-text-muted uppercase font-bold tracking-widest">DEPS:</span>
+                                          {ticket.dependencies.map(dep => {
+                                            const depTicket = tickets.find(t => t.id === dep);
+                                            const isResolved = depTicket?.status === "RESOLVED";
+                                            return (
+                                              <span key={dep} className={`text-[9px] font-mono px-1.5 py-0.5 rounded border ${isResolved ? "border-stable/30 text-stable bg-stable/10" : "border-critical/30 text-critical bg-critical/10"}`}>
+                                                {dep}
+                                              </span>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  <div
+                                    className={`flex items-center justify-between border-t pt-3 mt-auto ${
+                                      ticket.status === "PROCESSING"
+                                        ? "border-primary/20"
+                                        : ticket.status === "STALLED"
+                                          ? "border-critical/20"
+                                          : ticket.status === "RESOLVED"
+                                            ? "border-border-dim/30"
+                                            : "border-border-dim/50"
+                                    }`}
+                                  >
                                     <span
-                                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-surface border border-border-dim ${
+                                      className={`text-[10px] font-sans font-bold flex items-center gap-1.5 ${
                                         ticket.status === "PROCESSING"
                                           ? "text-primary"
                                           : ticket.status === "STALLED"
                                             ? "text-critical"
                                             : ticket.status === "RESOLVED"
-                                              ? "text-gray-500"
+                                              ? "text-stable"
                                               : "text-text-muted"
                                       }`}
                                     >
-                                      {ticket.dept}
+                                      {ticket.status === "STALLED" && (
+                                        <span className="material-symbols-outlined text-[14px]">
+                                          timer
+                                        </span>
+                                      )}
+                                      {ticket.status === "RESOLVED" && (
+                                        <span className="material-symbols-outlined text-[14px]">
+                                          check_circle
+                                        </span>
+                                      )}
+                                      {ticket.status === "QUEUED" && (
+                                        <span className="material-symbols-outlined text-[14px]">
+                                          schedule
+                                        </span>
+                                      )}
+                                      {ticket.time}
                                     </span>
-                                  </div>
-                                  {/* Vibe Check Emoji & Favorite */}
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      onClick={(e) => toggleFavorite(e, ticket.id)}
-                                      className={`transition-colors ${ticket.isFavorite ? 'text-yellow-500' : 'text-text-muted hover:text-yellow-500'}`}
-                                    >
-                                      <span className="material-symbols-outlined text-[16px]">
-                                        {ticket.isFavorite ? 'star' : 'star_border'}
-                                      </span>
-                                    </button>
-                                    <span className="text-lg" title="Vibe Check">
-                                      {ticket.status === "STALLED"
-                                        ? "😡"
-                                        : ticket.status === "PROCESSING"
-                                          ? "🏃"
-                                          : ticket.status === "RESOLVED"
-                                            ? "🥳"
-                                            : "😐"}
-                                    </span>
-                                  </div>
-                                </div>
-                                <p
-                                  className={`text-sm font-sans font-medium leading-snug mb-3 line-clamp-2 ${
-                                    ticket.status === "PROCESSING" ||
-                                    ticket.status === "STALLED"
-                                      ? "text-white"
-                                      : ticket.status === "RESOLVED"
-                                        ? "text-gray-400"
-                                        : "text-gray-200"
-                                  }`}
-                                >
-                                  {ticket.title}
-                                </p>
 
-                                {/* AI TL;DR Summary */}
-                                {ticket.status !== "RESOLVED" && (
-                                  <div className="mb-3 p-2 bg-surface rounded-lg border border-border-dim/50 flex items-start gap-2">
-                                    <span className="text-xs">✨</span>
-                                    <p className="text-[10px] font-sans text-text-muted leading-tight line-clamp-2">
-                                      {ticket.status === "STALLED"
-                                        ? "Blocked by external dependency. Needs escalation."
-                                        : ticket.status === "PROCESSING"
-                                          ? "Active investigation. Logs show anomaly in region us-east."
-                                          : "Awaiting initial triage and assignment."}
-                                    </p>
-                                  </div>
-                                )}
-
-                                <div
-                                  className={`flex items-center justify-between border-t pt-3 mt-auto ${
-                                    ticket.status === "PROCESSING"
-                                      ? "border-primary/20"
-                                      : ticket.status === "STALLED"
-                                        ? "border-critical/20"
-                                        : ticket.status === "RESOLVED"
-                                          ? "border-border-dim/30"
-                                          : "border-border-dim/50"
-                                  }`}
-                                >
-                                  <span
-                                    className={`text-[10px] font-sans font-bold flex items-center gap-1.5 ${
-                                      ticket.status === "PROCESSING"
-                                        ? "text-primary"
-                                        : ticket.status === "STALLED"
-                                          ? "text-critical"
-                                          : ticket.status === "RESOLVED"
-                                            ? "text-stable"
-                                            : "text-text-muted"
-                                    }`}
-                                  >
+                                    {ticket.status === "PROCESSING" && (
+                                      <div className="flex items-center gap-1 text-primary">
+                                        <span className="material-symbols-outlined text-[16px] animate-spin">
+                                          sync
+                                        </span>
+                                      </div>
+                                    )}
                                     {ticket.status === "STALLED" && (
-                                      <span className="material-symbols-outlined text-[14px]">
-                                        timer
-                                      </span>
+                                      <button
+                                        className="flex items-center gap-1 bg-critical/10 hover:bg-critical/20 px-2.5 py-1 rounded-full border border-critical/30 transition-colors"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <span className="material-symbols-outlined text-[14px] text-critical">
+                                          bolt
+                                        </span>
+                                        <span className="text-[10px] font-sans text-critical font-bold tracking-wider">
+                                          BOOST
+                                        </span>
+                                      </button>
                                     )}
-                                    {ticket.status === "RESOLVED" && (
-                                      <span className="material-symbols-outlined text-[14px]">
-                                        check_circle
-                                      </span>
+                                    {(ticket.status === "QUEUED" ||
+                                      ticket.status === "PROCESSING") && (
+                                      <div className="flex items-center gap-1 text-text-muted group-hover:text-primary transition-colors">
+                                        <span className="material-symbols-outlined text-[16px]">
+                                          arrow_upward
+                                        </span>
+                                        <span className="text-[10px] font-sans font-bold tracking-wider">
+                                          NUDGE
+                                        </span>
+                                      </div>
                                     )}
-                                    {ticket.status === "QUEUED" && (
-                                      <span className="material-symbols-outlined text-[14px]">
-                                        schedule
-                                      </span>
-                                    )}
-                                    {ticket.time}
-                                  </span>
-
-                                  {ticket.status === "PROCESSING" && (
-                                    <div className="flex items-center gap-1 text-primary">
-                                      <span className="material-symbols-outlined text-[16px] animate-spin">
-                                        sync
-                                      </span>
-                                    </div>
-                                  )}
-                                  {ticket.status === "STALLED" && (
-                                    <button
-                                      className="flex items-center gap-1 bg-critical/10 hover:bg-critical/20 px-2.5 py-1 rounded-full border border-critical/30 transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <span className="material-symbols-outlined text-[14px] text-critical">
-                                        bolt
-                                      </span>
-                                      <span className="text-[10px] font-sans text-critical font-bold tracking-wider">
-                                        BOOST
-                                      </span>
-                                    </button>
-                                  )}
-                                  {(ticket.status === "QUEUED" ||
-                                    ticket.status === "PROCESSING") && (
-                                    <div className="flex items-center gap-1 text-text-muted group-hover:text-primary transition-colors">
-                                      <span className="material-symbols-outlined text-[16px]">
-                                        arrow_upward
-                                      </span>
-                                      <span className="text-[10px] font-sans font-bold tracking-wider">
-                                        NUDGE
-                                      </span>
-                                    </div>
-                                  )}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              );
-            })}
-          </div>
-        </DragDropContext>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                );
+              })}
+            </div>
+          </DragDropContext>
+        )}
       </main>
 
       {/* Ticket Details Modal */}
@@ -772,7 +875,27 @@ export function Grid({
                       className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
                     />
                   </div>
-                  <span className="flex items-center gap-2 uppercase tracking-wider">
+                  <div className="flex items-center gap-3">
+                    <span className="uppercase tracking-wider">Category:</span>
+                    <select
+                      value={selectedTicket.category || ""}
+                      onChange={(e) =>
+                        setSelectedTicket({
+                          ...selectedTicket,
+                          category: e.target.value,
+                        })
+                      }
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
+                    >
+                      <option value="">None</option>
+                      <option value="Culture">Culture</option>
+                      <option value="Workload">Workload</option>
+                      <option value="Management">Management</option>
+                      <option value="Tools">Tools</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <span className="flex items-center gap-2 uppercase tracking-wider hidden sm:flex">
                     <span className="material-symbols-outlined text-[16px]">
                       person
                     </span>
@@ -800,6 +923,59 @@ export function Grid({
                       className="text-2xl font-bold text-white font-display tracking-wide bg-surface/50 border border-border-dim focus:border-primary outline-none w-full p-3 rounded-xl transition-colors"
                       placeholder="Ticket Title"
                     />
+                  </div>
+
+                  {/* Dependencies Editor */}
+                  <div>
+                    <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-2 block">
+                      Dependencies (Blocked by)
+                    </label>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedTicket.dependencies && selectedTicket.dependencies.length > 0 ? (
+                        selectedTicket.dependencies.map(depId => {
+                          const depTicket = tickets.find(t => t.id === depId);
+                          const isResolved = depTicket?.status === "RESOLVED";
+                          return (
+                            <div key={depId} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-surface ${isResolved ? 'border-stable/30 text-stable' : 'border-critical/30 text-critical'}`}>
+                              <span className="text-xs font-mono font-bold">{depId}</span>
+                              <span className="text-xs truncate max-w-[150px]">{depTicket?.title || "Unknown Ticket"}</span>
+                              <button 
+                                onClick={() => setSelectedTicket({
+                                  ...selectedTicket,
+                                  dependencies: selectedTicket.dependencies?.filter(id => id !== depId)
+                                })}
+                                className="text-text-muted hover:text-white"
+                              >
+                                <span className="material-symbols-outlined text-[14px]">close</span>
+                              </button>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <span className="text-xs text-text-muted italic">No dependencies</span>
+                      )}
+                    </div>
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setSelectedTicket({
+                            ...selectedTicket,
+                            dependencies: [...(selectedTicket.dependencies || []), e.target.value]
+                          });
+                        }
+                      }}
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark] text-xs max-w-sm w-full"
+                    >
+                      <option value="">+ Add Dependency...</option>
+                      {tickets
+                        .filter(t => t.id !== selectedTicket.id && !selectedTicket.dependencies?.includes(t.id))
+                        .map(t => (
+                          <option key={t.id} value={t.id} className="bg-background-dark text-white">
+                            {t.id} - {t.title.substring(0, 30)}... ({t.status})
+                          </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* AI Summary Section in Modal */}

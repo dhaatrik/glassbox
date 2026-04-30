@@ -313,7 +313,7 @@ export function Dashboard({
             {counts.resolved.toString().padStart(2, '0')}
           </span>
           <div className="w-full bg-surface-dim rounded-full h-1.5 mt-auto">
-            <div className="bg-stable w-[30%] h-full rounded-full"></div>
+            <div className="bg-stable h-full rounded-full" style={{ width: `${Math.min((counts.resolved / (counts.open + counts.resolved + counts.stalled || 1)) * 100, 100)}%` }}></div>
           </div>
         </motion.button>
 
@@ -325,15 +325,15 @@ export function Dashboard({
           whileHover={{ scale: 1.01, y: -2, rotateX: 2 }}
           whileTap={{ scale: 0.99 }}
           onClick={() => onFilterClick({ status: "STALLED" })}
-          className="md:col-span-2 lg:col-span-2 bento-card glass-panel p-6 flex flex-row items-center justify-between relative overflow-hidden text-left group hover:border-critical/50 transition-colors"
+          className={`md:col-span-2 lg:col-span-2 bento-card glass-panel p-6 flex flex-row items-center justify-between relative overflow-hidden text-left group transition-colors ${counts.stalled > 0 ? "hover:border-critical/50" : "hover:border-primary/50"}`}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-critical/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className={`absolute inset-0 bg-gradient-to-r ${counts.stalled > 0 ? "from-critical/5" : "from-primary/5"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
           <div className="flex flex-col gap-2 relative z-10">
-            <span className="text-xs font-sans font-bold text-critical uppercase tracking-wider flex items-center gap-1.5">
+            <span className={`text-xs font-sans font-bold uppercase tracking-wider flex items-center gap-1.5 ${counts.stalled > 0 ? "text-critical" : "text-primary"}`}>
               <span className="material-symbols-outlined text-[16px]">
-                error
+                {counts.stalled > 0 ? "error" : "check_circle"}
               </span>
-              Attention Required
+              {counts.stalled > 0 ? "Attention Required" : "All Clear"}
             </span>
             <div className="flex items-baseline gap-3">
               <span className="text-5xl font-display text-white">
@@ -344,8 +344,8 @@ export function Dashboard({
           </div>
           <div className="relative z-10 text-right bg-surface-dim/50 p-4 rounded-2xl border border-border-dim/50 backdrop-blur-md">
             <span className="text-xs text-text-muted block font-sans uppercase tracking-wider mb-1">Avg. Delay</span>
-            <span className="text-xl font-display text-critical">
-              &gt; {counts.avgDelay} days
+            <span className={`text-xl font-display ${counts.stalled > 0 ? "text-critical" : "text-primary"}`}>
+              {counts.stalled > 0 ? `> ${counts.avgDelay} days` : "0 days"}
             </span>
           </div>
         </motion.button>
