@@ -6,6 +6,7 @@ import { Dashboard } from "./components/Dashboard";
 import { Grid } from "./components/Grid";
 import { Submit } from "./components/Submit";
 import { Metrics } from "./components/Metrics";
+import { Insights } from "./components/Insights";
 import { Settings } from "./components/Settings";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { OnboardingTour } from "./components/OnboardingTour";
@@ -115,6 +116,21 @@ export default function App() {
                   <Metrics
                     onFilterClick={handleFilterClick}
                   />
+                </motion.div>
+              } 
+            />
+            <Route 
+              path="/insights" 
+              element={
+                <motion.div
+                  key="insights"
+                  className="flex-1 flex flex-col min-h-0 overflow-hidden"
+                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                >
+                  <Insights />
                 </motion.div>
               } 
             />

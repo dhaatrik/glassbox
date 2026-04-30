@@ -81,6 +81,7 @@ export function Layout({ children }: LayoutProps) {
               { id: "grid", icon: "view_kanban", label: "The Grid" },
               { id: "submit", icon: "add_circle", label: "New Signal" },
               { id: "metrics", icon: "monitoring", label: "Metrics" },
+              { id: "insights", icon: "psychology", label: "Insights" },
               { id: "settings", icon: "settings", label: "Settings" },
             ].map((item) => (
               <button
