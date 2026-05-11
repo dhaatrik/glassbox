@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 interface LoginProps {
   onLogin?: () => void;
@@ -8,81 +8,302 @@ interface LoginProps {
 
 export function Login({ onLogin }: LoginProps) {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [bootLogs, setBootLogs] = useState<string[]>([]);
+  const [accessGranted, setAccessGranted] = useState(false);
 
-  const handleLogin = () => {
-    if (onLogin) {
-      onLogin();
-    } else {
-      navigate("/dashboard");
-    }
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const TypewriterText = ({ text, delay = 0, speed = 50 }: { text: string, delay?: number, speed?: number }) => {
+    const [displayedText, setDisplayedText] = useState("");
+    
+    useEffect(() => {
+      let i = 0;
+      let timer: NodeJS.Timeout;
+      
+      const startTyping = () => {
+        timer = setInterval(() => {
+          if (i < text.length) {
+            setDisplayedText(prev => prev + text.charAt(i));
+            i++;
+          } else {
+            clearInterval(timer);
+          }
+        }, speed);
+      };
+      
+      const delayTimer = setTimeout(startTyping, delay);
+      return () => {
+        clearTimeout(delayTimer);
+        clearInterval(timer);
+      };
+    }, [text, delay, speed]);
+    
+    return <span>{displayedText}<span className="animate-pulse ml-0.5 inline-block w-1 h-3 bg-primary"></span></span>;
+  };
+
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!email && !password) return;
+
+    setIsAuthenticating(true);
+    
+    const logs = [
+      "INITIALIZING SECURE HANDSHAKE...",
+      "VERIFYING NEURO-SIGNATURE...",
+      "DECRYPTING AES-256 PAYLOAD...",
+      "BYPASSING FIREWALL PROTOCALS...",
+      "SYNCING IDENTITY MATRIX...",
+    ];
+
+    logs.forEach((log, index) => {
+      setTimeout(() => {
+        setBootLogs(prev => [...prev, `[SYS_${index + 1}] ${log}`]);
+      }, 500 + (index * 400));
+    });
+
+    setTimeout(() => {
+      setBootLogs(prev => [...prev, `[SYS_OK] ACCESS GRANTED.`]);
+      setAccessGranted(true);
+    }, 500 + (logs.length * 400) + 300);
+    
+    setTimeout(() => {
+      if (onLogin) {
+        onLogin();
+      } else {
+        navigate("/dashboard");
+      }
+    }, 500 + (logs.length * 400) + 1500);
   };
 
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="relative z-40 w-full h-full flex flex-col items-center justify-center p-6 space-y-12 min-h-screen"
-    >
-      {/* Header / Logo Section */}
-      <div className="text-center w-full max-w-md">
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1, type: "spring" }}
-          className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_30px_var(--theme-primary-dim)]"
-        >
-          <span className="material-symbols-outlined text-white text-3xl">grid_view</span>
-        </motion.div>
-        <h1 className="text-white text-6xl font-display italic tracking-tight mb-3 drop-shadow-lg">
-          Glassbox
-        </h1>
-        <p className="font-sans text-text-muted text-sm tracking-wide">
-          The modern workspace operating system.
-        </p>
-      </div>
-
-      {/* Central Authentication Block */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, type: "spring" }}
-        className="w-full max-w-sm glass-panel p-8 rounded-3xl relative overflow-hidden group"
+    <div className="relative min-h-screen bg-black w-full flex text-white font-mono overflow-hidden">
+      {/* Dynamic Background Parallax & Grid */}
+      <div 
+        className="absolute inset-0 z-0 pointer-events-none opacity-30 transition-transform duration-1000 ease-out"
+        style={{ transform: `translate(${(mousePos.x - window.innerWidth/2) * -0.02}px, ${(mousePos.y - window.innerHeight/2) * -0.02}px)` }}
       >
-        <div className="flex flex-col items-center gap-8">
-          <div className="text-center space-y-1">
-            <h2 className="text-white font-sans text-xl font-bold">
-              Welcome back
-            </h2>
-            <p className="text-text-muted text-sm">
-              Sign in to access your grid
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_10%,transparent_100%)] opacity-20"></div>
+      </div>
+      
+      {/* Decorative Orbs */}
+      <div className="absolute top-[20%] right-[10%] w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[20%] left-[10%] w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      {/* Split Layout Container */}
+      <div className="relative z-10 w-full h-screen flex flex-col lg:flex-row">
+        
+        {/* Left visually rich side, hidden on smaller screens */}
+        <div className="hidden lg:flex flex-1 flex-col justify-between p-12 border-r border-border-dim/50 bg-surface/30 backdrop-blur-sm relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+          
+          <div className="relative z-10">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
+              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_30px_var(--color-primary)] mb-8"
+            >
+              <span className="material-symbols-outlined text-black text-3xl">grid_view</span>
+            </motion.div>
+            
+            <h1 className="text-white text-7xl font-display italic tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              Glassbox
+            </h1>
+            <p className="font-sans text-text-muted text-lg tracking-wide max-w-md">
+              The modern workspace operating system. <br/>
+              <span className="text-primary/70 text-sm font-mono mt-2 block">&gt; Establishing dedicated neural link to sector...</span>
             </p>
           </div>
 
-          {/* Handshake Button */}
-          <div className="w-full">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleLogin}
-              className="w-full relative overflow-hidden bg-white text-black font-bold rounded-2xl py-4 px-6 focus:outline-none shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-shadow"
-            >
-              <div className="relative flex items-center justify-center gap-2">
-                <span className="text-sm tracking-wide">Continue with SSO</span>
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              </div>
-            </motion.button>
+          <div className="relative z-10 flex flex-col gap-4 text-xs text-text-muted opacity-60">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">lock</span>
+              AES-256 Quantum Encryption Active
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">public</span>
+              Global Uplink Status: OPTIMAL
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">fingerprint</span>
+              Biometric Framework Loaded
+            </div>
+            <div className="mt-4 pt-4 border-t border-border-dim/50 max-w-sm">
+              <p>Glassbox OS v4.2.1 // Build 8892</p>
+              <p>Unauthorized access is strictly prohibited and monitored.</p>
+            </div>
           </div>
         </div>
-      </motion.div>
 
-      {/* Footer / Legal */}
-      <div className="w-full text-center space-y-2 opacity-60">
-        <p className="font-sans text-xs text-text-muted">
-          By continuing, you agree to our Terms of Service.
-        </p>
+        {/* Right Authentication Side */}
+        <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
+          
+          {/* Mobile Header (Only visible on small screens) */}
+          <div className="lg:hidden text-center mb-10">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_20px_var(--color-primary)] mb-4"
+            >
+              <span className="material-symbols-outlined text-black text-2xl">grid_view</span>
+            </motion.div>
+            <h1 className="text-white text-4xl font-display italic tracking-tight mb-2">
+              Glassbox
+            </h1>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {!isAuthenticating ? (
+              <motion.div 
+                key="login-form"
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                className="w-full max-w-sm glass-panel p-8 rounded-2xl border border-border-dim relative overflow-hidden group shadow-2xl bg-surface/80 backdrop-blur-xl"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-purple-500"></div>
+                
+                <div className="mb-8 font-mono">
+                  <h2 className="text-white text-xl font-bold font-display tracking-wider uppercase mb-1">
+                    System Login
+                  </h2>
+                  <div className="text-xs text-primary font-bold tracking-widest h-4">
+                    <TypewriterText text="> AWAITING CREDENTIALS_" speed={30} delay={300} />
+                  </div>
+                </div>
+
+                <form onSubmit={handleLogin} className="space-y-5">
+                  <div className="space-y-1 group/input">
+                    <label className="text-[10px] text-text-muted uppercase tracking-widest font-bold group-focus-within/input:text-primary transition-colors">Operative ID</label>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm group-focus-within/input:text-primary transition-colors">badge</span>
+                      <input 
+                        type="text" 
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="ID-8924 // EMAIL"
+                        className="w-full bg-surface-dim border border-border-dim text-white text-sm pl-10 pr-3 py-3 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none transition-all placeholder:text-text-muted/50"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 group/input">
+                    <label className="text-[10px] text-text-muted uppercase tracking-widest font-bold group-focus-within/input:text-primary transition-colors">Access Key</label>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm group-focus-within/input:text-primary transition-colors">key</span>
+                      <input 
+                        type={showPassword ? "text" : "password"} 
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="••••••••••••"
+                        className="w-full bg-surface-dim border border-border-dim text-white text-sm pl-10 pr-10 py-3 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none transition-all placeholder:text-text-muted/50 tracking-widest"
+                        required
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors flex items-center justify-center p-1 rounded focus:outline-none"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">
+                          {showPassword ? "visibility_off" : "visibility"}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full mt-6 relative overflow-hidden bg-white text-black font-bold font-display uppercase tracking-wider rounded-lg py-3 px-6 focus:outline-none shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] transition-all transform active:scale-95 group/btn"
+                  >
+                    <div className="absolute inset-0 bg-primary/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                    <div className="relative flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-[18px]">login</span>
+                      Authenticate
+                    </div>
+                  </button>
+                </form>
+
+                <div className="mt-8 pt-6 border-t border-border-dim space-y-3">
+                  <p className="text-[10px] text-center text-text-muted uppercase tracking-widest font-bold">Alternative Uplinks</p>
+                  <div className="flex gap-2">
+                    <button className="flex-1 flex items-center justify-center gap-2 bg-surface text-text-muted text-[10px] uppercase font-bold py-2 rounded border border-border-dim hover:text-white hover:border-primary/50 transition-colors">
+                      <span className="material-symbols-outlined text-[14px]">corporate_fare</span>
+                      Sector 7
+                    </button>
+                    <button className="flex-1 flex items-center justify-center gap-2 bg-surface text-text-muted text-[10px] uppercase font-bold py-2 rounded border border-border-dim hover:text-white hover:border-primary/50 transition-colors">
+                      <span className="material-symbols-outlined text-[14px]">fingerprint</span>
+                      Bio-Sync
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              /* Boot Sequence UI */
+              <motion.div 
+                key="boot-sequence"
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="w-full max-w-md bg-transparent p-8 flex flex-col font-mono"
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_20px_var(--color-primary)] animate-pulse">
+                    <span className="material-symbols-outlined text-black text-2xl">memory</span>
+                  </div>
+                  <div>
+                    <h2 className="text-primary text-xl font-bold uppercase tracking-widest">
+                      {accessGranted ? "Uplink Established" : "Authenticating"}
+                    </h2>
+                    <p className="text-text-muted text-xs">Awaiting primary node response...</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mb-8 h-48 flex flex-col justify-end">
+                  {bootLogs.map((log, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                      className={`text-xs ${log.includes("OK") ? "text-green-400 font-bold" : "text-text-muted"}`}
+                    >
+                      {log}
+                    </motion.div>
+                  ))}
+                  {!accessGranted && (
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ repeat: Infinity, duration: 1 }}
+                      className="text-xs text-primary"
+                    >
+                      <span className="animate-pulse">_</span>
+                    </motion.div>
+                  )}
+                </div>
+                
+                {accessGranted && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    className="w-full bg-green-500/10 border border-green-500/30 text-green-400 p-4 rounded-lg flex items-center justify-center gap-3"
+                  >
+                    <span className="material-symbols-outlined">fingerprint</span>
+                    <span className="text-sm font-bold uppercase tracking-widest">Identity Verified</span>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Minimal Mobile Footer */}
+          <div className="lg:hidden absolute bottom-6 text-center w-full">
+             <p className="text-[10px] font-mono text-text-muted uppercase tracking-widest">Glassbox OS v4.2.1</p>
+          </div>
+        </div>
       </div>
-    </motion.main>
+    </div>
   );
 }
