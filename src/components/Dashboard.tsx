@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, useAnimation } from "motion/react";
+import confetti from "canvas-confetti";
 
 export function Dashboard({ 
   onFilterClick 
@@ -9,6 +10,7 @@ export function Dashboard({
 }) {
   const navigate = useNavigate();
   const [time, setTime] = useState("");
+  const [greeting, setGreeting] = useState("Good Day");
   const [counts, setCounts] = useState({ 
     open: 0, 
     resolved: 0, 
@@ -17,6 +19,18 @@ export function Dashboard({
     avgDelay: 4.2
   });
   const [tickerItems, setTickerItems] = useState<any[]>([]);
+
+  // Weekly Heatmap Data (randomized for visual effect)
+  const heatmapData = useMemo(() => {
+    return Array.from({ length: 28 }).map(() => Math.floor(Math.random() * 5));
+  }, []);
+
+  // Dynamic Sparkline Data
+  const sparklineData = useMemo(() => {
+    const points = Array.from({ length: 6 }).map(() => 20 + Math.random() * 50);
+    const max = Math.max(...points);
+    return points.map((p, i) => `${(i * 100) / 5},${100 - (p / max) * 80}`).join(" L");
+  }, [counts.open]);
 
   const handleReaction = (ticketId: string, emoji: string) => {
     const stored = localStorage.getItem("glassbox_tickets");
@@ -74,6 +88,16 @@ export function Dashboard({
         avgDelay
       });
 
+      // Zero-state confetti
+      if (open === 0 && tickets.length > 0) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#00f0ff', '#05ff00', '#ffffff']
+        });
+      }
+
       // Set ticker items (active tickets)
       const activeTickets = tickets.filter((t: any) => t.status !== "RESOLVED");
       setTickerItems(activeTickets);
@@ -99,6 +123,11 @@ export function Dashboard({
           second: "2-digit",
         }),
       );
+      
+      const hour = now.getHours();
+      if (hour < 12) setGreeting("Good Morning");
+      else if (hour < 18) setGreeting("Good Afternoon");
+      else setGreeting("Good Evening");
     };
     const interval = setInterval(updateTime, 1000);
     updateTime();
@@ -115,15 +144,18 @@ export function Dashboard({
     >
       {/* Sticky Header */}
       <header className="sticky top-0 z-40 bg-background-dark/80 backdrop-blur-2xl border-b border-border-dim">
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border-dim/50">
           <div className="flex items-center gap-2">
             <motion.span 
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-primary text-lg font-display font-bold tracking-tight md:hidden"
+              className="text-primary text-lg font-display font-bold tracking-tight md:hidden mr-2"
             >
               [ GLASSBOX ]
             </motion.span>
+            <span className="hidden md:inline text-sm font-sans font-medium text-white">
+              {greeting}, User.
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 border border-border-dim bg-surface-dim/50 px-3 py-1.5 rounded-full backdrop-blur-md">
@@ -143,6 +175,28 @@ export function Dashboard({
                 power_settings_new
               </span>
             </motion.button>
+          </div>
+        </div>
+        {/* Live Activity Ticker */}
+        <div className="overflow-hidden bg-primary/5 py-1 whitespace-nowrap flex items-center border-b border-primary/10">
+          <span className="text-[10px] font-mono font-bold text-primary px-3 uppercase tracking-widest border-r border-primary/20 bg-background-dark relative z-10 flex-shrink-0">
+            Live Activity
+          </span>
+          <div className="relative flex-1 overflow-hidden" style={{ width: '100%' }}>
+            <div className="animate-[ticker_30s_linear_infinite] flex gap-8 px-4 text-xs font-sans text-text-muted">
+              {tickerItems.length > 0 ? (
+                // Duplicate items to ensure seamless loop
+                [...tickerItems, ...tickerItems].map((item, i) => (
+                  <span key={i} className="flex items-center gap-2">
+                    <span className="text-primary font-mono">{item.dept}</span>
+                    <span className="text-white truncate max-w-[300px]">{item.title}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-border-dim inline-block ml-4"></span>
+                  </span>
+                ))
+              ) : (
+                <span className="text-stable">No active issues. System is running optimally.</span>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -183,7 +237,9 @@ export function Dashboard({
                 fill="none"
                 r="88"
                 stroke="var(--theme-border-dim)"
+                strokeDasharray="4 8"
                 strokeWidth="8"
+                strokeLinecap="round"
               ></circle>
               <circle
                 className="drop-shadow-[0_0_12px_var(--theme-primary)] transition-all duration-1000 ease-out"
@@ -224,6 +280,11 @@ export function Dashboard({
           whileHover={{ scale: 1.02, y: -4, rotate: 1 }}
           className="bento-card glass-panel p-6 flex flex-col justify-between relative overflow-hidden group"
         >
+          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button className="bg-surface p-2 rounded-full border border-border-dim hover:text-primary transition-colors text-white" aria-label="Quick Action">
+              <span className="material-symbols-outlined text-[16px]">bolt</span>
+            </button>
+          </div>
           <div className="absolute -right-6 -top-6 text-8xl opacity-5 group-hover:opacity-10 transition-opacity duration-300 transform group-hover:scale-110 group-hover:rotate-12">
             🔥
           </div>
@@ -238,7 +299,7 @@ export function Dashboard({
             <div className="w-full bg-surface-dim rounded-full h-2 mb-2 overflow-hidden">
               <div className="bg-gradient-to-r from-orange-500 to-yellow-400 w-[70%] h-full rounded-full"></div>
             </div>
-            <p className="text-xs text-text-muted font-sans">2 days until next badge 🏆</p>
+            <p className="text-xs text-text-muted font-sans flex items-center gap-1">2 days until next badge <span className="text-orange-400">🏆</span></p>
           </div>
         </motion.div>
 
@@ -265,30 +326,32 @@ export function Dashboard({
           </span>
 
           {/* Sparkline Background */}
-          <svg
-            className="absolute bottom-0 left-0 w-full h-16 opacity-20 group-hover:opacity-40 transition-opacity"
-            preserveAspectRatio="none"
-            viewBox="0 0 100 100"
-          >
-            <path
-              d="M0,100 L0,50 L20,60 L40,30 L60,40 L80,10 L100,20 L100,100 Z"
-              fill="url(#primary-gradient)"
-            />
-            <path
-              d="M0,50 L20,60 L40,30 L60,40 L80,10 L100,20"
-              fill="none"
-              stroke="var(--theme-primary)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <defs>
-              <linearGradient id="primary-gradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--theme-primary)" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="var(--theme-primary)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <div className="absolute bottom-0 left-0 w-full h-24 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none">
+            <svg
+              className="w-full h-full"
+              preserveAspectRatio="none"
+              viewBox="0 0 100 100"
+            >
+              <path
+                d={`M0,100 L${sparklineData} L100,100 Z`}
+                fill="url(#primary-gradient)"
+              />
+              <path
+                d={`M0,100 L${sparklineData}`}
+                fill="none"
+                stroke="var(--theme-primary)"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <defs>
+                <linearGradient id="primary-gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--theme-primary)" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="var(--theme-primary)" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
         </motion.button>
 
         {/* Resolved (Bento Small) */}
@@ -327,6 +390,11 @@ export function Dashboard({
           onClick={() => onFilterClick({ status: "STALLED" })}
           className={`md:col-span-2 lg:col-span-2 bento-card glass-panel p-6 flex flex-row items-center justify-between relative overflow-hidden text-left group transition-colors ${counts.stalled > 0 ? "hover:border-critical/50" : "hover:border-primary/50"}`}
         >
+          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-surface p-2 rounded-full border border-border-dim hover:text-critical transition-colors text-white flex items-center justify-center">
+              <span className="material-symbols-outlined text-[16px]">priority_high</span>
+            </div>
+          </div>
           <div className={`absolute inset-0 bg-gradient-to-r ${counts.stalled > 0 ? "from-critical/5" : "from-primary/5"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
           <div className="flex flex-col gap-2 relative z-10">
             <span className={`text-xs font-sans font-bold uppercase tracking-wider flex items-center gap-1.5 ${counts.stalled > 0 ? "text-critical" : "text-primary"}`}>
@@ -350,6 +418,57 @@ export function Dashboard({
           </div>
         </motion.button>
         </div>
+
+        {/* Weekly Heatmap */}
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, type: "spring" }}
+          className="p-4 md:p-6 lg:p-8 pt-0 max-w-7xl mx-auto w-full"
+        >
+          <div className="bento-card glass-panel p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-text-muted">grid_view</span>
+                <h3 className="text-sm font-sans font-bold text-white uppercase tracking-widest">
+                  Activity Heatmap
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-text-muted font-sans cursor-pointer hover:text-primary transition-colors">
+                <span>Past 4 Weeks</span>
+                <span className="material-symbols-outlined text-[16px]">expand_more</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))] gap-1.5 md:gap-2">
+              {heatmapData.map((level, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.2, zIndex: 10 }}
+                  className={`aspect-square rounded-sm md:rounded-md cursor-pointer border border-white/5 transition-colors duration-300 ${
+                    level === 0 ? "bg-surface-dim/30 hover:bg-surface-dim/60" :
+                    level === 1 ? "bg-primary/20 hover:bg-primary/40" :
+                    level === 2 ? "bg-primary/40 hover:bg-primary/60" :
+                    level === 3 ? "bg-primary/60 hover:bg-primary/80" :
+                    "bg-primary hover:bg-primary"
+                  }`}
+                  title={`${level * 3} interactions`}
+                />
+              ))}
+            </div>
+            <div className="mt-4 flex items-center justify-end gap-2 text-[10px] uppercase font-sans tracking-wide text-text-muted">
+              <span>Less</span>
+              <div className="flex gap-1">
+                <div className="w-3 h-3 rounded-sm bg-surface-dim/30"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary/20"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary/40"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary/60"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary"></div>
+              </div>
+              <span>More</span>
+            </div>
+          </div>
+        </motion.section>
       </main>
     </motion.div>
   );
