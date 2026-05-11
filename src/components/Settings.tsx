@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { fetchEmployees, saveEmployees, Employee } from "../services/hrisService";
 
@@ -28,6 +28,32 @@ export function Settings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchField, setSearchField] = useState<"Name" | "Role" | "Dept">("Name");
 
+  const [activeTab, setActiveTab] = useState<"IDENTITY" | "SYSTEM" | "INTEGRATIONS" | "DANGER">("IDENTITY");
+  const [activeTheme, setActiveTheme] = useState("CYBER");
+  const [auditLogs, setAuditLogs] = useState<{time: string, action: string}[]>([]);
+  const [bulkImportText, setBulkImportText] = useState("");
+  const parallaxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setAuditLogs(prev => [{ time: new Date().toLocaleTimeString(), action: "System configuration module accessed" }, ...prev]);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!parallaxRef.current) return;
+      const { clientX, clientY } = e;
+      const x = (clientX / window.innerWidth - 0.5) * 20;
+      const y = (clientY / window.innerHeight - 0.5) * 20;
+      parallaxRef.current.style.transform = `translate(${x}px, ${y}px) rotateX(${-y * 0.5}deg) rotateY(${x * 0.5}deg)`;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  const addAuditLog = (action: string) => {
+    setAuditLogs(prev => [{ time: new Date().toLocaleTimeString(), action }, ...prev].slice(0, 10));
+  };
+
   useEffect(() => {
     const storedProfile = localStorage.getItem("glassbox_profile");
     if (storedProfile) {
@@ -46,6 +72,7 @@ export function Settings() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileAvatar(reader.result as string);
+        addAuditLog("Avatar biometric data updated");
       };
       reader.readAsDataURL(file);
     }
@@ -58,6 +85,7 @@ export function Settings() {
       statuses: statuses
     }));
     setSaveSuccess(true);
+    addAuditLog(`Profile configuration saved for ${profileName}`);
     setTimeout(() => setSaveSuccess(false), 2000);
   };
 
@@ -66,6 +94,7 @@ export function Settings() {
       const updatedStatuses = [...statuses, newStatus];
       setStatuses(updatedStatuses);
       setNewStatus("");
+      addAuditLog(`Created new status protocols: ${newStatus}`);
       localStorage.setItem("glassbox_profile", JSON.stringify({
         name: profileName,
         avatar: profileAvatar,
@@ -82,6 +111,7 @@ export function Settings() {
   const saveEditedStatus = (index: number) => {
     if (editStatusText.trim()) {
       const updatedStatuses = [...statuses];
+      addAuditLog(`Modified status protocol from ${statuses[index]} to ${editStatusText}`);
       updatedStatuses[index] = editStatusText;
       setStatuses(updatedStatuses);
       setEditingStatusIndex(null);
@@ -97,6 +127,7 @@ export function Settings() {
     if (statusToDelete) {
       const updatedStatuses = statuses.filter(s => s !== statusToDelete);
       setStatuses(updatedStatuses);
+      addAuditLog(`Deleted status protocol: ${statusToDelete}`);
       setStatusToDelete(null);
       localStorage.setItem("glassbox_profile", JSON.stringify({
         name: profileName,
@@ -118,6 +149,7 @@ export function Settings() {
       const updated = [...employees, newEmp];
       setEmployees(updated);
       await saveEmployees(updated);
+      addAuditLog(`Provisioned new HRIS identity: ${newEmp.id}`);
       setNewEmpName("");
       setNewEmpRole("");
       setNewEmpDept("");
@@ -133,6 +165,7 @@ export function Settings() {
       const updated = employees.filter(e => e.id !== empToDelete);
       setEmployees(updated);
       await saveEmployees(updated);
+      addAuditLog(`Terminated HRIS identity: ${empToDelete}`);
       setEmpToDelete(null);
     }
   };
@@ -157,7 +190,31 @@ export function Settings() {
       );
       setEmployees(updated);
       await saveEmployees(updated);
+      addAuditLog(`Updated HRIS identity configuration: ${editingEmpId}`);
       setEditingEmpId(null);
+    }
+  };
+
+  const handleBulkImport = async () => {
+    if (!bulkImportText.trim()) return;
+    try {
+      const data = JSON.parse(bulkImportText);
+      if (Array.isArray(data)) {
+        const newEmps = data.map((item: any) => ({
+          id: `EMP-${Math.floor(Math.random() * 10000)}`,
+          name: item.name || "Unknown",
+          role: item.role || "Unknown",
+          department: item.department || "ENGINEERING",
+          email: item.email || `${(item.name || 'user').split(' ')[0].toLowerCase()}@glassbox.local`
+        }));
+        const updated = [...employees, ...newEmps];
+        setEmployees(updated);
+        await saveEmployees(updated);
+        addAuditLog(`Bulk imported ${newEmps.length} neural patterns`);
+        setBulkImportText("");
+      }
+    } catch (e) {
+      addAuditLog(`Failed bulk import: Invalid JSON format`);
     }
   };
 
@@ -171,8 +228,15 @@ export function Settings() {
   });
 
   return (
-    <>
-      <header className="flex-none border-b border-border-dim bg-surface-dim/80 backdrop-blur-2xl z-40">
+    <div className="relative min-h-screen bg-background overflow-hidden flex flex-col font-mono text-white selection:bg-primary/30">
+      {/* Parallax Background Environment */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" ref={parallaxRef}>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff11_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff11_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        <div className="absolute top-[20%] left-[10%] w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-[#ff003c]/10 rounded-full blur-[120px]"></div>
+      </div>
+
+      <header className="flex-none border-b border-border-dim bg-surface-dim/80 backdrop-blur-2xl z-40 relative">
         <div className="flex flex-col gap-2 p-4 pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -187,7 +251,18 @@ export function Settings() {
                 System Configuration
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
+              <div className="flex gap-2 text-xs">
+                {["CYBER", "NEON", "STEALTH"].map(theme => (
+                  <button 
+                    key={theme}
+                    onClick={() => { setActiveTheme(theme); addAuditLog(`Theme Matrix shifted to ${theme}`); }}
+                    className={`px-2 py-1 rounded border transition-colors ${activeTheme === theme ? 'border-primary text-primary bg-primary/10' : 'border-border-dim text-text-muted hover:border-text-muted'}`}
+                  >
+                    {theme}
+                  </button>
+                ))}
+              </div>
               <motion.button
                 whileHover={{ scale: 1.1, rotate: -180 }}
                 whileTap={{ scale: 0.9 }}
@@ -201,250 +276,363 @@ export function Settings() {
               </motion.button>
             </div>
           </div>
-          <h1 className="text-white tracking-tight text-2xl md:text-3xl font-bold font-display leading-tight mt-2 mb-2">
-            Settings <span className="text-text-muted font-sans font-normal mx-2">/</span> Preferences
+          <h1 className="text-white tracking-tight text-2xl md:text-3xl font-bold font-display leading-tight mt-2 mb-2 uppercase">
+            Control Node
           </h1>
+
+          {/* Categorized Tab Architecture */}
+          <div className="flex gap-4 border-b border-border-dim mt-2">
+            {[
+              { id: "IDENTITY", icon: "badge", label: "Identity & Personas" },
+              { id: "SYSTEM", icon: "dns", label: "HRIS Neural Grid" },
+              { id: "INTEGRATIONS", icon: "api", label: "Integrations" },
+              { id: "DANGER", icon: "warning", label: "Substation" }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-white'}`}
+              >
+                <span className="material-symbols-outlined text-sm">{tab.icon}</span>
+                <span className="text-xs font-bold tracking-wider uppercase">{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Profile Settings */}
-        <section className="glass-panel bento-card p-4 sm:p-6 flex flex-col gap-4">
-          <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2">
-            User Profile
-          </h2>
-          
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-2 sm:mb-4">
-            <div className="relative group w-24 h-24 sm:w-20 sm:h-20 shrink-0">
-              <img src={profileAvatar} alt="Avatar" className="w-24 h-24 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-primary/50" referrerPolicy="no-referrer" />
-              <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity border border-dashed border-primary/50">
-                <span className="material-symbols-outlined text-white text-xl mb-0.5">photo_camera</span>
-                <span className="text-[9px] font-bold text-white uppercase tracking-wider">Upload</span>
-                <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-              </label>
-            </div>
-            <div className="flex-1 w-full">
-              <label className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider mb-1 block text-center sm:text-left">Display Name</label>
-              <input 
-                type="text" 
-                value={profileName} 
-                onChange={e => setProfileName(e.target.value)}
-                className="w-full bg-surface-dim/50 border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors text-center sm:text-left"
-              />
-            </div>
-          </div>
-
-          <button onClick={saveProfile} className="mt-2 bg-primary text-black font-bold text-sm px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)] flex items-center justify-center gap-2">
-            {saveSuccess ? (
-              <>
-                <span className="material-symbols-outlined text-sm">check</span>
-                Saved!
-              </>
-            ) : (
-              "Save Profile"
-            )}
-          </button>
-        </section>
-
-        {/* Status Settings */}
-        <section className="glass-panel bento-card p-4 sm:p-6 flex flex-col gap-4">
-          <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2">
-            Custom Statuses
-          </h2>
-          
-          <div className="flex flex-wrap gap-2">
-            {statuses.map((s, idx) => (
-              <div key={idx} className="flex items-center gap-2 bg-surface-dim/50 border border-border-dim px-3 py-1.5 rounded-full text-sm text-white">
-                {editingStatusIndex === idx ? (
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="text" 
-                      value={editStatusText} 
-                      onChange={e => setEditStatusText(e.target.value)}
-                      maxLength={20}
-                      className="bg-surface border border-border-dim text-white text-xs px-2 py-1 rounded outline-none w-24"
-                      autoFocus
-                    />
-                    <button onClick={() => saveEditedStatus(idx)} className="text-primary hover:text-primary/80">
-                      <span className="material-symbols-outlined text-[14px]">check</span>
-                    </button>
-                    <button onClick={() => setEditingStatusIndex(null)} className="text-text-muted hover:text-white">
-                      <span className="material-symbols-outlined text-[14px]">close</span>
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <span>{s}</span>
-                    <button onClick={() => startEditingStatus(idx, s)} className="text-text-muted hover:text-primary transition-colors ml-1">
-                      <span className="material-symbols-outlined text-[14px]">edit</span>
-                    </button>
-                    <button onClick={() => setStatusToDelete(s)} className="text-text-muted hover:text-critical transition-colors">
-                      <span className="material-symbols-outlined text-[14px]">delete</span>
-                    </button>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2 mt-2">
-            <input 
-              type="text" 
-              value={newStatus} 
-              onChange={e => setNewStatus(e.target.value)}
-              maxLength={20}
-              placeholder="e.g. 🍕 Lunch Break"
-              disabled={statuses.length >= 6}
-              className="flex-1 bg-surface-dim/50 border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors disabled:opacity-50"
-            />
-            <button 
-              onClick={handleSaveStatus} 
-              disabled={statuses.length >= 6 || !newStatus.trim()}
-              className="bg-primary text-black font-bold text-sm px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 w-full sm:w-auto"
-            >
-              Save
-            </button>
-          </div>
-          {statuses.length >= 6 && (
-            <p className="text-critical text-xs mt-1">Maximum of 6 custom statuses reached.</p>
-          )}
-        </section>
-
-        {/* HRIS Identity Settings */}
-        <section className="glass-panel bento-card p-4 sm:p-6 flex flex-col gap-4 lg:col-span-2">
-          <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2">
-            HRIS Identities
-          </h2>
-
-          <div className="flex flex-col md:flex-row gap-3 mb-2">
-            <div className="relative flex-1">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none material-symbols-outlined text-text-muted text-sm">search</span>
-              <input 
-                type="text" 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search identities..."
-                className="w-full bg-surface-dim/50 border border-border-dim text-white text-sm pl-9 pr-3 py-2 rounded-lg focus:border-primary outline-none transition-colors"
-              />
-            </div>
-            <select 
-              value={searchField}
-              onChange={e => setSearchField(e.target.value as any)}
-              className="bg-surface-dim/50 border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors appearance-none cursor-pointer sm:w-32"
-            >
-              <option value="Name" className="bg-background-dark">Name</option>
-              <option value="Role" className="bg-background-dark">Role</option>
-              <option value="Dept" className="bg-background-dark">Dept</option>
-            </select>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-            {filteredEmployees.map(emp => (
-              <div key={emp.id} className="bg-surface-dim/30 border border-border-dim p-3 rounded-xl flex flex-col justify-between">
-                {editingEmpId === emp.id ? (
-                  <div className="space-y-2">
-                    <input 
-                      type="text" 
-                      value={editEmpName} 
-                      onChange={e => setEditEmpName(e.target.value)}
-                      className="w-full bg-surface-dim/50 border border-border-dim text-white text-xs px-2 py-1 rounded focus:border-primary outline-none"
-                    />
-                    <input 
-                      type="text" 
-                      value={editEmpRole} 
-                      onChange={e => setEditEmpRole(e.target.value)}
-                      className="w-full bg-surface-dim/50 border border-border-dim text-white text-xs px-2 py-1 rounded focus:border-primary outline-none"
-                    />
-                    <select 
-                      value={editEmpDept} 
-                      onChange={e => setEditEmpDept(e.target.value)}
-                      className="w-full bg-surface-dim/50 border border-border-dim text-white text-xs px-2 py-1 rounded focus:border-primary outline-none appearance-none cursor-pointer"
-                    >
-                      {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
-                        <option key={d} value={d} className="bg-background-dark text-white">{d}</option>
-                      ))}
-                    </select>
-                    <div className="flex gap-2 pt-1">
-                      <button onClick={saveEdit} className="flex-1 bg-primary text-black font-bold text-[10px] py-1 rounded hover:bg-primary/90 transition-colors">
-                        SAVE
-                      </button>
-                      <button onClick={cancelEditing} className="flex-1 bg-surface border border-border-dim text-white font-bold text-[10px] py-1 rounded hover:border-primary transition-colors">
-                        CANCEL
-                      </button>
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full relative z-10 flex gap-6">
+        
+        {/* Main Content Area */}
+        <div className="flex-1 space-y-6">
+          <AnimatePresence mode="wait">
+            {activeTab === "IDENTITY" && (
+              <motion.div key="identity" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                
+                {/* Cinematic Avatar Uploader / Live Holographic ID Cards */}
+                <section className="glass-panel p-6 border border-border-dim relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                  <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2 mb-6 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">assignment_ind</span>
+                    Holographic ID Configuration
+                  </h2>
+                  
+                  <div className="flex flex-col md:flex-row gap-8 items-center md:items-start relative z-10">
+                    <div className="relative w-32 h-32 md:w-40 md:h-40 shrink-0">
+                      <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse blur-xl"></div>
+                      <img src={profileAvatar} alt="Avatar" className="w-full h-full rounded-full object-cover border-4 border-surface shadow-[0_0_20px_rgba(0,240,255,0.3)]" referrerPolicy="no-referrer" />
+                      <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-full opacity-0 hover:opacity-100 cursor-pointer transition-opacity border-2 border-dashed border-primary">
+                        <span className="material-symbols-outlined text-white text-2xl mb-1 group-hover:scale-110 transition-transform">scan</span>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Sync Retina</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                      </label>
+                      <div className="absolute -bottom-2 -right-2 bg-surface border border-primary px-2 py-1 text-[9px] rounded font-bold text-primary shadow-lg">LIVE</div>
                     </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-start">
+                    
+                    <div className="flex-1 w-full space-y-4">
                       <div>
-                        <p className="text-white font-bold text-sm">{emp.name}</p>
-                        <p className="text-text-muted text-xs">{emp.role}</p>
-                        <p className="text-primary text-[10px] font-mono mt-1">{emp.department}</p>
+                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 block">Designation Name</label>
+                        <input 
+                          type="text" 
+                          value={profileName} 
+                          onChange={e => setProfileName(e.target.value)}
+                          className="w-full bg-surface-dim border border-border-dim text-white text-lg px-4 py-3 rounded-lg focus:border-primary focus:shadow-[0_0_10px_rgba(0,240,255,0.1)] outline-none transition-all font-display tracking-wide"
+                        />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <button onClick={() => startEditing(emp)} className="text-text-muted hover:text-primary transition-colors p-1">
-                          <span className="material-symbols-outlined text-[16px]">edit</span>
-                        </button>
-                        <button onClick={() => removeEmployee(emp.id)} className="text-text-muted hover:text-critical transition-colors p-1">
-                          <span className="material-symbols-outlined text-[16px]">delete</span>
-                        </button>
+                      
+                      {/* Auto-Status Scheduler */}
+                      <div>
+                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 flex justify-between items-center">
+                          <span>Status Protocols</span>
+                          <span className="text-[9px] text-primary bg-primary/10 px-2 py-0.5 rounded">Auto-Schedule Ready</span>
+                        </label>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {statuses.map((s, idx) => (
+                            <div key={idx} className="flex items-center gap-2 bg-surface-dim border border-border-dim px-3 py-1.5 rounded-md text-sm text-white hover:border-primary/50 transition-colors">
+                              {editingStatusIndex === idx ? (
+                                <div className="flex items-center gap-2">
+                                  <input 
+                                    type="text" 
+                                    value={editStatusText} 
+                                    onChange={e => setEditStatusText(e.target.value)}
+                                    maxLength={20}
+                                    className="bg-transparent border-b border-primary text-white text-xs px-1 py-0.5 outline-none w-24"
+                                    autoFocus
+                                  />
+                                  <button onClick={() => saveEditedStatus(idx)} className="text-primary"><span className="material-symbols-outlined text-[14px]">check</span></button>
+                                  <button onClick={() => setEditingStatusIndex(null)} className="text-text-muted"><span className="material-symbols-outlined text-[14px]">close</span></button>
+                                </div>
+                              ) : (
+                                <>
+                                  <span className="font-sans font-medium">{s}</span>
+                                  <button onClick={() => startEditingStatus(idx, s)} className="text-text-muted hover:text-primary transition-colors ml-1"><span className="material-symbols-outlined text-[14px]">edit</span></button>
+                                  <button onClick={() => setStatusToDelete(s)} className="text-text-muted hover:text-critical transition-colors"><span className="material-symbols-outlined text-[14px]">delete</span></button>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            value={newStatus} 
+                            onChange={e => setNewStatus(e.target.value)}
+                            maxLength={20}
+                            placeholder="Initialize new protocol..."
+                            disabled={statuses.length >= 6}
+                            className="flex-1 bg-surface-dim border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none disabled:opacity-50"
+                          />
+                          <button onClick={handleSaveStatus} disabled={statuses.length >= 6 || !newStatus.trim()} className="bg-surface text-primary border border-primary px-4 py-2 rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-50 font-bold text-xs">
+                            ADD
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
 
-          <div className="mt-4 border-t border-border-dim pt-4 flex flex-col md:flex-row gap-3">
-            <input 
-              type="text" 
-              value={newEmpName} 
-              onChange={e => setNewEmpName(e.target.value)}
-              placeholder="Name"
-              className="flex-1 bg-surface-dim/50 border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors"
-            />
-            <input 
-              type="text" 
-              value={newEmpRole} 
-              onChange={e => setNewEmpRole(e.target.value)}
-              placeholder="Role"
-              className="flex-1 bg-surface-dim/50 border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors"
-            />
-            <select 
-              value={newEmpDept} 
-              onChange={e => setNewEmpDept(e.target.value)}
-              className="flex-1 bg-surface-dim/50 border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors appearance-none cursor-pointer"
-            >
-              {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
-                <option key={d} value={d} className="bg-background-dark text-white">{d}</option>
-              ))}
-            </select>
-            <button onClick={addEmployee} className="bg-primary text-black font-bold text-sm px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors w-full md:w-auto">
-              Add Identity
-            </button>
+                      <button onClick={saveProfile} className="mt-4 bg-primary text-black font-bold text-sm px-6 py-3 rounded-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,240,255,0.3)] flex items-center justify-center gap-2 w-full md:w-auto uppercase tracking-wider">
+                        {saveSuccess ? <><span className="material-symbols-outlined text-sm">check</span> Identity Synced</> : "Compile Identity"}
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              </motion.div>
+            )}
+
+            {activeTab === "SYSTEM" && (
+              <motion.div key="system" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                
+                <section className="glass-panel p-6 border border-border-dim">
+                  <div className="flex justify-between items-center border-b border-border-dim pb-4 mb-4">
+                    <h2 className="text-primary text-sm font-bold tracking-widest uppercase flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">grid_view</span>
+                      Neural Grid Roster
+                    </h2>
+                    <div className="flex gap-2">
+                       <button className="text-[10px] bg-primary/10 text-primary px-2 py-1 border border-primary/30 rounded uppercase font-bold flex items-center gap-1 hover:bg-primary/20">
+                          <span className="material-symbols-outlined text-[14px]">download</span> Export Matrix
+                       </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-3 mb-6">
+                    <div className="relative flex-1 group">
+                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none material-symbols-outlined text-text-muted text-sm group-focus-within:text-primary transition-colors">search</span>
+                      <input 
+                        type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Query neural patterns..."
+                        className="w-full bg-surface-dim border border-border-dim text-white text-sm pl-9 pr-3 py-2 rounded-lg focus:border-primary focus:shadow-[0_0_10px_rgba(0,240,255,0.1)] outline-none transition-all"
+                      />
+                    </div>
+                    <select 
+                      value={searchField} onChange={e => setSearchField(e.target.value as any)}
+                      className="bg-surface-dim border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors cursor-pointer sm:w-32"
+                    >
+                      <option value="Name" className="bg-background">Name</option>
+                      <option value="Role" className="bg-background">Role</option>
+                      <option value="Dept" className="bg-background">Dept</option>
+                    </select>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {/* Add New Node Card */}
+                    <div className="bg-surface border border-dashed border-border-dim hover:border-primary/50 transition-colors p-4 rounded-xl flex flex-col justify-center items-center min-h-[140px] opacity-70 hover:opacity-100">
+                       <div className="w-full space-y-2">
+                          <input type="text" value={newEmpName} onChange={e => setNewEmpName(e.target.value)} placeholder="Designation" className="w-full bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded" />
+                          <input type="text" value={newEmpRole} onChange={e => setNewEmpRole(e.target.value)} placeholder="Function" className="w-full bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded" />
+                          <div className="flex gap-2">
+                             <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="flex-1 bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded">
+                               {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN"].map(d => (
+                                 <option key={d} value={d} className="bg-background">{d}</option>
+                               ))}
+                             </select>
+                             <button onClick={addEmployee} className="bg-primary text-black px-3 py-1.5 rounded text-xs font-bold hover:bg-white transition-colors">ADD</button>
+                          </div>
+                       </div>
+                    </div>
+
+                    {filteredEmployees.map(emp => (
+                      <div key={emp.id} className="group relative bg-surface-dim/40 border border-border-dim p-4 rounded-xl hover:border-primary/30 transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent rounded-tr-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        {editingEmpId === emp.id ? (
+                          <div className="space-y-2 relative z-10">
+                            <input type="text" value={editEmpName} onChange={e => setEditEmpName(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
+                            <input type="text" value={editEmpRole} onChange={e => setEditEmpRole(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
+                            <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none appearance-none">
+                              {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
+                                <option key={d} value={d} className="bg-background text-white">{d}</option>
+                              ))}
+                            </select>
+                            <div className="flex gap-2 pt-2">
+                              <button onClick={saveEdit} className="flex-1 bg-primary text-black font-bold text-[10px] py-1.5 rounded hover:bg-white transition-colors uppercase">Save</button>
+                              <button onClick={cancelEditing} className="flex-1 bg-surface border border-border-dim text-text-muted font-bold text-[10px] py-1.5 rounded hover:text-white transition-colors uppercase">Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-start relative z-10">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                <p className="text-white font-bold text-sm tracking-wide">{emp.name}</p>
+                              </div>
+                              <p className="text-text-muted text-xs font-sans pl-4 border-l border-border-dim ml-1 my-1">{emp.role}</p>
+                              <div className="flex gap-2 items-center mt-2 pl-4 ml-1">
+                                <span className="text-primary text-[10px] font-bold px-1.5 py-0.5 bg-primary/10 rounded border border-primary/20">{emp.department}</span>
+                                <span className="text-text-muted text-[9px]">{emp.id}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={() => startEditing(emp)} className="text-text-muted hover:text-primary transition-colors p-1 bg-surface rounded"><span className="material-symbols-outlined text-[14px]">edit</span></button>
+                              <button onClick={() => removeEmployee(emp.id)} className="text-text-muted hover:text-critical transition-colors p-1 bg-surface rounded"><span className="material-symbols-outlined text-[14px]">delete</span></button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Interactive Neural Grid Bulk Import */}
+                <section className="glass-panel p-6 border border-border-dim">
+                   <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">data_object</span>
+                    Neural Grid Bulk Injection
+                  </h2>
+                  <p className="text-xs text-text-muted mb-3 font-sans">Inject multiple neural patterns via JSON array structure. Required parameters: name, role.</p>
+                  <div className="relative">
+                    <textarea 
+                      value={bulkImportText}
+                      onChange={e => setBulkImportText(e.target.value)}
+                      placeholder='[&#10;  { "name": "Sarah Connor", "role": "Security Protocal", "department": "ENGINEERING" }&#10;]'
+                      className="w-full h-32 bg-surface-dim border border-border-dim text-primary text-xs p-3 rounded-lg focus:border-primary outline-none transition-colors font-mono resize-none leading-relaxed"
+                      spellCheck="false"
+                    />
+                    <button 
+                      onClick={handleBulkImport}
+                      className="absolute bottom-3 right-3 bg-primary text-black px-4 py-1.5 rounded text-xs font-bold hover:bg-white transition-colors shadow-lg shadow-primary/20"
+                    >
+                      EXECUTE INJECTION
+                    </button>
+                  </div>
+                </section>
+
+              </motion.div>
+            )}
+
+            {activeTab === "INTEGRATIONS" && (
+              <motion.div key="integrations" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                <section className="glass-panel p-6 border border-border-dim">
+                  <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2 mb-6">Integration Control Panel</h2>
+                  <div className="grid gap-4">
+                    {[
+                      { name: "Sector 7 Database", status: "Connected", icon: "database", type: "DATA" },
+                      { name: "Quantum Encryption Key", status: "Active", icon: "key", type: "SECURITY" },
+                      { name: "External Uplink", status: "Offline", icon: "satellite_alt", type: "NETWORK" }
+                    ].map(int => (
+                      <div key={int.name} className="flex items-center justify-between p-4 bg-surface-dim border border-border-dim rounded-lg hover:border-primary/30 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-full ${int.status === 'Offline' ? 'bg-surface text-text-muted' : 'bg-primary/10 text-primary border border-primary/20'}`}>
+                            <span className="material-symbols-outlined">{int.icon}</span>
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm tracking-wide">{int.name}</p>
+                            <p className="text-[10px] text-text-muted mt-0.5 tracking-widest uppercase">{int.type}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`text-xs font-bold ${int.status === 'Offline' ? 'text-text-muted' : 'text-emerald-400'}`}>{int.status}</span>
+                          <button className={`w-10 h-5 rounded-full relative transition-colors ${int.status === 'Offline' ? 'bg-surface border border-border-dim' : 'bg-primary/30 border border-primary'}`}>
+                            <motion.div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full ${int.status === 'Offline' ? 'bg-text-muted left-1' : 'bg-primary right-1'}`} layout />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </motion.div>
+            )}
+
+            {activeTab === "DANGER" && (
+              <motion.div key="danger" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
+                <section className="glass-panel p-6 border border-critical/30 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: "repeating-linear-gradient(45deg, #ff003c 25%, transparent 25%, transparent 75%, #ff003c 75%, #ff003c), repeating-linear-gradient(45deg, #ff003c 25%, transparent 25%, transparent 75%, #ff003c 75%, #ff003c)", backgroundPosition: "0 0, 10px 10px", backgroundSize: "20px 20px" }}></div>
+                  <h2 className="text-critical text-sm font-bold tracking-widest uppercase border-b border-critical/30 pb-2 mb-6 flex items-center gap-2 relative z-10">
+                    <span className="material-symbols-outlined text-sm">warning</span>
+                    Substation Danger Zone
+                  </h2>
+                  <div className="space-y-4 relative z-10">
+                    <div className="flex items-center justify-between p-4 bg-surface/80 border border-critical/20 rounded-lg backdrop-blur-sm">
+                      <div>
+                        <p className="font-bold text-white text-sm">Purge Neural Cache</p>
+                        <p className="text-xs text-text-muted mt-1 font-sans">Wipes all temporary structural memory vectors. Cannot be undone.</p>
+                      </div>
+                      <button className="px-4 py-2 border border-critical text-critical text-xs font-bold rounded hover:bg-critical hover:text-black transition-colors uppercase tracking-wider">Purge Cache</button>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-surface/80 border border-critical/20 rounded-lg backdrop-blur-sm">
+                      <div>
+                        <p className="font-bold text-white text-sm">Initiate Protocol Zero</p>
+                        <p className="text-xs text-text-muted mt-1 font-sans">Formats the entire grid. All patterns will be permanently erased.</p>
+                      </div>
+                      <button className="px-4 py-2 bg-critical text-black text-xs font-bold rounded hover:bg-red-500 transition-colors uppercase tracking-wider shadow-[0_0_15px_rgba(255,0,0,0.3)]">Factory Reset</button>
+                    </div>
+                  </div>
+                </section>
+              </motion.div>
+            )}
+
+          </AnimatePresence>
+        </div>
+
+        {/* Interactive System Audit Log Sidebar */}
+        <div className="hidden lg:flex flex-col w-72 shrink-0 glass-panel border border-border-dim rounded-xl overflow-hidden self-start sticky top-6 max-h-[calc(100vh-120px)]">
+          <div className="bg-surface border-b border-border-dim p-4 flex items-center justify-between">
+            <h3 className="text-xs font-bold tracking-widest uppercase text-text-muted flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">terminal</span>
+              System Audit Log
+            </h3>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
           </div>
-        </section>
-      </div>
-    </main>
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-[10px]">
+            <AnimatePresence>
+              {auditLogs.map((log, i) => (
+                <motion.div 
+                  key={`${log.time}-${i}`}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex gap-2 items-start"
+                >
+                  <span className="text-primary whitespace-nowrap opacity-70">[{log.time}]</span>
+                  <span className="text-text-muted leading-tight">{log.action}</span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            {auditLogs.length === 0 && (
+              <div className="text-text-muted/50 text-center italic py-4">No recent activity detected.</div>
+            )}
+          </div>
+        </div>
+
+      </main>
 
       <AnimatePresence>
         {/* Delete Status Modal */}
         {statusToDelete && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-mono"
           >
             <motion.div 
               initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
-              className="bg-surface border border-border-dim p-6 rounded-xl max-w-sm w-full shadow-2xl mx-4"
+              className="bg-surface border border-critical p-6 rounded-xl max-w-sm w-full shadow-[0_0_30px_rgba(255,0,0,0.15)] mx-4 relative overflow-hidden"
             >
-              <h3 className="text-white font-bold text-lg mb-2">Delete Status</h3>
-              <p className="text-text-muted text-sm mb-6">Are you sure you want to delete the status "{statusToDelete}"?</p>
+              <div className="absolute top-0 left-0 w-full h-1 bg-critical"></div>
+              <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-critical">warning</span>
+                Confirm Deletion
+              </h3>
+              <p className="text-text-muted text-sm mb-6 font-sans">Are you sure you want to delete the status protocol "{statusToDelete}"?</p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setStatusToDelete(null)} className="px-4 py-2 text-sm font-bold text-text-muted hover:text-white transition-colors">Cancel</button>
-                <button onClick={confirmRemoveStatus} className="px-4 py-2 text-sm font-bold bg-critical text-black rounded-lg hover:bg-critical/90 transition-colors">Delete</button>
+                <button onClick={() => setStatusToDelete(null)} className="px-4 py-2 text-xs uppercase font-bold text-text-muted hover:text-white transition-colors border border-transparent hover:border-border-dim rounded">Cancel</button>
+                <button onClick={confirmRemoveStatus} className="px-4 py-2 text-xs uppercase font-bold bg-critical text-black rounded hover:bg-critical/90 transition-colors shadow-[0_0_10px_rgba(255,0,0,0.3)]">Proceed</button>
               </div>
             </motion.div>
           </motion.div>
@@ -454,22 +642,26 @@ export function Settings() {
         {empToDelete && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-mono"
           >
             <motion.div 
               initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
-              className="bg-surface border border-border-dim p-6 rounded-xl max-w-sm w-full shadow-2xl mx-4"
+              className="bg-surface border border-critical p-6 rounded-xl max-w-sm w-full shadow-[0_0_30px_rgba(255,0,0,0.15)] mx-4 relative overflow-hidden"
             >
-              <h3 className="text-white font-bold text-lg mb-2">Delete Identity</h3>
-              <p className="text-text-muted text-sm mb-6">Are you sure you want to delete this HRIS identity?</p>
+              <div className="absolute top-0 left-0 w-full h-1 bg-critical"></div>
+              <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-critical">admin_panel_settings</span>
+                Terminate Identity
+              </h3>
+              <p className="text-text-muted text-sm mb-6 font-sans">Are you sure you want to permanently erase this HRIS neural pattern?</p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setEmpToDelete(null)} className="px-4 py-2 text-sm font-bold text-text-muted hover:text-white transition-colors">Cancel</button>
-                <button onClick={confirmRemoveEmployee} className="px-4 py-2 text-sm font-bold bg-critical text-black rounded-lg hover:bg-critical/90 transition-colors">Delete</button>
+                <button onClick={() => setEmpToDelete(null)} className="px-4 py-2 text-xs uppercase font-bold text-text-muted hover:text-white transition-colors border border-transparent hover:border-border-dim rounded">Cancel</button>
+                <button onClick={confirmRemoveEmployee} className="px-4 py-2 text-xs uppercase font-bold bg-critical text-black rounded hover:bg-critical/90 transition-colors shadow-[0_0_10px_rgba(255,0,0,0.3)]">Terminate</button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
