@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   DragDropContext,
@@ -141,8 +141,19 @@ export function Grid({
   const [filterFavorite, setFilterFavorite] = useState(false);
   const [sortBy, setSortBy] = useState<"time" | "title" | "dept">("time");
   const [showFilters, setShowFilters] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
+  const [hoveredTicketId, setHoveredTicketId] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, ticketId: string } | null>(null);
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editingTitleValue, setEditingTitleValue] = useState("");
 
   const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
 
   useEffect(() => {
     const fetchTickets = () => {
@@ -230,8 +241,13 @@ export function Grid({
   };
 
   const handleUpdateTicket = (updatedTicket: Ticket) => {
-    if (!updatedTicket.title.trim() || !updatedTicket.description.trim()) {
-      return;
+    if (!updatedTicket.title.trim() && !updatedTicket.description.trim() && !isCreating) {
+      // If inline editing just title, allow it
+      if (updatedTicket.title.trim()) {
+         // This is fine
+      } else {
+         return;
+      }
     }
     
     if (isCreating) {
@@ -358,6 +374,15 @@ export function Grid({
                 <button onClick={() => setSortBy("dept")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "dept" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Dept</button>
               </div>
             </div>
+            <button
+              onClick={() => setIsCompact(!isCompact)}
+              className={`flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full ${isCompact ? "text-primary border-primary" : "text-text-muted hover:text-primary"}`}
+              title="Toggle Density"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {isCompact ? "density_small" : "density_medium"}
+              </span>
+            </button>
             <div className="w-px h-6 bg-border-dim mx-1"></div>
             <button
               onClick={() => window.location.reload()}
@@ -459,7 +484,7 @@ export function Grid({
         {isLoading ? (
           <div className="flex h-full min-w-full w-max p-4 gap-4 snap-x snap-mandatory">
             {COLUMNS.map((colId) => (
-              <div key={`skeleton-${colId}`} className="flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full glass-panel bento-card p-4 gap-4 opacity-50 relative overflow-hidden">
+              <div key={`skeleton-${colId}`} className="flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full rounded-2xl border border-white/10 bg-white/5 p-4 gap-4 opacity-50 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
                 <div className="h-6 w-32 bg-surface-dim rounded mb-4"></div>
                 {[1, 2, 3].map(i => (
@@ -477,16 +502,16 @@ export function Grid({
           </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex h-full min-w-full w-max p-4 gap-4 snap-x snap-mandatory">
+            <div className="flex h-full min-w-full w-max p-4 gap-6 snap-x snap-mandatory">
               {COLUMNS.map((colId) => {
                 const columnTickets = getTicketsByStatus(colId);
                 return (
                   <div
                     key={colId}
-                    className={`flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full glass-panel bento-card snap-center ${colId === "STALLED" ? "border-critical/30" : "border-border-dim"}`}
+                    className={`flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full rounded-2xl glass-panel relative overflow-hidden transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.37)] snap-center ${colId === "STALLED" ? "border-critical/30 bg-critical/5 shadow-[0_0_30px_rgba(255,0,51,0.05)]" : "border-white/10 bg-white/5 backdrop-blur-3xl"}`}
                   >
                     <div
-                      className={`flex items-center justify-between p-4 border-b bg-surface-dim/30 backdrop-blur-md sticky top-0 z-10 ${colId === "STALLED" ? "border-critical/30" : "border-border-dim"}`}
+                      className={`flex items-center justify-between p-4 border-b bg-surface-dim/30 backdrop-blur-md sticky top-0 z-10 shadow-sm ${colId === "STALLED" ? "border-critical/30" : "border-white/10"}`}
                     >
                       <h2
                         className={`text-sm font-sans font-bold tracking-widest uppercase flex items-center gap-2 ${colId === "PROCESSING" ? "text-primary" : colId === "STALLED" ? "text-critical" : colId === "RESOLVED" ? "text-stable" : "text-text-muted"}`}
@@ -522,9 +547,31 @@ export function Grid({
                         <div
                           {...provided.droppableProps}
                           ref={provided.innerRef}
-                          className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[100px] transition-colors rounded-xl ${snapshot.isDraggingOver ? "bg-white/5 border border-dashed border-primary/50" : ""}`}
+                          className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[100px] transition-colors rounded-xl relative ${snapshot.isDraggingOver ? "bg-white/10 border border-dashed border-primary/50" : ""}`}
                         >
-                          {columnTickets.map((ticket, index) => (
+                          {columnTickets.length === 0 && !snapshot.isDraggingOver && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-text-muted/50 p-6 text-center select-none pointer-events-none">
+                               <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring" }}>
+                                  <span className="material-symbols-outlined text-4xl mb-2 opacity-50">
+                                    {colId === "QUEUED" ? "line_style" : colId === "PROCESSING" ? "memory" : colId === "STALLED" ? "shield_locked" : "task_alt"}
+                                  </span>
+                                  <p className="text-xs font-sans font-medium">No {colId.toLowerCase()} tickets</p>
+                                  {(colId === "STALLED" || colId === "QUEUED") && <p className="text-[10px] mt-1 text-primary/70">Inbox Zero achieved! 🎉</p>}
+                               </motion.div>
+                            </div>
+                          )}
+                          {columnTickets.map((ticket, index) => {
+                            const isDimmed = hoveredTicketId && hoveredTicketId !== ticket.id && !ticket.dependencies?.includes(hoveredTicketId) && !(tickets.find(t => t.id === hoveredTicketId)?.dependencies?.includes(ticket.id));
+                            const isHighlighted = hoveredTicketId === ticket.id || ticket.dependencies?.includes(hoveredTicketId!) || tickets.find(t => t.id === hoveredTicketId!)?.dependencies?.includes(ticket.id);
+                            
+                            const getDaysLeft = (date?: string) => {
+                              if (!date) return null;
+                              return Math.ceil((new Date(date).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                            };
+                            const daysLeft = getDaysLeft(ticket.dueDate);
+                            const isUrgent = daysLeft !== null && daysLeft <= 2 && ticket.status !== "RESOLVED";
+
+                            return (
                             <Draggable
                               key={ticket.id}
                               draggableId={ticket.id}
@@ -536,15 +583,21 @@ export function Grid({
                                   {...(provided.draggableProps as any)}
                                   {...(provided.dragHandleProps as any)}
                                   onClick={() => handleSelectTicket(ticket)}
+                                  onMouseEnter={() => setHoveredTicketId(ticket.id)}
+                                  onMouseLeave={() => setHoveredTicketId(null)}
+                                  onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    setContextMenu({ x: e.clientX, y: e.clientY, ticketId: ticket.id });
+                                  }}
                                   style={{
                                     ...provided.draggableProps.style,
                                     transform: snapshot.isDragging
-                                      ? `${provided.draggableProps.style?.transform} scale(1.02)`
+                                      ? `${provided.draggableProps.style?.transform} scale(1.05) rotate(2deg)`
                                       : provided.draggableProps.style?.transform,
                                   }}
-                                  className={`group relative flex flex-col p-4 bg-surface-dim/80 backdrop-blur-md border transition-all rounded-2xl cursor-pointer ${
+                                  className={`group relative flex flex-col ${isCompact ? 'p-3' : 'p-4'} bg-surface-dim/90 backdrop-blur-2xl transition-all duration-300 rounded-2xl cursor-pointer ${
                                     snapshot.isDragging
-                                      ? "shadow-2xl z-50 border-primary/50"
+                                      ? "shadow-[0_20px_40px_rgba(0,0,0,0.5)] z-50 border-primary"
                                       : ""
                                   } ${
                                     ticket.status === "PROCESSING"
@@ -554,8 +607,11 @@ export function Grid({
                                         : ticket.status === "RESOLVED"
                                           ? "border-border-dim/50 opacity-75 hover:opacity-100"
                                           : "border-border-dim hover:border-primary/40"
-                                  }`}
+                                  } ${isDimmed ? "opacity-30 grayscale saturate-0 pointer-events-none" : isHighlighted && !isDimmed ? "shadow-[0_0_20px_rgba(0,240,255,0.2)] border-primary z-10" : ""}`}
                                 >
+                                  {isUrgent && (
+                                    <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-critical/50 to-orange-500/50 opacity-50 blur-sm -z-10 animate-pulse"></div>
+                                  )}
                                   {ticket.status === "PROCESSING" && (
                                     <div className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-bl-lg rounded-tr-xl"></div>
                                   )}
@@ -589,14 +645,20 @@ export function Grid({
                                       >
                                         {ticket.dept}
                                       </span>
-                                      {ticket.category && (
+                                      {!isCompact && ticket.category && (
                                         <span className="text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-surface border border-border-dim text-white/70">
                                           {ticket.category}
                                         </span>
                                       )}
                                     </div>
                                     {/* Vibe Check Emoji & Favorite */}
-                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                    <div className="flex items-center gap-2 flex-shrink-0 relative">
+                                      {/* Avatar */}
+                                      <div className="flex -space-x-2 mr-1" title={ticket.lastUpdatedBy}>
+                                        <div className="w-5 h-5 rounded-full border border-background-dark bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-[8px] font-bold text-black shadow-lg z-10 transition-transform group-hover:-translate-y-1">
+                                          {ticket.lastUpdatedBy?.substring(0, 2).toUpperCase() || "SU"}
+                                        </div>
+                                      </div>
                                       <button
                                         onClick={(e) => toggleFavorite(e, ticket.id)}
                                         className={`transition-colors ${ticket.isFavorite ? 'text-yellow-500' : 'text-text-muted hover:text-yellow-500'}`}
@@ -605,7 +667,7 @@ export function Grid({
                                           {ticket.isFavorite ? 'star' : 'star_border'}
                                         </span>
                                       </button>
-                                      <span className="text-lg" title="Vibe Check">
+                                      <span className="text-sm" title="Vibe Check">
                                         {ticket.status === "STALLED"
                                           ? "😡"
                                           : ticket.status === "PROCESSING"
@@ -616,22 +678,53 @@ export function Grid({
                                       </span>
                                     </div>
                                   </div>
-                                  <p
-                                    className={`text-sm font-sans font-medium leading-snug mb-3 line-clamp-2 ${
-                                      ticket.status === "PROCESSING" ||
-                                      ticket.status === "STALLED"
-                                        ? "text-white"
-                                        : ticket.status === "RESOLVED"
-                                          ? "text-gray-400"
-                                          : "text-gray-200"
-                                    }`}
-                                  >
-                                    {ticket.title}
-                                  </p>
+                                  {editingTitleId === ticket.id ? (
+                                    <input
+                                      autoFocus
+                                      value={editingTitleValue}
+                                      onClick={(e) => e.stopPropagation()}
+                                      onChange={(e) => setEditingTitleValue(e.target.value)}
+                                      onBlur={() => {
+                                        if (editingTitleValue.trim() !== ticket.title) {
+                                          handleUpdateTicket({ ...ticket, title: editingTitleValue.trim() || ticket.title });
+                                        }
+                                        setEditingTitleId(null);
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          if (editingTitleValue.trim() !== ticket.title) {
+                                            handleUpdateTicket({ ...ticket, title: editingTitleValue.trim() || ticket.title });
+                                          }
+                                          setEditingTitleId(null);
+                                        } else if (e.key === 'Escape') {
+                                          setEditingTitleId(null);
+                                        }
+                                      }}
+                                      className="text-sm font-sans font-medium mb-3 bg-surface border border-primary px-2 py-1 rounded w-full outline-none text-white shadow-[0_0_10px_rgba(0,240,255,0.1)]"
+                                    />
+                                  ) : (
+                                    <p
+                                      onDoubleClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingTitleId(ticket.id);
+                                        setEditingTitleValue(ticket.title);
+                                      }}
+                                      className={`text-sm font-sans font-medium leading-snug mb-3 line-clamp-2 ${
+                                        ticket.status === "PROCESSING" ||
+                                        ticket.status === "STALLED"
+                                          ? "text-white"
+                                          : ticket.status === "RESOLVED"
+                                            ? "text-gray-400"
+                                            : "text-gray-200"
+                                      }`}
+                                    >
+                                      {ticket.title}
+                                    </p>
+                                  )}
 
                                   {/* AI TL;DR Summary */}
-                                  {ticket.status !== "RESOLVED" && (
-                                    <div className="mb-3 p-2 bg-surface rounded-lg border border-border-dim/50 flex flex-col gap-1.5">
+                                  {!isCompact && ticket.status !== "RESOLVED" && (
+                                    <div className="mb-3 p-2 bg-white/5 rounded-lg border border-white/10 flex flex-col gap-1.5 backdrop-blur-md">
                                       <div className="flex items-start gap-2">
                                         <span className="text-xs">✨</span>
                                         <p className="text-[10px] font-sans text-text-muted leading-tight line-clamp-2">
@@ -660,16 +753,17 @@ export function Grid({
                                   )}
 
                                   <div
-                                    className={`flex items-center justify-between border-t pt-3 mt-auto ${
-                                      ticket.status === "PROCESSING"
-                                        ? "border-primary/20"
-                                        : ticket.status === "STALLED"
-                                          ? "border-critical/20"
-                                          : ticket.status === "RESOLVED"
-                                            ? "border-border-dim/30"
-                                            : "border-border-dim/50"
-                                    }`}
+                                    className={`flex items-center justify-between border-t border-white/10 pt-3 mt-auto relative`}
                                   >
+                                    {/* Smart Progress Bar */}
+                                    {daysLeft !== null && ticket.status !== "RESOLVED" && (
+                                      <div className="absolute top-0 left-0 -mt-[1px] w-full h-[1px] bg-white/5">
+                                        <div 
+                                          className={`h-full ${daysLeft <= 1 ? "bg-critical shadow-[0_0_5px_red]" : daysLeft <= 3 ? "bg-orange-400" : "bg-primary"}`} 
+                                          style={{ width: `${Math.max(0, Math.min(100, 100 - (daysLeft * 10)))}%`}}
+                                        ></div>
+                                      </div>
+                                    )}
                                     <span
                                       className={`text-[10px] font-sans font-bold flex items-center gap-1.5 ${
                                         ticket.status === "PROCESSING"
@@ -734,7 +828,8 @@ export function Grid({
                                 </div>
                               )}
                             </Draggable>
-                          ))}
+                           );
+                          })}
                           {provided.placeholder}
                         </div>
                       )}
@@ -746,6 +841,51 @@ export function Grid({
           </DragDropContext>
         )}
       </main>
+
+      {/* Context Menu */}
+      <AnimatePresence>
+        {contextMenu && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed z-[999] w-48 bg-surface border border-white/20 rounded-xl shadow-2xl overflow-hidden backdrop-blur-3xl flex flex-col pointer-events-auto"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-3 py-2 border-b border-white/10 text-[10px] font-mono text-text-muted">ACTIONS</div>
+            {COLUMNS.map(col => (
+              <button
+                key={col}
+                className="w-full text-left px-4 py-2.5 text-xs text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+                onClick={() => {
+                  const tToUpdate = tickets.find(t => t.id === contextMenu.ticketId);
+                  if (tToUpdate) {
+                    handleUpdateTicket({...tToUpdate, status: col});
+                  }
+                  setContextMenu(null);
+                }}
+              >
+                <span className="material-symbols-outlined text-[14px]">
+                  {col === "QUEUED" ? "line_style" : col === "PROCESSING" ? "memory" : col === "STALLED" ? "shield_locked" : "task_alt"}
+                </span>
+                Move to {col}
+              </button>
+            ))}
+            <div className="w-full h-px bg-white/10"></div>
+            <button
+              className="w-full text-left px-4 py-2.5 text-xs text-critical hover:bg-critical/10 transition-colors flex items-center gap-2"
+              onClick={() => {
+                 handleDeleteTicket(contextMenu.ticketId);
+                 setContextMenu(null);
+              }}
+            >
+              <span className="material-symbols-outlined text-[14px]">delete</span>
+              Delete
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Ticket Details Modal */}
       <AnimatePresence>
