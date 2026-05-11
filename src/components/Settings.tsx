@@ -492,11 +492,11 @@ export function Settings() {
                     <div className="relative flex">
                       <select 
                         value={searchField} onChange={e => setSearchField(e.target.value as any)}
-                        className="bg-surface-dim border border-border-dim text-white text-sm pl-4 pr-10 py-2 rounded-lg focus:border-primary outline-none transition-all focus:ring-1 focus:ring-primary/50 cursor-pointer appearance-none w-full sm:w-36"
+                        className="bg-surface-dim border border-border-dim text-white text-sm pl-4 pr-10 py-2 rounded-lg focus:border-primary outline-none transition-all focus:ring-1 focus:ring-primary/50 cursor-pointer appearance-none w-full sm:w-36 [color-scheme:dark]"
                       >
-                        <option value="Name" className="bg-background text-white font-sans">Name</option>
-                        <option value="Role" className="bg-background text-white font-sans">Role</option>
-                        <option value="Dept" className="bg-background text-white font-sans">Dept</option>
+                        <option value="Name" className="bg-background-dark text-white font-sans">Name</option>
+                        <option value="Role" className="bg-background-dark text-white font-sans">Role</option>
+                        <option value="Dept" className="bg-background-dark text-white font-sans">Dept</option>
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted text-[18px]">expand_more</span>
                     </div>
@@ -510,9 +510,9 @@ export function Settings() {
                           <input type="text" value={newEmpRole} onChange={e => setNewEmpRole(e.target.value)} placeholder="Function" className="w-full bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded" />
                           <div className="flex gap-2">
                              <div className="relative flex-1">
-                               <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="w-full bg-surface-dim border border-border-dim text-xs pl-2 pr-8 py-1.5 focus:border-primary outline-none rounded appearance-none cursor-pointer text-white">
+                               <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="w-full bg-surface-dim border border-border-dim text-xs pl-2 pr-8 py-1.5 focus:border-primary outline-none rounded appearance-none cursor-pointer text-white [color-scheme:dark]">
                                  {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN"].map(d => (
-                                   <option key={d} value={d} className="bg-background text-white font-sans">{d}</option>
+                                   <option key={d} value={d} className="bg-background-dark text-white font-sans">{d}</option>
                                  ))}
                                </select>
                                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted text-[14px]">expand_more</span>
@@ -531,9 +531,9 @@ export function Settings() {
                             <input type="text" value={editEmpName} onChange={e => setEditEmpName(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
                             <input type="text" value={editEmpRole} onChange={e => setEditEmpRole(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
                             <div className="relative">
-                              <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs pl-2 pr-7 py-1 rounded outline-none appearance-none cursor-pointer">
+                              <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs pl-2 pr-7 py-1 rounded outline-none appearance-none cursor-pointer [color-scheme:dark]">
                                 {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
-                                  <option key={d} value={d} className="bg-background text-white font-sans">{d}</option>
+                                  <option key={d} value={d} className="bg-background-dark text-white font-sans">{d}</option>
                                 ))}
                               </select>
                               <span className="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-primary text-[14px]">expand_more</span>

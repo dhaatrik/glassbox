@@ -20,10 +20,13 @@ export function Dashboard({
   });
   const [tickerItems, setTickerItems] = useState<any[]>([]);
 
-  // Weekly Heatmap Data (randomized for visual effect)
+  const [heatmapRange, setHeatmapRange] = useState("4weeks");
+
+  // Dynamic Heatmap Data (randomized for visual effect, reacts to range change)
   const heatmapData = useMemo(() => {
-    return Array.from({ length: 28 }).map(() => Math.floor(Math.random() * 5));
-  }, []);
+    const days = heatmapRange === "1week" ? 7 : heatmapRange === "12weeks" ? 84 : 28;
+    return Array.from({ length: days }).map(() => Math.floor(Math.random() * 5));
+  }, [heatmapRange]);
 
   // Dynamic Sparkline Data
   const sparklineData = useMemo(() => {
@@ -434,13 +437,25 @@ export function Dashboard({
                   Activity Heatmap
                 </h3>
               </div>
-              <div className="flex items-center gap-2 text-xs text-text-muted font-sans cursor-pointer hover:text-primary transition-colors">
-                <span>Past 4 Weeks</span>
-                <span className="material-symbols-outlined text-[16px]">expand_more</span>
+              <div className="relative">
+                <select
+                  value={heatmapRange}
+                  onChange={(e) => setHeatmapRange(e.target.value)}
+                  className="bg-transparent text-xs text-text-muted font-sans cursor-pointer hover:text-primary transition-colors appearance-none pr-6 outline-none focus:text-primary [color-scheme:dark]"
+                >
+                  <option value="1week" className="bg-background-dark text-white">Past 1 Week</option>
+                  <option value="4weeks" className="bg-background-dark text-white">Past 4 Weeks</option>
+                  <option value="12weeks" className="bg-background-dark text-white">Past 12 Weeks</option>
+                </select>
+                <span className="material-symbols-outlined text-[16px] absolute right-0 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">expand_more</span>
               </div>
             </div>
             
-            <div className="grid grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))] gap-1.5 md:gap-2">
+            <div className={`grid gap-1.5 md:gap-2 ${
+                 heatmapRange === '1week' ? 'grid-cols-7 lg:grid-cols-14' : 
+                 heatmapRange === '12weeks' ? 'grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))] lg:grid-cols-[repeat(42,minmax(0,1fr))]' : 
+                 'grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))]'
+               }`}>
               {heatmapData.map((level, i) => (
                 <motion.div
                   key={i}

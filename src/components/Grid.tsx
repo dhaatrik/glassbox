@@ -1027,12 +1027,12 @@ export function Grid({
                       }
                       className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
                     >
-                      <option value="">None</option>
-                      <option value="Culture">Culture</option>
-                      <option value="Workload">Workload</option>
-                      <option value="Management">Management</option>
-                      <option value="Tools">Tools</option>
-                      <option value="Other">Other</option>
+                      <option value="" className="bg-background-dark text-white">None</option>
+                      <option value="Culture" className="bg-background-dark text-white">Culture</option>
+                      <option value="Workload" className="bg-background-dark text-white">Workload</option>
+                      <option value="Management" className="bg-background-dark text-white">Management</option>
+                      <option value="Tools" className="bg-background-dark text-white">Tools</option>
+                      <option value="Other" className="bg-background-dark text-white">Other</option>
                     </select>
                   </div>
                   <span className="flex items-center gap-2 uppercase tracking-wider hidden sm:flex">
@@ -1107,7 +1107,7 @@ export function Grid({
                       }}
                       className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark] text-xs max-w-sm w-full"
                     >
-                      <option value="">+ Add Dependency...</option>
+                      <option value="" className="bg-background-dark text-white">+ Add Dependency...</option>
                       {tickets
                         .filter(t => t.id !== selectedTicket.id && !selectedTicket.dependencies?.includes(t.id))
                         .map(t => (
