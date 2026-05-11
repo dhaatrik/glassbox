@@ -21,6 +21,14 @@ export default function App() {
     status?: string;
   } | null>(null);
 
+  React.useEffect(() => {
+    const theme = localStorage.getItem("glassbox_theme") || "CYBER";
+    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void");
+    if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
+    if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
+    if (theme === "STEALTH") document.documentElement.classList.add("theme-void");
+  }, []);
+
   const handleLogin = () => {
     navigate("/dashboard");
     setShowTour(true);

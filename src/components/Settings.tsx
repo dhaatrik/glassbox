@@ -29,10 +29,28 @@ export function Settings() {
   const [searchField, setSearchField] = useState<"Name" | "Role" | "Dept">("Name");
 
   const [activeTab, setActiveTab] = useState<"IDENTITY" | "SYSTEM" | "INTEGRATIONS" | "DANGER">("IDENTITY");
-  const [activeTheme, setActiveTheme] = useState("CYBER");
+  const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem("glassbox_theme") || "CYBER");
   const [auditLogs, setAuditLogs] = useState<{time: string, action: string}[]>([]);
   const [bulkImportText, setBulkImportText] = useState("");
   const parallaxRef = useRef<HTMLDivElement>(null);
+
+  const [integrations, setIntegrations] = useState([
+    { id: "s7db", name: "Sector 7 Database", status: "Connected", icon: "database", type: "DATA" },
+    { id: "qek", name: "Quantum Encryption Key", status: "Active", icon: "key", type: "SECURITY" },
+    { id: "eupl", name: "External Uplink", status: "Offline", icon: "satellite_alt", type: "NETWORK" }
+  ]);
+
+  const [isPurging, setIsPurging] = useState(false);
+  const [showFactoryResetConf, setShowFactoryResetConf] = useState(false);
+
+  useEffect(() => {
+    // Initial Theme Load
+    const theme = localStorage.getItem("glassbox_theme") || "CYBER";
+    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void");
+    if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
+    if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
+    if (theme === "STEALTH") document.documentElement.classList.add("theme-void");
+  }, []);
 
   useEffect(() => {
     setAuditLogs(prev => [{ time: new Date().toLocaleTimeString(), action: "System configuration module accessed" }, ...prev]);
@@ -227,6 +245,55 @@ export function Settings() {
     return true;
   });
 
+  const toggleIntegration = (id: string) => {
+    setIntegrations(prev => prev.map(int => {
+      if (int.id === id) {
+        const newStatus = int.status === "Offline" ? (int.id === "qek" ? "Active" : "Connected") : "Offline";
+        addAuditLog(`Integration ${int.name} toggled to ${newStatus}`);
+        return { ...int, status: newStatus };
+      }
+      return int;
+    }));
+  };
+
+  const purgeCache = () => {
+    setIsPurging(true);
+    addAuditLog("Initiated Neural Cache Purge");
+    setTimeout(() => {
+      sessionStorage.clear();
+      setIsPurging(false);
+      addAuditLog("Neural Cache Purged Successfully");
+    }, 1500);
+  };
+
+  const factoryReset = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "/";
+  };
+
+  const handleThemeChange = (theme: string) => {
+    setActiveTheme(theme);
+    localStorage.setItem("glassbox_theme", theme);
+    addAuditLog(`Theme Matrix shifted to ${theme}`);
+
+    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void");
+    if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
+    if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
+    if (theme === "STEALTH") document.documentElement.classList.add("theme-void");
+  };
+
+  const exportMatrix = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(employees, null, 2));
+    const downloadAnchorNode = document.createElement("a");
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "glassbox_neural_grid_export.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+    addAuditLog("Exported Neural Grid Matrix");
+  };
+
   return (
     <div className="relative min-h-screen bg-background overflow-hidden flex flex-col font-mono text-white selection:bg-primary/30">
       {/* Parallax Background Environment */}
@@ -256,7 +323,7 @@ export function Settings() {
                 {["CYBER", "NEON", "STEALTH"].map(theme => (
                   <button 
                     key={theme}
-                    onClick={() => { setActiveTheme(theme); addAuditLog(`Theme Matrix shifted to ${theme}`); }}
+                    onClick={() => handleThemeChange(theme)}
                     className={`px-2 py-1 rounded border transition-colors ${activeTheme === theme ? 'border-primary text-primary bg-primary/10' : 'border-border-dim text-text-muted hover:border-text-muted'}`}
                   >
                     {theme}
@@ -320,7 +387,7 @@ export function Settings() {
                   <div className="flex flex-col md:flex-row gap-8 items-center md:items-start relative z-10">
                     <div className="relative w-32 h-32 md:w-40 md:h-40 shrink-0">
                       <div className="absolute inset-0 bg-primary/20 rounded-full animate-pulse blur-xl"></div>
-                      <img src={profileAvatar} alt="Avatar" className="w-full h-full rounded-full object-cover border-4 border-surface shadow-[0_0_20px_rgba(0,240,255,0.3)]" referrerPolicy="no-referrer" />
+                      <img src={profileAvatar} alt="Avatar" className="w-full h-full rounded-full object-cover border-4 border-surface shadow-[0_0_20px_var(--color-primary)] opacity-80" referrerPolicy="no-referrer" />
                       <label className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 rounded-full opacity-0 hover:opacity-100 cursor-pointer transition-opacity border-2 border-dashed border-primary">
                         <span className="material-symbols-outlined text-white text-2xl mb-1 group-hover:scale-110 transition-transform">scan</span>
                         <span className="text-[10px] font-bold text-white uppercase tracking-wider">Sync Retina</span>
@@ -336,7 +403,7 @@ export function Settings() {
                           type="text" 
                           value={profileName} 
                           onChange={e => setProfileName(e.target.value)}
-                          className="w-full bg-surface-dim border border-border-dim text-white text-lg px-4 py-3 rounded-lg focus:border-primary focus:shadow-[0_0_10px_rgba(0,240,255,0.1)] outline-none transition-all font-display tracking-wide"
+                          className="w-full bg-surface-dim border border-border-dim text-white text-lg px-4 py-3 rounded-lg focus:border-primary outline-none transition-all font-display tracking-wide focus:ring-1 focus:ring-primary/50"
                         />
                       </div>
                       
@@ -388,7 +455,7 @@ export function Settings() {
                         </div>
                       </div>
 
-                      <button onClick={saveProfile} className="mt-4 bg-primary text-black font-bold text-sm px-6 py-3 rounded-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,240,255,0.3)] flex items-center justify-center gap-2 w-full md:w-auto uppercase tracking-wider">
+                      <button onClick={saveProfile} className="mt-4 bg-primary text-black font-bold text-sm px-6 py-3 rounded-lg hover:bg-white transition-colors shadow-[0_0_15px_var(--color-primary)] opacity-90 hover:opacity-100 flex items-center justify-center gap-2 w-full md:w-auto uppercase tracking-wider">
                         {saveSuccess ? <><span className="material-symbols-outlined text-sm">check</span> Identity Synced</> : "Compile Identity"}
                       </button>
                     </div>
@@ -407,7 +474,7 @@ export function Settings() {
                       Neural Grid Roster
                     </h2>
                     <div className="flex gap-2">
-                       <button className="text-[10px] bg-primary/10 text-primary px-2 py-1 border border-primary/30 rounded uppercase font-bold flex items-center gap-1 hover:bg-primary/20">
+                       <button onClick={exportMatrix} className="text-[10px] bg-primary/10 text-primary px-2 py-1 border border-primary/30 rounded uppercase font-bold flex items-center gap-1 hover:bg-primary/20">
                           <span className="material-symbols-outlined text-[14px]">download</span> Export Matrix
                        </button>
                     </div>
@@ -419,17 +486,20 @@ export function Settings() {
                       <input 
                         type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                         placeholder="Query neural patterns..."
-                        className="w-full bg-surface-dim border border-border-dim text-white text-sm pl-9 pr-3 py-2 rounded-lg focus:border-primary focus:shadow-[0_0_10px_rgba(0,240,255,0.1)] outline-none transition-all"
+                        className="w-full bg-surface-dim border border-border-dim text-white text-sm pl-9 pr-3 py-2 rounded-lg focus:border-primary outline-none transition-all focus:ring-1 focus:ring-primary/50"
                       />
                     </div>
-                    <select 
-                      value={searchField} onChange={e => setSearchField(e.target.value as any)}
-                      className="bg-surface-dim border border-border-dim text-white text-sm px-3 py-2 rounded-lg focus:border-primary outline-none transition-colors cursor-pointer sm:w-32"
-                    >
-                      <option value="Name" className="bg-background">Name</option>
-                      <option value="Role" className="bg-background">Role</option>
-                      <option value="Dept" className="bg-background">Dept</option>
-                    </select>
+                    <div className="relative flex">
+                      <select 
+                        value={searchField} onChange={e => setSearchField(e.target.value as any)}
+                        className="bg-surface-dim border border-border-dim text-white text-sm pl-4 pr-10 py-2 rounded-lg focus:border-primary outline-none transition-all focus:ring-1 focus:ring-primary/50 cursor-pointer appearance-none w-full sm:w-36"
+                      >
+                        <option value="Name" className="bg-background text-white font-sans">Name</option>
+                        <option value="Role" className="bg-background text-white font-sans">Role</option>
+                        <option value="Dept" className="bg-background text-white font-sans">Dept</option>
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted text-[18px]">expand_more</span>
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -439,11 +509,14 @@ export function Settings() {
                           <input type="text" value={newEmpName} onChange={e => setNewEmpName(e.target.value)} placeholder="Designation" className="w-full bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded" />
                           <input type="text" value={newEmpRole} onChange={e => setNewEmpRole(e.target.value)} placeholder="Function" className="w-full bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded" />
                           <div className="flex gap-2">
-                             <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="flex-1 bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded">
-                               {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN"].map(d => (
-                                 <option key={d} value={d} className="bg-background">{d}</option>
-                               ))}
-                             </select>
+                             <div className="relative flex-1">
+                               <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="w-full bg-surface-dim border border-border-dim text-xs pl-2 pr-8 py-1.5 focus:border-primary outline-none rounded appearance-none cursor-pointer text-white">
+                                 {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN"].map(d => (
+                                   <option key={d} value={d} className="bg-background text-white font-sans">{d}</option>
+                                 ))}
+                               </select>
+                               <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted text-[14px]">expand_more</span>
+                             </div>
                              <button onClick={addEmployee} className="bg-primary text-black px-3 py-1.5 rounded text-xs font-bold hover:bg-white transition-colors">ADD</button>
                           </div>
                        </div>
@@ -457,11 +530,14 @@ export function Settings() {
                           <div className="space-y-2 relative z-10">
                             <input type="text" value={editEmpName} onChange={e => setEditEmpName(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
                             <input type="text" value={editEmpRole} onChange={e => setEditEmpRole(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
-                            <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none appearance-none">
-                              {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
-                                <option key={d} value={d} className="bg-background text-white">{d}</option>
-                              ))}
-                            </select>
+                            <div className="relative">
+                              <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs pl-2 pr-7 py-1 rounded outline-none appearance-none cursor-pointer">
+                                {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
+                                  <option key={d} value={d} className="bg-background text-white font-sans">{d}</option>
+                                ))}
+                              </select>
+                              <span className="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-primary text-[14px]">expand_more</span>
+                            </div>
                             <div className="flex gap-2 pt-2">
                               <button onClick={saveEdit} className="flex-1 bg-primary text-black font-bold text-[10px] py-1.5 rounded hover:bg-white transition-colors uppercase">Save</button>
                               <button onClick={cancelEditing} className="flex-1 bg-surface border border-border-dim text-text-muted font-bold text-[10px] py-1.5 rounded hover:text-white transition-colors uppercase">Cancel</button>
@@ -523,12 +599,8 @@ export function Settings() {
                 <section className="glass-panel p-6 border border-border-dim">
                   <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2 mb-6">Integration Control Panel</h2>
                   <div className="grid gap-4">
-                    {[
-                      { name: "Sector 7 Database", status: "Connected", icon: "database", type: "DATA" },
-                      { name: "Quantum Encryption Key", status: "Active", icon: "key", type: "SECURITY" },
-                      { name: "External Uplink", status: "Offline", icon: "satellite_alt", type: "NETWORK" }
-                    ].map(int => (
-                      <div key={int.name} className="flex items-center justify-between p-4 bg-surface-dim border border-border-dim rounded-lg hover:border-primary/30 transition-colors">
+                    {integrations.map(int => (
+                      <div key={int.id} className="flex items-center justify-between p-4 bg-surface-dim border border-border-dim rounded-lg hover:border-primary/30 transition-colors">
                         <div className="flex items-center gap-4">
                           <div className={`p-3 rounded-full ${int.status === 'Offline' ? 'bg-surface text-text-muted' : 'bg-primary/10 text-primary border border-primary/20'}`}>
                             <span className="material-symbols-outlined">{int.icon}</span>
@@ -540,7 +612,7 @@ export function Settings() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className={`text-xs font-bold ${int.status === 'Offline' ? 'text-text-muted' : 'text-emerald-400'}`}>{int.status}</span>
-                          <button className={`w-10 h-5 rounded-full relative transition-colors ${int.status === 'Offline' ? 'bg-surface border border-border-dim' : 'bg-primary/30 border border-primary'}`}>
+                          <button onClick={() => toggleIntegration(int.id)} className={`w-10 h-5 rounded-full relative transition-colors ${int.status === 'Offline' ? 'bg-surface border border-border-dim' : 'bg-primary/30 border border-primary'}`}>
                             <motion.div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full ${int.status === 'Offline' ? 'bg-text-muted left-1' : 'bg-primary right-1'}`} layout />
                           </button>
                         </div>
@@ -565,14 +637,16 @@ export function Settings() {
                         <p className="font-bold text-white text-sm">Purge Neural Cache</p>
                         <p className="text-xs text-text-muted mt-1 font-sans">Wipes all temporary structural memory vectors. Cannot be undone.</p>
                       </div>
-                      <button className="px-4 py-2 border border-critical text-critical text-xs font-bold rounded hover:bg-critical hover:text-black transition-colors uppercase tracking-wider">Purge Cache</button>
+                      <button onClick={purgeCache} disabled={isPurging} className="px-4 py-2 border border-critical text-critical text-xs font-bold rounded hover:bg-critical hover:text-black transition-colors uppercase tracking-wider disabled:opacity-50">
+                        {isPurging ? "PURGING..." : "Purge Cache"}
+                      </button>
                     </div>
                     <div className="flex items-center justify-between p-4 bg-surface/80 border border-critical/20 rounded-lg backdrop-blur-sm">
                       <div>
                         <p className="font-bold text-white text-sm">Initiate Protocol Zero</p>
                         <p className="text-xs text-text-muted mt-1 font-sans">Formats the entire grid. All patterns will be permanently erased.</p>
                       </div>
-                      <button className="px-4 py-2 bg-critical text-black text-xs font-bold rounded hover:bg-red-500 transition-colors uppercase tracking-wider shadow-[0_0_15px_rgba(255,0,0,0.3)]">Factory Reset</button>
+                      <button onClick={() => setShowFactoryResetConf(true)} className="px-4 py-2 bg-critical text-black text-xs font-bold rounded hover:bg-red-500 transition-colors uppercase tracking-wider shadow-[0_0_15px_rgba(255,0,0,0.3)]">Factory Reset</button>
                     </div>
                   </div>
                 </section>
@@ -657,6 +731,28 @@ export function Settings() {
               <div className="flex justify-end gap-3">
                 <button onClick={() => setEmpToDelete(null)} className="px-4 py-2 text-xs uppercase font-bold text-text-muted hover:text-white transition-colors border border-transparent hover:border-border-dim rounded">Cancel</button>
                 <button onClick={confirmRemoveEmployee} className="px-4 py-2 text-xs uppercase font-bold bg-critical text-black rounded hover:bg-critical/90 transition-colors shadow-[0_0_10px_rgba(255,0,0,0.3)]">Terminate</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {showFactoryResetConf && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-mono"
+          >
+            <motion.div 
+              initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
+              className="bg-surface border border-critical p-6 rounded-xl max-w-sm w-full shadow-[0_0_30px_rgba(255,0,0,0.15)] mx-4 relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-critical"></div>
+              <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-critical">warning</span>
+                Absolute Erasure
+              </h3>
+              <p className="text-text-muted text-sm mb-6 font-sans">Are you absolutely sure you want to format the grid? This action is irreversible and resets all data.</p>
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setShowFactoryResetConf(false)} className="px-4 py-2 text-xs uppercase font-bold text-text-muted hover:text-white transition-colors border border-transparent hover:border-border-dim rounded">Cancel</button>
+                <button onClick={factoryReset} className="px-4 py-2 text-xs uppercase font-bold bg-critical text-black rounded hover:bg-critical/90 transition-colors shadow-[0_0_10px_rgba(255,0,0,0.3)]">Execute</button>
               </div>
             </motion.div>
           </motion.div>
