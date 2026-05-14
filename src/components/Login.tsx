@@ -232,19 +232,7 @@ export function Login({ onLogin }: LoginProps) {
                   </button>
                 </form>
 
-                <div className="mt-8 pt-6 border-t border-border-dim space-y-3">
-                  <p className="text-[10px] text-center text-text-muted uppercase tracking-widest font-bold">Alternative Uplinks</p>
-                  <div className="flex gap-2">
-                    <button className="flex-1 flex items-center justify-center gap-2 bg-surface text-text-muted text-[10px] uppercase font-bold py-2 rounded border border-border-dim hover:text-white hover:border-primary/50 transition-colors">
-                      <span className="material-symbols-outlined text-[14px]">corporate_fare</span>
-                      Sector 7
-                    </button>
-                    <button className="flex-1 flex items-center justify-center gap-2 bg-surface text-text-muted text-[10px] uppercase font-bold py-2 rounded border border-border-dim hover:text-white hover:border-primary/50 transition-colors">
-                      <span className="material-symbols-outlined text-[14px]">fingerprint</span>
-                      Bio-Sync
-                    </button>
-                  </div>
-                </div>
+
               </motion.div>
             ) : (
               /* Boot Sequence UI */
