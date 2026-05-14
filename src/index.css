@@ -166,26 +166,6 @@ body::after {
   --theme-primary: #00f0ff;
   --theme-primary-dim: rgba(0, 240, 255, 0.1);
 }
-.theme-matcha {
-  --theme-primary: #a3e635;
-  --theme-primary-dim: rgba(163, 230, 53, 0.1);
-}
-.theme-lavender {
-  --theme-primary: #c084fc;
-  --theme-primary-dim: rgba(192, 132, 252, 0.1);
-}
-.theme-peach {
-  --theme-primary: #ff8a65;
-  --theme-primary-dim: rgba(255, 138, 101, 0.1);
-}
-.theme-vaporwave {
-  --theme-primary: #ff71ce;
-  --theme-primary-dim: rgba(255, 113, 206, 0.1);
-}
-.theme-dracula {
-  --theme-primary: #ff79c6;
-  --theme-primary-dim: rgba(255, 121, 198, 0.1);
-}
 .theme-void {
   --theme-primary: #ffffff;
   --theme-primary-dim: rgba(255, 255, 255, 0.1);

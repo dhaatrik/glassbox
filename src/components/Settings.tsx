@@ -46,12 +46,8 @@ export function Settings() {
   useEffect(() => {
     // Initial Theme Load
     const theme = localStorage.getItem("glassbox_theme") || "CYBER";
-    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void", "theme-matcha", "theme-dracula", "theme-lavender");
+    document.documentElement.classList.remove("theme-cyan", "theme-void");
     if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
-    if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
-    if (theme === "DRACULA") document.documentElement.classList.add("theme-dracula");
-    if (theme === "MATCHA") document.documentElement.classList.add("theme-matcha");
-    if (theme === "LAVENDER") document.documentElement.classList.add("theme-lavender");
     if (theme === "VOID") document.documentElement.classList.add("theme-void");
   }, []);
 
@@ -286,12 +282,8 @@ export function Settings() {
     addAuditLog(`Theme Matrix shifted to ${theme}`);
     window.dispatchEvent(new CustomEvent('show-toast', { detail: `System visually updated to ${theme} Protocol` }));
 
-    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void", "theme-matcha", "theme-lavender", "theme-dracula");
+    document.documentElement.classList.remove("theme-cyan", "theme-void");
     if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
-    if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
-    if (theme === "DRACULA") document.documentElement.classList.add("theme-dracula");
-    if (theme === "MATCHA") document.documentElement.classList.add("theme-matcha");
-    if (theme === "LAVENDER") document.documentElement.classList.add("theme-lavender");
     if (theme === "VOID") document.documentElement.classList.add("theme-void");
   };
 
@@ -333,7 +325,7 @@ export function Settings() {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex gap-2 text-xs flex-wrap max-w-[280px]">
-                {["CYBER", "NEON", "DRACULA", "MATCHA", "LAVENDER", "VOID"].map(theme => (
+                {["CYBER", "VOID"].map(theme => (
                   <button 
                     key={theme}
                     onClick={() => handleThemeChange(theme)}
