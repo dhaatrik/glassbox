@@ -348,39 +348,12 @@ export function Grid({
               />
             </div>
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full ${showFilters ? "text-primary border-primary" : "text-text-muted hover:text-primary"}`}
-            >
-              <span className="material-symbols-outlined text-[18px]">
-                filter_list
-              </span>
-            </button>
-            <button
               onClick={() => setFilterFavorite(!filterFavorite)}
               className={`flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full ${filterFavorite ? "text-yellow-500 border-yellow-500" : "text-text-muted hover:text-yellow-500"}`}
               title="Filter Favorites"
             >
               <span className="material-symbols-outlined text-[18px]">
                 {filterFavorite ? "star" : "star_border"}
-              </span>
-            </button>
-            <div className="relative group z-50">
-              <button className="flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full text-text-muted hover:text-primary" title="Sort By">
-                <span className="material-symbols-outlined text-[18px]">sort</span>
-              </button>
-              <div className="absolute top-full right-0 mt-2 w-40 bg-background-dark border border-white/20 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all flex flex-col overflow-hidden backdrop-blur-2xl z-50">
-                <button onClick={() => setSortBy("time")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "time" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Time</button>
-                <button onClick={() => setSortBy("title")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "title" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Title</button>
-                <button onClick={() => setSortBy("dept")} className={`text-left px-4 py-2.5 text-xs hover:bg-white/10 transition-colors ${sortBy === "dept" ? 'text-primary bg-primary/10' : 'text-white'}`}>Sort by Dept</button>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsCompact(!isCompact)}
-              className={`flex items-center justify-center w-8 h-8 border border-border-dim bg-surface-dim/50 backdrop-blur-md transition-colors rounded-full ${isCompact ? "text-primary border-primary" : "text-text-muted hover:text-primary"}`}
-              title="Toggle Density"
-            >
-              <span className="material-symbols-outlined text-[18px]">
-                {isCompact ? "density_small" : "density_medium"}
               </span>
             </button>
             <div className="w-px h-6 bg-border-dim mx-1"></div>

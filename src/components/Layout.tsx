@@ -166,32 +166,6 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
             
-            <div className="bg-surface-dim/30 p-3 rounded-2xl border border-white/5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-mono text-primary uppercase tracking-widest font-bold">Theme Aura</span>
-              </div>
-              <div className="flex gap-2.5 justify-between">
-                {['theme-cyan', 'theme-matcha', 'theme-lavender', 'theme-dracula'].map(t => (
-                  <button 
-                    key={t}
-                    onClick={() => setAura(t)}
-                    className={`w-5 h-5 rounded-full transition-all duration-300 relative ${aura === t ? 'scale-125 ring-2 ring-white/40 shadow-[0_0_15px_currentColor]' : 'opacity-60 hover:opacity-100 hover:scale-110'}`}
-                    title={t.replace('theme-', '')}
-                    style={{ 
-                      backgroundColor: t === 'theme-cyan' ? '#00f0ff' : 
-                                       t === 'theme-matcha' ? '#a3e635' : 
-                                       t === 'theme-lavender' ? '#c084fc' : 
-                                       t === 'theme-dracula' ? '#ff79c6' : '#ffffff',
-                      color: t === 'theme-cyan' ? '#00f0ff' : 
-                             t === 'theme-matcha' ? '#a3e635' : 
-                             t === 'theme-lavender' ? '#c084fc' : 
-                             t === 'theme-dracula' ? '#ff79c6' : '#ffffff'
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
             <div className="relative">
               <button 
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
