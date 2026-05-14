@@ -1,7 +1,7 @@
 {
   "name": "glassbox",
   "private": true,
-  "version": "1.0.0",
+  "version": "4.2.1",
   "type": "module",
   "author": "Dhaatrik Chowdhury",
   "repository": {
