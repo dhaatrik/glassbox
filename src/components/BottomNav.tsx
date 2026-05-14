@@ -14,132 +14,142 @@ export function BottomNav() {
       <div className="flex gap-2 px-4 pb-6 pt-3 md:pb-3 max-w-2xl mx-auto w-full">
         <button
           onClick={() => navigate("/dashboard")}
-          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-all relative ${
             currentPath === "dashboard"
-              ? "text-primary"
-              : "text-text-muted hover:text-primary"
+              ? "text-primary scale-110"
+              : "text-text-muted hover:text-white"
           }`}
         >
           {currentPath === "dashboard" && (
             <motion.div
-              layoutId="nav-indicator"
-              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+              layoutId="nav-indicator-mobile"
+              className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]"
             />
           )}
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">
-            speed
+          <span className="material-symbols-outlined text-[24px] group-hover:-translate-y-1 transition-transform">
+            space_dashboard
           </span>
-          <p className="text-[10px] font-medium leading-normal tracking-wider font-display">
+          <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono ${currentPath === "dashboard" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             DASHBOARD
           </p>
         </button>
 
         <button
           onClick={() => navigate("/grid")}
-          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-all relative ${
             currentPath === "grid"
-              ? "text-primary"
-              : "text-text-muted hover:text-primary"
+              ? "text-primary scale-110"
+              : "text-text-muted hover:text-white"
           }`}
         >
           {currentPath === "grid" && (
             <motion.div
-              layoutId="nav-indicator"
-              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+              layoutId="nav-indicator-mobile"
+              className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]"
             />
           )}
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">
-            grid_view
-          </span>
-          <p className="text-[10px] font-medium leading-normal tracking-wider font-display">
+          <div className="relative">
+            <span className="material-symbols-outlined text-[24px] group-hover:-translate-y-1 transition-transform">
+              view_kanban
+            </span>
+            <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-primary text-black text-[8px] font-bold rounded-full flex items-center justify-center border border-black z-10">3</span>
+          </div>
+          <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono ${currentPath === "grid" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             GRID
           </p>
         </button>
 
         <button
           onClick={() => navigate("/submit")}
-          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-all relative ${
             currentPath === "submit"
               ? "text-primary"
-              : "text-text-muted hover:text-primary"
+              : "text-text-muted hover:text-white"
           }`}
         >
           {currentPath === "submit" && (
             <motion.div
-              layoutId="nav-indicator"
-              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+              layoutId="nav-indicator-mobile"
+              className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]"
             />
           )}
           <div
-            className={`h-10 w-10 flex items-center justify-center rounded-full bg-black border ${currentPath === "submit" ? "border-primary shadow-[0_0_10px_rgba(0,240,255,0.3)]" : "border-border-dim"} text-primary -mt-6 transition-all`}
+            className={`h-12 w-12 flex items-center justify-center rounded-2xl bg-surface-dim border -translate-y-5 shadow-lg group-hover:-translate-y-6 transition-all ${
+              currentPath === "submit" ? "border-primary shadow-[0_0_15px_rgba(var(--color-primary),0.3)] bg-primary/10" : "border-border-dim"
+            }`}
           >
-            <span className="material-symbols-outlined text-2xl">add</span>
+            <span className="material-symbols-outlined text-[28px] text-primary">add_circle</span>
           </div>
-          <p className="text-[10px] font-medium leading-normal tracking-wider font-display text-primary">
+          <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono text-primary -mt-2 ${currentPath === "submit" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             SIGNAL
           </p>
         </button>
 
         <button
           onClick={() => navigate("/metrics")}
-          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-all relative ${
             currentPath === "metrics"
-              ? "text-primary"
-              : "text-text-muted hover:text-primary"
+              ? "text-primary scale-110"
+              : "text-text-muted hover:text-white"
           }`}
         >
           {currentPath === "metrics" && (
             <motion.div
-              layoutId="nav-indicator"
-              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+              layoutId="nav-indicator-mobile"
+              className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]"
             />
           )}
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">
-            leaderboard
+          <span className="material-symbols-outlined text-[24px] group-hover:-translate-y-1 transition-transform">
+            monitoring
           </span>
-          <p className="text-[10px] font-medium leading-normal tracking-wider font-display">
+          <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono ${currentPath === "metrics" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             METRICS
           </p>
         </button>
+
         <button
           onClick={() => navigate("/insights")}
-          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-all relative ${
             currentPath === "insights"
-              ? "text-primary"
-              : "text-text-muted hover:text-primary"
+              ? "text-primary scale-110"
+              : "text-text-muted hover:text-white"
           }`}
         >
           {currentPath === "insights" && (
             <motion.div
-              layoutId="nav-indicator"
-              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+              layoutId="nav-indicator-mobile"
+              className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]"
             />
           )}
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">
-            psychology
-          </span>
-          <p className="text-[10px] font-medium leading-normal tracking-wider font-display">
+          <div className="relative">
+            <span className="material-symbols-outlined text-[24px] group-hover:-translate-y-1 transition-transform">
+              psychology
+            </span>
+            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-purple-500 rounded-full shadow-[0_0_5px_rgba(168,85,247,0.8)] z-10"></span>
+          </div>
+          <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono ${currentPath === "insights" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             INSIGHTS
           </p>
         </button>
+
         <button
           onClick={() => navigate("/settings")}
-          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-colors relative ${
+          className={`group flex flex-1 flex-col items-center justify-end gap-1 transition-all relative ${
             currentPath === "settings"
-              ? "text-primary"
-              : "text-text-muted hover:text-primary"
+              ? "text-primary scale-110"
+              : "text-text-muted hover:text-white"
           }`}
         >
           {currentPath === "settings" && (
             <motion.div
-              layoutId="nav-indicator"
-              className="absolute -top-3 w-8 h-[2px] bg-primary shadow-[0_0_8px_rgba(0,240,255,0.8)]"
+              layoutId="nav-indicator-mobile"
+              className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)]"
             />
           )}
-          <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">
+          <span className="material-symbols-outlined text-[24px] group-hover:-translate-y-1 transition-transform">
             settings
           </span>
-          <p className="text-[10px] font-medium leading-normal tracking-wider font-display">
+          <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono ${currentPath === "settings" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             SETTINGS
           </p>
         </button>

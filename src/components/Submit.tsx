@@ -515,7 +515,7 @@ export function Submit() {
                 min="1" max="5" 
                 value={pulseWorkload} 
                 onChange={(e) => setPulseWorkload(Number(e.target.value))}
-                className="w-full accent-primary h-1 bg-surface-dim rounded-lg appearance-none cursor-pointer"
+                className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary"
               />
               <div className="flex justify-between text-[10px] text-text-muted font-mono">
                 <span>Light</span>
@@ -531,7 +531,7 @@ export function Submit() {
                 min="1" max="5" 
                 value={pulseClarity} 
                 onChange={(e) => setPulseClarity(Number(e.target.value))}
-                className="w-full accent-primary h-1 bg-surface-dim rounded-lg appearance-none cursor-pointer"
+                className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary"
               />
               <div className="flex justify-between text-[10px] text-text-muted font-mono">
                 <span>Confused</span>
@@ -547,7 +547,7 @@ export function Submit() {
                 min="1" max="5" 
                 value={pulseMorale} 
                 onChange={(e) => setPulseMorale(Number(e.target.value))}
-                className="w-full accent-primary h-1 bg-surface-dim rounded-lg appearance-none cursor-pointer"
+                className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary"
               />
               <div className="flex justify-between text-[10px] text-text-muted font-mono">
                 <span>Low</span>

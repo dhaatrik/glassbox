@@ -75,56 +75,117 @@ export function Layout({ children }: LayoutProps) {
             </span>
           </div>
           
-          <nav className="flex flex-col gap-2 flex-1">
+          <nav className="flex flex-col gap-1 flex-1 mt-6">
+            <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest px-4 mb-2">Platform</span>
             {[
-              { id: "dashboard", icon: "space_dashboard", label: "Dashboard" },
-              { id: "grid", icon: "view_kanban", label: "The Grid" },
-              { id: "submit", icon: "add_circle", label: "New Signal" },
-              { id: "metrics", icon: "monitoring", label: "Metrics" },
-              { id: "insights", icon: "psychology", label: "Insights" },
-              { id: "settings", icon: "settings", label: "Settings" },
+              { id: "dashboard", icon: "space_dashboard", label: "Dashboard", subtitle: "System overview" },
+              { id: "grid", icon: "view_kanban", label: "The Grid", badge: "3", subtitle: "Active signals" },
+              { id: "submit", icon: "add_circle", label: "New Signal", subtitle: "Report anomalies" },
+              { id: "metrics", icon: "monitoring", label: "Metrics", subtitle: "Data trends" },
+              { id: "insights", icon: "psychology", label: "Insights", badge: "NEW", subtitle: "AI analysis" },
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => navigate(`/${item.id}`)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative group overflow-hidden ${
+                className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 relative group overflow-hidden ${
                   currentPath === item.id
-                    ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
-                    : "text-text-muted hover:text-white hover:bg-white/5"
+                    ? "bg-primary/10 text-white shadow-[0_0_15px_rgba(var(--color-primary),0.1)] border border-primary/20"
+                    : "text-text-muted hover:text-white hover:bg-white/5 border border-transparent"
                 }`}
               >
-                <span className={`material-symbols-outlined text-[20px] z-10 ${currentPath === item.id ? 'text-primary' : ''}`}>
-                  {item.icon}
-                </span>
-                <span className="text-sm font-semibold tracking-wide z-10">
-                  {item.label}
-                </span>
+                {/* Active Indicator Bar */}
+                {currentPath === item.id && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-primary rounded-r-full shadow-[0_0_10px_var(--color-primary)]"></div>
+                )}
+                
+                <div className="flex items-center gap-3 z-10 w-full">
+                  <span className={`material-symbols-outlined text-[22px] transition-colors ${currentPath === item.id ? 'text-primary' : 'group-hover:text-primary/70'}`}>
+                    {item.icon}
+                  </span>
+                  <div className="flex flex-col items-start translate-y-0.5">
+                    <span className="text-sm font-semibold tracking-wide leading-tight">
+                      {item.label}
+                    </span>
+                    <span className={`text-[10px] font-mono leading-tight ${currentPath === item.id ? 'text-primary/80' : 'text-text-muted/60 opacity-0 group-hover:opacity-100 transition-opacity'}`}>
+                      {item.subtitle}
+                    </span>
+                  </div>
+                </div>
+                
+                {item.badge && (
+                  <span className={`z-10 text-[9px] font-bold font-mono px-2 py-0.5 rounded-full ${
+                    item.badge === "NEW" 
+                      ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" 
+                      : "bg-primary/20 text-primary border border-primary/30"
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+
+            <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest px-4 mb-2 mt-6">System</span>
+            {[
+              { id: "settings", icon: "settings", label: "Settings", subtitle: "Preferences & config" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => navigate(`/${item.id}`)}
+                className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 relative group overflow-hidden ${
+                  currentPath === item.id
+                    ? "bg-primary/10 text-white shadow-[0_0_15px_rgba(var(--color-primary),0.1)] border border-primary/20"
+                    : "text-text-muted hover:text-white hover:bg-white/5 border border-transparent"
+                }`}
+              >
+                {currentPath === item.id && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-primary rounded-r-full shadow-[0_0_10px_var(--color-primary)]"></div>
+                )}
+                <div className="flex items-center gap-3 z-10 w-full">
+                  <span className={`material-symbols-outlined text-[22px] transition-colors ${currentPath === item.id ? 'text-primary' : 'group-hover:text-primary/70'}`}>
+                    {item.icon}
+                  </span>
+                  <div className="flex flex-col items-start translate-y-0.5">
+                    <span className="text-sm font-semibold tracking-wide leading-tight">
+                      {item.label}
+                    </span>
+                    <span className={`text-[10px] font-mono leading-tight ${currentPath === item.id ? 'text-primary/80' : 'text-text-muted/60 opacity-0 group-hover:opacity-100 transition-opacity'}`}>
+                      {item.subtitle}
+                    </span>
+                  </div>
+                </div>
               </button>
             ))}
           </nav>
 
           {/* User Profile & Auras */}
-          <div className="mt-auto pt-6 border-t border-border-dim flex flex-col gap-4">
-            <div className="flex items-center justify-between px-2 mb-2">
-              <div className="flex items-center gap-1.5 text-orange-400 bg-orange-400/10 px-2.5 py-1 rounded-full border border-orange-400/20">
-                <span className="material-symbols-outlined text-[14px]">local_fire_department</span>
-                <span className="text-xs font-bold font-mono">12 Day Streak</span>
+          <div className="mt-auto pt-6 border-t border-border-dim/50 flex flex-col gap-4">
+            <div className="flex items-center justify-between px-3 mb-2">
+              <div className="flex items-center gap-2 text-orange-400 bg-orange-400/10 px-3 py-1.5 rounded-full border border-orange-400/20 shadow-[0_0_10px_rgba(251,146,60,0.1)]">
+                <span className="material-symbols-outlined text-[16px] animate-pulse">local_fire_department</span>
+                <span className="text-[11px] font-bold font-mono tracking-wider">12 Day Streak</span>
               </div>
             </div>
-            <div className="flex items-center gap-2 px-2">
-              <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest">Aura</span>
-              <div className="flex gap-2 ml-auto flex-wrap justify-end w-32">
+            
+            <div className="bg-surface-dim/30 p-3 rounded-2xl border border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-mono text-primary uppercase tracking-widest font-bold">Theme Aura</span>
+              </div>
+              <div className="flex gap-2.5 justify-between">
                 {['theme-cyan', 'theme-matcha', 'theme-lavender', 'theme-dracula'].map(t => (
                   <button 
                     key={t}
                     onClick={() => setAura(t)}
-                    className={`w-4 h-4 rounded-full transition-transform ${aura === t ? 'scale-125 ring-2 ring-white/30' : 'hover:scale-110'}`}
+                    className={`w-5 h-5 rounded-full transition-all duration-300 relative ${aura === t ? 'scale-125 ring-2 ring-white/40 shadow-[0_0_15px_currentColor]' : 'opacity-60 hover:opacity-100 hover:scale-110'}`}
                     title={t.replace('theme-', '')}
                     style={{ 
                       backgroundColor: t === 'theme-cyan' ? '#00f0ff' : 
                                        t === 'theme-matcha' ? '#a3e635' : 
                                        t === 'theme-lavender' ? '#c084fc' : 
-                                       t === 'theme-dracula' ? '#ff79c6' : '#ffffff'
+                                       t === 'theme-dracula' ? '#ff79c6' : '#ffffff',
+                      color: t === 'theme-cyan' ? '#00f0ff' : 
+                             t === 'theme-matcha' ? '#a3e635' : 
+                             t === 'theme-lavender' ? '#c084fc' : 
+                             t === 'theme-dracula' ? '#ff79c6' : '#ffffff'
                     }}
                   />
                 ))}
@@ -134,26 +195,39 @@ export function Layout({ children }: LayoutProps) {
             <div className="relative">
               <button 
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
-                className="flex items-center gap-3 w-full p-2 rounded-2xl hover:bg-white/5 transition-colors text-left"
+                className="flex items-center gap-3 w-full p-2.5 rounded-2xl hover:bg-white/10 transition-colors text-left border border-transparent hover:border-white/10 group"
               >
-                <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/10" referrerPolicy="no-referrer" />
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-white">{profileName}</span>
-                  <span className="text-xs text-primary font-medium">{status}</span>
+                <div className="relative">
+                  <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover border-2 border-surface-dim group-hover:border-primary/50 transition-colors" referrerPolicy="no-referrer" />
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background-dark shadow-[0_0_5px_#22c55e]"></div>
                 </div>
+                <div className="flex flex-col flex-1">
+                  <span className="text-sm font-bold text-white tracking-wide">{profileName}</span>
+                  <span className="text-[11px] text-primary font-medium font-mono truncate max-w-[120px]">{status}</span>
+                </div>
+                <span className="material-symbols-outlined text-text-muted group-hover:text-white transition-colors">unfold_more</span>
               </button>
               
               {showStatusMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 bg-background-dark/90 backdrop-blur-2xl border border-white/20 rounded-2xl p-2 flex flex-col gap-1 z-50 shadow-2xl animate-[fade-in_0.2s_ease-out]">
+                <div className="absolute bottom-full left-0 w-full mb-3 bg-background-dark/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-2 flex flex-col gap-1 z-50 shadow-2xl animate-[fade-in_0.2s_ease-out] overflow-hidden">
                   {statuses.map(s => (
                     <button 
                       key={s}
                       onClick={() => { setStatus(s); setShowStatusMenu(false); }}
-                      className={`text-left px-3 py-2.5 text-sm rounded-xl transition-all duration-200 ${status === s ? 'bg-primary/10 text-primary font-bold' : 'text-white hover:bg-white/10'}`}
+                      className={`text-left px-3 py-2.5 text-xs font-mono rounded-xl transition-all duration-200 flex items-center gap-2 ${status === s ? 'bg-primary/10 text-primary font-bold' : 'text-text-muted hover:bg-white/10 hover:text-white'}`}
                     >
+                      {status === s && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>}
                       {s}
                     </button>
                   ))}
+                  <div className="w-full h-[1px] bg-white/10 my-1"></div>
+                  <button 
+                    onClick={() => { setShowStatusMenu(false); navigate("/login"); }}
+                    className="text-left px-3 py-2.5 text-xs font-mono text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all duration-200 flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">logout</span>
+                    Disconnect
+                  </button>
                 </div>
               )}
             </div>
