@@ -161,6 +161,13 @@ export function Dashboard({
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <button 
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { 'key': 'k', 'metaKey': true }))}
+              className="hidden md:flex items-center gap-2 border border-border-dim bg-surface/30 hover:bg-surface-dim hover:text-primary transition-colors px-3 py-1.5 rounded-full text-xs text-text-muted"
+            >
+              <span className="material-symbols-outlined text-[14px]">search</span>
+              Shortcut ⌘K
+            </button>
             <div className="flex items-center gap-2 border border-border-dim bg-surface-dim/50 px-3 py-1.5 rounded-full backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-stable animate-pulse"></span>
               <span className="text-xs text-primary font-sans font-medium tracking-widest">

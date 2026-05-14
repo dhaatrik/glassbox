@@ -208,6 +208,7 @@ export function Submit() {
           dependencies: []
         };
         localStorage.setItem("glassbox_tickets", JSON.stringify([newTicket, ...existingTickets]));
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Signal Encrypted & Delivered' }));
 
         setTimeout(() => {
           setFlashing(false);
@@ -222,6 +223,7 @@ export function Submit() {
       }
     } catch (err) {
       setTransmitStatus("TRANSMISSION_FAILED");
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Transmission Failed. Check connection.' }));
       setTimeout(() => {
         setIsTransmitting(false);
         setProgress(0);

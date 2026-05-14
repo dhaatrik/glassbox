@@ -338,6 +338,13 @@ export function Grid({
             </h1>
           </div>
           <div className="flex gap-2 items-center">
+            <button 
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { 'key': 'k', 'metaKey': true }))}
+              className="hidden md:flex items-center gap-2 border border-border-dim bg-surface/30 hover:bg-surface-dim hover:text-primary transition-colors px-3 py-1.5 rounded-full text-xs text-text-muted mr-2"
+            >
+              <span className="material-symbols-outlined text-[14px]">search</span>
+              Shortcut ⌘K
+            </button>
             <div className="relative">
               <input
                 type="text"

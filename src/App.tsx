@@ -23,10 +23,13 @@ export default function App() {
 
   React.useEffect(() => {
     const theme = localStorage.getItem("glassbox_theme") || "CYBER";
-    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void");
+    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void", "theme-matcha", "theme-lavender", "theme-dracula");
     if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
     if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
-    if (theme === "STEALTH") document.documentElement.classList.add("theme-void");
+    if (theme === "DRACULA") document.documentElement.classList.add("theme-dracula");
+    if (theme === "MATCHA") document.documentElement.classList.add("theme-matcha");
+    if (theme === "LAVENDER") document.documentElement.classList.add("theme-lavender");
+    if (theme === "VOID") document.documentElement.classList.add("theme-void");
   }, []);
 
   const handleLogin = () => {
@@ -156,6 +159,17 @@ export default function App() {
                   <Settings />
                 </motion.div>
               } 
+            />
+            <Route 
+              path="*" 
+              element={
+                <motion.div className="flex-1 flex flex-col items-center justify-center p-8 bg-background-dark text-center">
+                  <span className="material-symbols-outlined text-[80px] text-border-dim mb-4">link_off</span>
+                  <h1 className="text-3xl font-display text-white mb-2">404 // SIGNAL LOST</h1>
+                  <p className="text-text-muted max-w-sm mb-6">The sector you are trying to access has been redacted or does not exist.</p>
+                  <button onClick={() => navigate('/dashboard')} className="border border-primary/50 text-primary px-6 py-2 rounded-full hover:bg-primary/10 transition-colors tracking-widest font-bold text-xs uppercase">Return to Base</button>
+                </motion.div>
+              }
             />
           </Routes>
         </AnimatePresence>

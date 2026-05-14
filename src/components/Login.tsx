@@ -121,27 +121,54 @@ export function Login({ onLogin }: LoginProps) {
               Glassbox
             </h1>
             <p className="font-sans text-text-muted text-lg tracking-wide max-w-md">
-              The modern workspace operating system. <br/>
-              <span className="text-primary/70 text-sm font-mono mt-2 block">&gt; Establishing dedicated neural link to sector...</span>
+              The modern workspace operating system. Streamline your signaling, incident management, and cross-team collaboration.
             </p>
+
+            <div className="mt-8 flex flex-col gap-5">
+               <div className="flex items-start gap-3">
+                 <span className="material-symbols-outlined text-primary bg-primary/10 p-1.5 rounded-lg">view_kanban</span>
+                 <div>
+                   <h3 className="text-white font-bold text-sm mb-1 uppercase tracking-wider font-display">Real-time Grid</h3>
+                   <p className="text-text-muted text-xs font-sans max-w-xs">Monitor all active signals and tasks across your organization with drag-and-drop workflows.</p>
+                 </div>
+               </div>
+               <div className="flex items-start gap-3">
+                 <span className="material-symbols-outlined text-purple-400 bg-purple-400/10 p-1.5 rounded-lg">monitoring</span>
+                 <div>
+                   <h3 className="text-white font-bold text-sm mb-1 uppercase tracking-wider font-display">Advanced Metrics</h3>
+                   <p className="text-text-muted text-xs font-sans max-w-xs">Visualize team performance, resolve times, and anomaly detection with precision.</p>
+                 </div>
+               </div>
+               <div className="flex items-start gap-3">
+                 <span className="material-symbols-outlined text-yellow-400 bg-yellow-400/10 p-1.5 rounded-lg">psychology</span>
+                 <div>
+                   <h3 className="text-white font-bold text-sm mb-1 uppercase tracking-wider font-display">AI Insights</h3>
+                   <p className="text-text-muted text-xs font-sans max-w-xs">Generate instant executive summaries and strategic action items powered by AI.</p>
+                 </div>
+               </div>
+            </div>
           </div>
 
-          <div className="relative z-10 flex flex-col gap-4 text-xs text-text-muted opacity-60">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">lock</span>
-              AES-256 Quantum Encryption Active
+          <div className="relative z-10 text-xs text-text-muted">
+            <div className="flex items-center gap-4 mb-4">
+              <a href="#" className="flex items-center gap-2 hover:text-white transition-colors bg-surface-dim px-3 py-1.5 rounded-full border border-border-dim hover:border-primary">
+                {/* Minimal GitHub Icon SVG */}
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GitHub
+              </a>
+              <a href="#" className="flex items-center gap-2 hover:text-white transition-colors bg-surface-dim px-3 py-1.5 rounded-full border border-border-dim hover:border-blue-500">
+                {/* Minimal LinkedIn Icon SVG */}
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                LinkedIn
+              </a>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">public</span>
-              Global Uplink Status: OPTIMAL
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">fingerprint</span>
-              Biometric Framework Loaded
-            </div>
-            <div className="mt-4 pt-4 border-t border-border-dim/50 max-w-sm">
-              <p>Glassbox OS v4.2.1 // Build 8892</p>
-              <p>Unauthorized access is strictly prohibited and monitored.</p>
+            <div className="pt-4 border-t border-border-dim/50 max-w-sm flex items-center justify-between">
+              <p>Glassbox OS v4.2.1</p>
+              <div className="flex gap-2">
+                <a href="#" className="hover:text-white underline decoration-transparent hover:decoration-white transition-all">Privacy</a>
+                <span>&bull;</span>
+                <a href="#" className="hover:text-white underline decoration-transparent hover:decoration-white transition-all">Terms</a>
+              </div>
             </div>
           </div>
         </div>
@@ -173,7 +200,7 @@ export function Login({ onLogin }: LoginProps) {
                 
                 <div className="mb-8 font-mono">
                   <h2 className="text-white text-xl font-bold font-display tracking-wider uppercase mb-1">
-                    System Login
+                    Workspace Login
                   </h2>
                   <div className="text-xs text-primary font-bold tracking-widest h-4">
                     <TypewriterText text="> AWAITING CREDENTIALS_" speed={30} delay={300} />
@@ -182,14 +209,14 @@ export function Login({ onLogin }: LoginProps) {
 
                 <form onSubmit={handleLogin} className="space-y-5">
                   <div className="space-y-1 group/input">
-                    <label className="text-[10px] text-text-muted uppercase tracking-widest font-bold group-focus-within/input:text-primary transition-colors">Operative ID</label>
+                    <label className="text-[10px] text-text-muted uppercase tracking-widest font-bold group-focus-within/input:text-primary transition-colors">Email Address</label>
                     <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm group-focus-within/input:text-primary transition-colors">badge</span>
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm group-focus-within/input:text-primary transition-colors">mail</span>
                       <input 
-                        type="text" 
+                        type="email" 
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        placeholder="ID-8924 // EMAIL"
+                        placeholder="operative@glassbox.co"
                         className="w-full bg-surface-dim border border-border-dim text-white text-sm pl-10 pr-3 py-3 rounded-lg focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none transition-all placeholder:text-text-muted/50"
                         required
                       />
@@ -197,7 +224,7 @@ export function Login({ onLogin }: LoginProps) {
                   </div>
 
                   <div className="space-y-1 group/input">
-                    <label className="text-[10px] text-text-muted uppercase tracking-widest font-bold group-focus-within/input:text-primary transition-colors">Access Key</label>
+                    <label className="text-[10px] text-text-muted uppercase tracking-widest font-bold group-focus-within/input:text-primary transition-colors">Password</label>
                     <div className="relative">
                       <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm group-focus-within/input:text-primary transition-colors">key</span>
                       <input 
@@ -226,8 +253,8 @@ export function Login({ onLogin }: LoginProps) {
                   >
                     <div className="absolute inset-0 bg-primary/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                     <div className="relative flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined text-[18px]">login</span>
-                      Authenticate
+                       Sign In
+                       <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                     </div>
                   </button>
                 </form>

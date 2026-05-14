@@ -22,6 +22,33 @@ export function Layout({ children }: LayoutProps) {
   ]);
   const [queuedCount, setQueuedCount] = useState(0);
 
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [toast, setToast] = useState<{message: string, id: number} | null>(null);
+
+  useEffect(() => {
+    const handleToast = (e: any) => {
+      setToast({ message: e.detail, id: Date.now() });
+      setTimeout(() => setToast(null), 3000);
+    };
+    window.addEventListener("show-toast", handleToast);
+    return () => window.removeEventListener("show-toast", handleToast);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchOpen(open => !open);
+      }
+      if (e.key === "Escape") {
+        setIsSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   useEffect(() => {
     const updateCount = () => {
       try {
@@ -245,6 +272,54 @@ export function Layout({ children }: LayoutProps) {
           <BottomNav />
         </div>
       </div>
+
+      {toast && (
+        <div key={toast.id} className="fixed bottom-24 md:bottom-10 right-4 md:right-10 z-[1000] animate-[slide-up_0.3s_ease-out]">
+          <div className="bg-background-dark/90 backdrop-blur-3xl border border-primary/50 text-white px-4 py-3 rounded-2xl shadow-[0_10px_40px_rgba(var(--color-primary),0.2)] flex items-center gap-3">
+            <span className="material-symbols-outlined text-primary">info</span>
+            <span className="text-sm font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Global Command Palette */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsSearchOpen(false)}></div>
+          <div className="bg-background-dark/95 border border-white/20 rounded-2xl w-full max-w-md shadow-2xl z-10 flex flex-col overflow-hidden animate-[fade-in_0.2s_ease-out]">
+            <div className="flex items-center gap-3 p-4 border-b border-border-dim/50">
+              <span className="material-symbols-outlined text-text-muted">search</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search commands, signals, members..."
+                className="bg-transparent border-none outline-none text-white w-full text-lg placeholder-text-muted/50"
+                autoFocus
+              />
+              <span className="text-[10px] font-mono text-text-muted border border-border-dim px-2 py-0.5 rounded bg-surface">ESC</span>
+            </div>
+            
+            <div className="p-2 max-h-[60vh] overflow-y-auto">
+              {searchQuery.length === 0 ? (
+                <div className="p-8 flex flex-col items-center justify-center text-center">
+                  <span className="material-symbols-outlined text-4xl text-border-dim mb-4">keyboard</span>
+                  <p className="text-text-muted text-sm mb-2">What do you want to access?</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => navigate('/grid')} className="text-xs bg-surface-dim hover:bg-white/10 px-3 py-1.5 rounded-lg text-text-main transition-colors border border-border-dim">Go to signals</button>
+                    <button onClick={() => navigate('/submit')} className="text-xs bg-surface-dim hover:bg-white/10 px-3 py-1.5 rounded-lg text-text-main transition-colors border border-border-dim">Create new</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 text-center text-text-muted text-sm font-mono flex flex-col items-center">
+                  <span className="material-symbols-outlined text-primary mb-2 text-3xl">hourglass_empty</span>
+                  Fetching results for "{searchQuery}"...
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

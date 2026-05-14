@@ -351,7 +351,19 @@ export function Insights() {
             </motion.button>
           </div>
 
-          {insights ? (
+          {isGenerating && (
+            <div className="bg-surface-dim/50 border border-primary/20 p-5 rounded-xl space-y-6 relative overflow-hidden mt-4">
+               <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-primary/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+               <div className="h-[80px] w-full bg-border-dim/20 rounded-xl relative z-10 animate-pulse"></div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
+                 <div className="h-32 bg-border-dim/20 rounded-xl animate-pulse"></div>
+                 <div className="h-32 bg-border-dim/20 rounded-xl animate-pulse"></div>
+               </div>
+               <div className="h-[100px] w-full bg-border-dim/20 rounded-xl relative z-10 animate-pulse"></div>
+            </div>
+          )}
+
+          {!isGenerating && insights && (
             <div className="bg-surface-dim/50 border border-primary/30 p-5 rounded-xl space-y-6 relative z-10">
               {insights.tldr && (
                 <div className="bg-primary/10 p-5 rounded-2xl border border-primary/30 shadow-[0_0_20px_rgba(0,240,255,0.1)] relative">
@@ -428,8 +440,10 @@ export function Insights() {
                 </ul>
               </div>
             </div>
-          ) : (
-            <div className="bg-surface-dim/50 border border-border-dim p-8 rounded-xl flex flex-col items-center justify-center text-center gap-3">
+          )}
+          
+          {!isGenerating && !insights && (
+            <div className="bg-surface-dim/50 border border-border-dim p-8 rounded-xl flex flex-col items-center justify-center text-center gap-3 mt-4">
               <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center mb-2">
                 <span className="material-symbols-outlined text-text-muted text-2xl">
                   analytics

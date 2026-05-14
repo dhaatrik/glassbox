@@ -46,10 +46,13 @@ export function Settings() {
   useEffect(() => {
     // Initial Theme Load
     const theme = localStorage.getItem("glassbox_theme") || "CYBER";
-    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void");
+    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void", "theme-matcha", "theme-dracula", "theme-lavender");
     if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
     if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
-    if (theme === "STEALTH") document.documentElement.classList.add("theme-void");
+    if (theme === "DRACULA") document.documentElement.classList.add("theme-dracula");
+    if (theme === "MATCHA") document.documentElement.classList.add("theme-matcha");
+    if (theme === "LAVENDER") document.documentElement.classList.add("theme-lavender");
+    if (theme === "VOID") document.documentElement.classList.add("theme-void");
   }, []);
 
   useEffect(() => {
@@ -259,28 +262,37 @@ export function Settings() {
   const purgeCache = () => {
     setIsPurging(true);
     addAuditLog("Initiated Neural Cache Purge");
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Purging Neural Cache...' }));
     setTimeout(() => {
       sessionStorage.clear();
       setIsPurging(false);
       addAuditLog("Neural Cache Purged Successfully");
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Neural Cache Purged Successfully' }));
     }, 1500);
   };
 
   const factoryReset = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = "/";
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Grid Erased. Rebooting...' }));
+    setTimeout(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/";
+    }, 500);
   };
 
   const handleThemeChange = (theme: string) => {
     setActiveTheme(theme);
     localStorage.setItem("glassbox_theme", theme);
     addAuditLog(`Theme Matrix shifted to ${theme}`);
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: `System visually updated to ${theme} Protocol` }));
 
-    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void");
+    document.documentElement.classList.remove("theme-cyan", "theme-vaporwave", "theme-void", "theme-matcha", "theme-lavender", "theme-dracula");
     if (theme === "CYBER") document.documentElement.classList.add("theme-cyan");
     if (theme === "NEON") document.documentElement.classList.add("theme-vaporwave");
-    if (theme === "STEALTH") document.documentElement.classList.add("theme-void");
+    if (theme === "DRACULA") document.documentElement.classList.add("theme-dracula");
+    if (theme === "MATCHA") document.documentElement.classList.add("theme-matcha");
+    if (theme === "LAVENDER") document.documentElement.classList.add("theme-lavender");
+    if (theme === "VOID") document.documentElement.classList.add("theme-void");
   };
 
   const exportMatrix = () => {
@@ -292,6 +304,7 @@ export function Settings() {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
     addAuditLog("Exported Neural Grid Matrix");
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: 'Neural Matrix Exported' }));
   };
 
   return (
@@ -319,12 +332,12 @@ export function Settings() {
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex gap-2 text-xs">
-                {["CYBER", "NEON", "STEALTH"].map(theme => (
+              <div className="flex gap-2 text-xs flex-wrap max-w-[280px]">
+                {["CYBER", "NEON", "DRACULA", "MATCHA", "LAVENDER", "VOID"].map(theme => (
                   <button 
                     key={theme}
                     onClick={() => handleThemeChange(theme)}
-                    className={`px-2 py-1 rounded border transition-colors ${activeTheme === theme ? 'border-primary text-primary bg-primary/10' : 'border-border-dim text-text-muted hover:border-text-muted'}`}
+                    className={`px-3 py-1.5 rounded-lg border transition-colors duration-300 font-medium tracking-wide ${activeTheme === theme ? 'border-primary text-primary bg-primary/10 shadow-[0_0_10px_rgba(var(--color-primary),0.2)]' : 'border-border-dim text-text-muted hover:border-text-muted hover:text-white bg-surface-dim'}`}
                   >
                     {theme}
                   </button>
