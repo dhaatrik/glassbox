@@ -28,17 +28,11 @@ export function Settings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchField, setSearchField] = useState<"Name" | "Role" | "Dept">("Name");
 
-  const [activeTab, setActiveTab] = useState<"IDENTITY" | "SYSTEM" | "INTEGRATIONS" | "DANGER">("IDENTITY");
+  const [activeTab, setActiveTab] = useState<"IDENTITY" | "SYSTEM" | "DANGER">("IDENTITY");
   const [activeTheme, setActiveTheme] = useState(() => localStorage.getItem("glassbox_theme") || "CYBER");
   const [auditLogs, setAuditLogs] = useState<{time: string, action: string}[]>([]);
   const [bulkImportText, setBulkImportText] = useState("");
   const parallaxRef = useRef<HTMLDivElement>(null);
-
-  const [integrations, setIntegrations] = useState([
-    { id: "s7db", name: "Sector 7 Database", status: "Connected", icon: "database", type: "DATA" },
-    { id: "qek", name: "Quantum Encryption Key", status: "Active", icon: "key", type: "SECURITY" },
-    { id: "eupl", name: "External Uplink", status: "Offline", icon: "satellite_alt", type: "NETWORK" }
-  ]);
 
   const [isPurging, setIsPurging] = useState(false);
   const [showFactoryResetConf, setShowFactoryResetConf] = useState(false);
@@ -244,17 +238,6 @@ export function Settings() {
     return true;
   });
 
-  const toggleIntegration = (id: string) => {
-    setIntegrations(prev => prev.map(int => {
-      if (int.id === id) {
-        const newStatus = int.status === "Offline" ? (int.id === "qek" ? "Active" : "Connected") : "Offline";
-        addAuditLog(`Integration ${int.name} toggled to ${newStatus}`);
-        return { ...int, status: newStatus };
-      }
-      return int;
-    }));
-  };
-
   const purgeCache = () => {
     setIsPurging(true);
     addAuditLog("Initiated Neural Cache Purge");
@@ -357,7 +340,6 @@ export function Settings() {
             {[
               { id: "IDENTITY", icon: "badge", label: "Identity & Personas" },
               { id: "SYSTEM", icon: "dns", label: "HRIS Neural Grid" },
-              { id: "INTEGRATIONS", icon: "api", label: "Integrations" },
               { id: "DANGER", icon: "warning", label: "Substation" }
             ].map(tab => (
               <button
@@ -596,35 +578,6 @@ export function Settings() {
                   </div>
                 </section>
 
-              </motion.div>
-            )}
-
-            {activeTab === "INTEGRATIONS" && (
-              <motion.div key="integrations" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
-                <section className="glass-panel p-6 border border-border-dim">
-                  <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2 mb-6">Integration Control Panel</h2>
-                  <div className="grid gap-4">
-                    {integrations.map(int => (
-                      <div key={int.id} className="flex items-center justify-between p-4 bg-surface-dim border border-border-dim rounded-lg hover:border-primary/30 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className={`p-3 rounded-full ${int.status === 'Offline' ? 'bg-surface text-text-muted' : 'bg-primary/10 text-primary border border-primary/20'}`}>
-                            <span className="material-symbols-outlined">{int.icon}</span>
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm tracking-wide">{int.name}</p>
-                            <p className="text-[10px] text-text-muted mt-0.5 tracking-widest uppercase">{int.type}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className={`text-xs font-bold ${int.status === 'Offline' ? 'text-text-muted' : 'text-emerald-400'}`}>{int.status}</span>
-                          <button onClick={() => toggleIntegration(int.id)} className={`w-10 h-5 rounded-full relative transition-colors ${int.status === 'Offline' ? 'bg-surface border border-border-dim' : 'bg-primary/30 border border-primary'}`}>
-                            <motion.div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full ${int.status === 'Offline' ? 'bg-text-muted left-1' : 'bg-primary right-1'}`} layout />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
               </motion.div>
             )}
 

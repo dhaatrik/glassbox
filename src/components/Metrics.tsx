@@ -135,8 +135,7 @@ export function Metrics({
     });
   }, [deptMetrics, activeSegment]);
 
-  const topThree = deptMetrics.slice(0, 3);
-
+  const topThree = deptMetrics.filter(m => m.blastRadius > 0).slice(0, 3);
 
   return (
     <motion.div
@@ -224,29 +223,31 @@ export function Metrics({
             </div>
           </div>
 
-          {/* Holographic Podium (Top 3 Highest Blast Radius / Critical) */}
-          {deptMetrics.length >= 3 && (
+          {/* Holographic Podium (Top Priority Vectors) */}
+          {topThree.length > 0 && (
             <div className="flex flex-col gap-4">
                <h2 className="text-sm font-sans font-bold text-text-muted tracking-widest uppercase">
                   Top Priority Vectors <span className="text-critical text-xs ml-2">(High Blast Radius)</span>
                </h2>
-               <div className="grid grid-cols-3 gap-2 md:gap-4 items-end mt-4 px-2 md:px-8">
+               <div className="flex justify-center gap-2 md:gap-4 items-end mt-4 px-2 md:px-8">
                   {/* #2 Rank */}
-                  <div className="flex flex-col items-center">
-                     <div className="relative pt-8 pb-3 px-3 bg-surface-dim/60 border border-white/10 rounded-t-xl w-full text-center group transition-all hover:bg-surface-dim hover:-translate-y-1">
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2 border-yellow-500 bg-surface shadow-[0_0_15px_rgba(234,179,8,0.4)] flex items-center justify-center font-bold text-xs text-yellow-500">
-                           {topThree[1].avatar}
-                        </div>
-                        <p className="font-sans font-bold text-white text-xs truncate">{topThree[1].dept}</p>
-                        <p className="text-[10px] text-text-muted">{topThree[1].blastRadius.toFixed(1)} BR</p>
-                     </div>
-                     <div className="h-16 md:h-24 w-full bg-gradient-to-t from-yellow-500/20 to-surface border border-yellow-500/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(234,179,8,0.1)]">
-                       <span className="text-2xl font-display font-black text-white/50">2</span>
-                     </div>
-                  </div>
+                  {topThree.length >= 2 && (
+                    <div className="flex flex-col items-center flex-1 max-w-[200px]">
+                       <div className="relative pt-8 pb-3 px-3 bg-surface-dim/60 border border-white/10 rounded-t-xl w-full text-center group transition-all hover:bg-surface-dim hover:-translate-y-1">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2 border-yellow-500 bg-surface shadow-[0_0_15px_rgba(234,179,8,0.4)] flex items-center justify-center font-bold text-xs text-yellow-500">
+                             {topThree[1].avatar}
+                          </div>
+                          <p className="font-sans font-bold text-white text-xs truncate">{topThree[1].dept}</p>
+                          <p className="text-[10px] text-text-muted">{topThree[1].blastRadius.toFixed(1)} BR</p>
+                       </div>
+                       <div className="h-16 md:h-24 w-full bg-gradient-to-t from-yellow-500/20 to-surface border border-yellow-500/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(234,179,8,0.1)]">
+                         <span className="text-2xl font-display font-black text-white/50">2</span>
+                       </div>
+                    </div>
+                  )}
 
                   {/* #1 Rank */}
-                  <div className="flex flex-col items-center z-10">
+                  <div className="flex flex-col items-center z-10 flex-1 max-w-[220px]">
                      <div className="relative pt-10 pb-4 px-3 bg-surface border border-critical shadow-[0_0_30px_rgba(255,68,68,0.2)] rounded-t-2xl w-full text-center group transition-all hover:-translate-y-2">
                         <div className="absolute inset-0 bg-critical/5 rounded-t-2xl animate-pulse pointer-events-none"></div>
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-critical bg-surface shadow-[0_0_20px_rgba(255,68,68,0.6)] flex items-center justify-center font-bold text-lg text-critical">
@@ -261,18 +262,20 @@ export function Metrics({
                   </div>
 
                   {/* #3 Rank */}
-                  <div className="flex flex-col items-center">
-                     <div className="relative pt-8 pb-3 px-3 bg-surface-dim/60 border border-white/10 rounded-t-xl w-full text-center group transition-all hover:bg-surface-dim hover:-translate-y-1">
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2 border-primary bg-surface shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center justify-center font-bold text-xs text-primary">
-                           {topThree[2].avatar}
-                        </div>
-                        <p className="font-sans font-bold text-white text-xs truncate">{topThree[2].dept}</p>
-                        <p className="text-[10px] text-text-muted">{topThree[2].blastRadius.toFixed(1)} BR</p>
-                     </div>
-                     <div className="h-12 md:h-16 w-full bg-gradient-to-t from-primary/20 to-surface border border-primary/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(0,240,255,0.1)]">
-                       <span className="text-xl font-display font-black text-white/40">3</span>
-                     </div>
-                  </div>
+                  {topThree.length >= 3 && (
+                    <div className="flex flex-col items-center flex-1 max-w-[180px]">
+                       <div className="relative pt-8 pb-3 px-3 bg-surface-dim/60 border border-white/10 rounded-t-xl w-full text-center group transition-all hover:bg-surface-dim hover:-translate-y-1">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2 border-primary bg-surface shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center justify-center font-bold text-xs text-primary">
+                             {topThree[2].avatar}
+                          </div>
+                          <p className="font-sans font-bold text-white text-xs truncate">{topThree[2].dept}</p>
+                          <p className="text-[10px] text-text-muted">{topThree[2].blastRadius.toFixed(1)} BR</p>
+                       </div>
+                       <div className="h-12 md:h-16 w-full bg-gradient-to-t from-primary/20 to-surface border border-primary/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(0,240,255,0.1)]">
+                         <span className="text-xl font-display font-black text-white/40">3</span>
+                       </div>
+                    </div>
+                  )}
                </div>
             </div>
           )}

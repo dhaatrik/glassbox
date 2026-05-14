@@ -280,38 +280,11 @@ export function Dashboard({
           <p className="text-sm text-text-muted mt-6 font-sans text-center max-w-[250px] leading-relaxed">
             Global resolution speed is within acceptable parameters. Keep up the momentum.
           </p>
+          <button onClick={() => navigate('/metrics')} className="mt-4 text-[10px] uppercase tracking-widest text-primary border border-primary/20 px-4 py-1.5 rounded-full hover:bg-primary/10 transition-colors z-20">
+            View detailed metrics
+          </button>
         </motion.section>
 
-        {/* Gamification Streak (Bento Medium) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, type: "spring" }}
-          whileHover={{ scale: 1.02, y: -4, rotate: 1 }}
-          className="bento-card glass-panel p-6 flex flex-col justify-between relative overflow-hidden group"
-        >
-          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button className="bg-surface p-2 rounded-full border border-border-dim hover:text-primary transition-colors text-white" aria-label="Quick Action">
-              <span className="material-symbols-outlined text-[16px]">bolt</span>
-            </button>
-          </div>
-          <div className="absolute -right-6 -top-6 text-8xl opacity-5 group-hover:opacity-10 transition-opacity duration-300 transform group-hover:scale-110 group-hover:rotate-12">
-            🔥
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🔥</span>
-              <span className="text-xs font-sans font-bold text-text-muted uppercase tracking-wider">Inbox Zero Streak</span>
-            </div>
-            <h3 className="text-4xl font-display text-white mt-2">5 <span className="text-xl text-text-muted">Days</span></h3>
-          </div>
-          <div className="mt-4">
-            <div className="w-full bg-surface-dim rounded-full h-2 mb-2 overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-500 to-yellow-400 w-[70%] h-full rounded-full"></div>
-            </div>
-            <p className="text-xs text-text-muted font-sans flex items-center gap-1">2 days until next badge <span className="text-orange-400">🏆</span></p>
-          </div>
-        </motion.div>
 
         {/* Open Tickets (Bento Small) */}
         <motion.button 
