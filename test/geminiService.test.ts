@@ -89,13 +89,14 @@ describe('geminiService', () => {
       expect(__generateContentMock).toHaveBeenCalledTimes(1);
       
       const callArgs = __generateContentMock.mock.calls[0][0];
-      expect(callArgs.model).toBe('gemini-3.1-pro-preview');
-      expect(callArgs.contents).toContain('[POSITIVE] CULTURE - Great place to work');
+      expect(callArgs.model).toBe('gemma-4-31b-it');
+      expect(callArgs.contents).toContain('[POSITIVE] Great place to work');
       
       // Verify schema enforcement
       const schema = callArgs.config.responseSchema;
       expect(schema.type).toBe('OBJECT');
       expect(schema.required).toEqual([
+        'tldr',
         'recurringThemes',
         'areasOfConcern',
         'areasOfPraise',

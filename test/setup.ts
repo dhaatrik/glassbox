@@ -15,3 +15,6 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Mock canvas-confetti
+vi.mock('canvas-confetti', () => ({ default: vi.fn() }));
