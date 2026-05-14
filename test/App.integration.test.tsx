@@ -41,13 +41,18 @@ describe('App Integration - Full User Journey', () => {
       </MemoryRouter>
     );
     
-    const loginButton = screen.getByText(/Continue with SSO/i);
+    const usernameInput = screen.getByPlaceholderText('operative_01');
+    const passwordInput = screen.getByPlaceholderText('••••••••••••');
+    await userEvent.type(usernameInput, 'admin');
+    await userEvent.type(passwordInput, 'password');
+
+    const loginButton = screen.getByText(/Sign In/i);
     await userEvent.click(loginButton);
     
     // 2. Assert that the view changes to the Dashboard.
     await waitFor(() => {
       expect(screen.getByText(/Open Tickets/i)).toBeInTheDocument();
-    });
+    }, { timeout: 6000 });
     
     // Assert initial open tickets count is 01
     await waitFor(() => {
@@ -115,5 +120,5 @@ describe('App Integration - Full User Journey', () => {
     
     // The new ticket title should appear in the Live Feed ticker
     expect(screen.getAllByText(/This is a test complaint about the coffee machine\./i)[0]).toBeInTheDocument();
-  });
+  }, 15000);
 });

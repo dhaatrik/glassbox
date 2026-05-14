@@ -19,7 +19,7 @@ To run Glassbox locally, ensure you have **Node.js (v18+)** and **npm** installe
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/dhaatrik/glassbox.git
    cd glassbox
    ```
 
@@ -104,5 +104,5 @@ We welcome and encourage contributions! To submit changes:
 
 Please adhere to the [Contributor Covenant](https://www.contributor-covenant.org/) as our code of conduct.
 
-## License Information
+## Author\n\n**Dhaatrik Chowdhury**\n- GitHub: [@dhaatrik](https://github.com/dhaatrik)\n\n## License Information
 This project is released under the **MIT License**. You are free to use, modify, and distribute this software in accordance with the license terms.

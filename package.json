@@ -1,8 +1,17 @@
 {
-  "name": "react-example",
+  "name": "glassbox",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "author": "Dhaatrik Chowdhury",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhaatrik/glassbox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dhaatrik/glassbox/issues"
+  },
+  "homepage": "https://github.com/dhaatrik/glassbox#readme",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
