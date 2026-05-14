@@ -7,6 +7,34 @@ export function BottomNav() {
   const navigate = useNavigate();
   const currentPath = location.pathname.substring(1) || "login";
 
+  const [queuedCount, setQueuedCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const updateCount = () => {
+      try {
+        const stored = localStorage.getItem("glassbox_tickets");
+        if (stored) {
+          const tickets = JSON.parse(stored);
+          const count = tickets.filter((t: any) => t.status === "QUEUED").length;
+          setQueuedCount(count);
+        } else {
+          setQueuedCount(3);
+        }
+      } catch (e) {
+        setQueuedCount(0);
+      }
+    };
+    
+    updateCount();
+    window.addEventListener("storage", updateCount);
+    const interval = setInterval(updateCount, 2000);
+    
+    return () => {
+      window.removeEventListener("storage", updateCount);
+      clearInterval(interval);
+    };
+  }, []);
+
   if (currentPath === "login") return null;
 
   return (
@@ -52,7 +80,11 @@ export function BottomNav() {
             <span className="material-symbols-outlined text-[24px] group-hover:-translate-y-1 transition-transform">
               view_kanban
             </span>
-            <span className="absolute -top-1 -right-2 w-3.5 h-3.5 bg-primary text-black text-[8px] font-bold rounded-full flex items-center justify-center border border-black z-10">3</span>
+            {queuedCount > 0 && (
+              <span className="absolute -top-1 -right-2 min-w-[14px] h-3.5 px-0.5 bg-primary text-black text-[8px] font-bold rounded-full flex items-center justify-center border border-black z-10">
+                {queuedCount}
+              </span>
+            )}
           </div>
           <p className={`text-[9px] font-bold leading-normal tracking-wider font-mono ${currentPath === "grid" ? "opacity-100" : "opacity-0 group-hover:opacity-100 transition-opacity"}`}>
             GRID

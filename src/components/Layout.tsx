@@ -20,6 +20,33 @@ export function Layout({ children }: LayoutProps) {
   const [statuses, setStatuses] = useState<string[]>([
     "🎧 Deep Work", "☕ Need Coffee", "🧠 Brainstorming", "🚀 Shipping"
   ]);
+  const [queuedCount, setQueuedCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      try {
+        const stored = localStorage.getItem("glassbox_tickets");
+        if (stored) {
+          const tickets = JSON.parse(stored);
+          const count = tickets.filter((t: any) => t.status === "QUEUED").length;
+          setQueuedCount(count);
+        } else {
+          setQueuedCount(3); // default from mock data
+        }
+      } catch (e) {
+        setQueuedCount(0);
+      }
+    };
+    
+    updateCount();
+    window.addEventListener("storage", updateCount);
+    const interval = setInterval(updateCount, 2000); // Polling backup
+    
+    return () => {
+      window.removeEventListener("storage", updateCount);
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     const storedProfile = localStorage.getItem("glassbox_profile");
@@ -79,7 +106,7 @@ export function Layout({ children }: LayoutProps) {
             <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest px-4 mb-2">Platform</span>
             {[
               { id: "dashboard", icon: "space_dashboard", label: "Dashboard", subtitle: "System overview" },
-              { id: "grid", icon: "view_kanban", label: "The Grid", badge: "3", subtitle: "Active signals" },
+              { id: "grid", icon: "view_kanban", label: "The Grid", badge: queuedCount > 0 ? queuedCount.toString() : undefined, subtitle: "Active signals" },
               { id: "submit", icon: "add_circle", label: "New Signal", subtitle: "Report anomalies" },
               { id: "metrics", icon: "monitoring", label: "Metrics", subtitle: "Data trends" },
               { id: "insights", icon: "psychology", label: "Insights", badge: "NEW", subtitle: "AI analysis" },

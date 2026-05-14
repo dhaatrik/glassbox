@@ -2,6 +2,35 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+function parseJSONOutput(text: string | null | undefined): any {
+  if (!text) return {};
+  
+  let cleaned = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
+  
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    const objectMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (objectMatch) {
+      try {
+        return JSON.parse(objectMatch[0]);
+      } catch (innerE) {
+        // Ignore and fall through
+      }
+    }
+    const arrayMatch = cleaned.match(/\[[\s\S]*\]/);
+    if (arrayMatch) {
+      try {
+        return JSON.parse(arrayMatch[0]);
+      } catch (innerE) {
+        // Ignore and fall through
+      }
+    }
+    console.error("Failed to parse JSON:", text);
+    throw e;
+  }
+}
+
 export async function analyzeSentiment(text: string): Promise<"POSITIVE" | "NEGATIVE" | "NEUTRAL"> {
   try {
     const response = await ai.models.generateContent({
@@ -28,7 +57,7 @@ Feedback: "${text}"`,
       },
     });
 
-    const result = JSON.parse(response.text || "{}");
+    const result = parseJSONOutput(response.text);
     return result.sentiment || "NEUTRAL";
   } catch (error) {
     console.error("Error analyzing sentiment:", error);
@@ -103,7 +132,7 @@ ${feedbackTexts}`,
       },
     });
 
-    return JSON.parse(response.text || "{}");
+    return parseJSONOutput(response.text);
   } catch (error) {
     console.error("Error generating insights report:", error);
     throw error;
