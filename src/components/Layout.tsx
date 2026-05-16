@@ -121,9 +121,7 @@ export function Layout({ children }: LayoutProps) {
       {currentPath !== "login" && (
         <div className="hidden md:flex flex-col w-72 glass-panel border-y-0 border-l-0 z-40 p-6 relative">
           <div className="flex items-center gap-3 mb-10">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_15px_var(--theme-primary-dim)]">
-              <span className="material-symbols-outlined text-white text-sm">grid_view</span>
-            </div>
+            <img src="/logo.png" alt="Glassbox Logo" className="w-8 h-8 object-contain rounded-xl" />
             <span className="text-white text-2xl font-display italic tracking-tight">
               Glassbox
             </span>

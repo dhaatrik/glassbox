@@ -112,9 +112,9 @@ export function Login({ onLogin }: LoginProps) {
           <div className="relative z-10">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
-              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_30px_var(--color-primary)] mb-8"
+              className="mb-8"
             >
-              <span className="material-symbols-outlined text-black text-3xl">grid_view</span>
+              <img src="/logo.png" alt="Glassbox Logo" className="w-16 h-16 object-contain" />
             </motion.div>
             
             <h1 className="text-white text-7xl font-display italic tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
@@ -168,9 +168,9 @@ export function Login({ onLogin }: LoginProps) {
           <div className="lg:hidden text-center mb-10">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_20px_var(--color-primary)] mb-4"
+              className="mb-4"
             >
-              <span className="material-symbols-outlined text-black text-2xl">grid_view</span>
+              <img src="/logo.png" alt="Glassbox Logo" className="w-12 h-12 mx-auto object-contain" />
             </motion.div>
             <h1 className="text-white text-4xl font-display italic tracking-tight mb-2">
               Glassbox
