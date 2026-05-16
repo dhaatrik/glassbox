@@ -504,7 +504,7 @@ export function Submit() {
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
               Pulse Check // High-Level Metrics
             </h3>
-            <span className="text-[10px] font-sans font-bold px-2 py-1 rounded-full text-primary border border-primary/20 bg-primary/10">
+            <span className="text-[10px] font-sans font-bold text-stable bg-stable/10 px-2 py-1 rounded-full text-primary border border-primary/20 bg-primary/10">
               OPTIONAL
             </span>
           </div>

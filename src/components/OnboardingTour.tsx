@@ -131,7 +131,7 @@ export function OnboardingTour({ onComplete }: TourProps) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-background-dark/90 backdrop-blur-md overflow-hidden">
       {/* Animated background grid lines */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-size-[4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)]"></div>
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)]"></div>
 
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
