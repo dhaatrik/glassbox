@@ -95,7 +95,7 @@ export function Login({ onLogin }: LoginProps) {
         className="absolute inset-0 z-0 pointer-events-none opacity-30 transition-transform duration-1000 ease-out"
         style={{ transform: `translate(${(mousePos.x - window.innerWidth/2) * -0.02}px, ${(mousePos.y - window.innerHeight/2) * -0.02}px)` }}
       >
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_10%,transparent_100%)] opacity-20"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_10%,transparent_100%)] opacity-20"></div>
       </div>
       
       {/* Decorative Orbs */}

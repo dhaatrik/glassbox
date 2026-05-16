@@ -433,8 +433,8 @@ export function Dashboard({
             
             <div className={`grid gap-1.5 md:gap-2 ${
                  heatmapRange === '1week' ? 'grid-cols-7 lg:grid-cols-14' : 
-                 heatmapRange === '12weeks' ? 'grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))] lg:grid-cols-[repeat(42,minmax(0,1fr))]' : 
-                 'grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))]'
+                 heatmapRange === '12weeks' ? 'grid-cols-14 md:grid-cols-28 lg:grid-cols-42' : 
+                 'grid-cols-14 md:grid-cols-28'
                }`}>
               {heatmapData.map((level, i) => (
                 <motion.div

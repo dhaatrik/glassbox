@@ -19,7 +19,7 @@ const TypewriterText = ({ text }: { text: string }) => {
   }, [text]);
   
   return (
-    <p className="text-white font-sans text-sm md:text-base leading-relaxed break-words whitespace-pre-wrap font-mono min-h-[60px]">
+    <p className="text-white text-sm md:text-base leading-relaxed wrap-break-word whitespace-pre-wrap font-mono min-h-[60px]">
       {displayedText}
       <span className="animate-pulse bg-primary inline-block w-2 h-4 ml-1 align-middle"></span>
     </p>
@@ -242,7 +242,7 @@ export function Insights() {
         </div>
         <div className="h-[2px] w-full bg-border-dim relative overflow-hidden">
           <div className="absolute h-full bg-primary w-[64%] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
-          <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-primary/50 to-transparent"></div>
+          <div className="absolute top-0 right-0 h-full w-24 bg-linear-to-l from-primary/50 to-transparent"></div>
         </div>
       </header>
 
@@ -325,7 +325,7 @@ export function Insights() {
 
         {/* Actionable Insights Report */}
         <section className="space-y-3 glass-panel bento-card p-5 bg-surface-dim/80 backdrop-blur-xl border border-white/5 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background-dark to-background-dark pointer-events-none z-0"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/5 via-background-dark to-background-dark pointer-events-none z-0"></div>
           <div className="flex items-center justify-between relative z-10">
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
               02 // Actionable Insights
@@ -506,7 +506,7 @@ export function Insights() {
                   {cat === "ALL" ? "ALL CATEGORIES" : cat}
                 </button>
               ))}
-              <div className="shrink-0 w-[1px] h-6 bg-white/10 mx-1 self-center"></div>
+              <div className="shrink-0 w-px h-6 bg-white/10 mx-1 self-center"></div>
               {["ALL DEPTS", "[ENG]", "[SALES]", "[PRODUCT]", "[HR]", "[OPS]"].map(dept => (
                 <button
                   key={dept}
@@ -538,7 +538,7 @@ export function Insights() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   key={fb.id} 
-                  className="relative [perspective:1000px]"
+                  className="relative perspective-[1000px]"
                   style={{ minHeight: '220px' }}
                 >
                   <motion.div 
@@ -549,7 +549,7 @@ export function Insights() {
                   >
                     {/* FRONT OF CARD */}
                     <div 
-                       className="absolute inset-0 glass-panel bento-card p-4 cursor-pointer hover:border-primary/50 transition-colors bg-surface-dim/80 backdrop-blur-xl border border-white/5 flex flex-col [backface-visibility:hidden]" 
+                       className="absolute inset-0 glass-panel bento-card p-4 cursor-pointer hover:border-primary/50 transition-colors bg-surface-dim/80 backdrop-blur-xl border border-white/5 flex flex-col backface-hidden" 
                        onClick={() => setFlippedCardId(fb.id)}
                     >
                       <div className="flex justify-between items-start mb-3">
@@ -587,7 +587,7 @@ export function Insights() {
 
                     {/* BACK OF CARD */}
                     <div 
-                       className="absolute inset-0 glass-panel bento-card p-4 bg-background-dark/95 border-primary/50 shadow-[0_0_30px_rgba(0,240,255,0.15)] flex flex-col pt-10 [backface-visibility:hidden]" 
+                       className="absolute inset-0 glass-panel bento-card p-4 bg-background-dark/95 border-primary/50 shadow-[0_0_30px_rgba(0,240,255,0.15)] flex flex-col pt-10 backface-hidden" 
                        style={{ transform: 'rotateY(180deg)' }}
                     >
                        <button 
@@ -606,8 +606,8 @@ export function Insights() {
                                 <div className="grid grid-cols-2 gap-2 mt-1">
                                    {Object.entries(fb.pulseAnswers).map(([q, a], idx) => (
                                       <div key={idx} className="bg-white/5 border border-white/10 p-2 rounded-lg">
-                                         <div className="text-[8px] text-text-muted uppercase tracking-widest break-words leading-tight">{q}</div>
-                                         <div className="text-xs font-bold text-white mt-1 break-words line-clamp-2">{String(a)}</div>
+                                         <div className="text-[8px] text-text-muted uppercase tracking-widest wrap-break-word leading-tight">{q}</div>
+                                         <div className="text-xs font-bold text-white mt-1 wrap-break-word line-clamp-2">{String(a)}</div>
                                       </div>
                                    ))}
                                 </div>

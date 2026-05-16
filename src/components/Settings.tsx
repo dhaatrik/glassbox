@@ -286,7 +286,7 @@ export function Settings() {
     <div className="relative min-h-screen bg-background overflow-hidden flex flex-col font-mono text-white selection:bg-primary/30">
       {/* Parallax Background Environment */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" ref={parallaxRef}>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff11_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff11_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff11_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff11_1px,transparent_1px)] bg-size-[4rem_4rem]"></div>
         <div className="absolute top-[20%] left-[10%] w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-[#ff003c]/10 rounded-full blur-[120px]"></div>
       </div>

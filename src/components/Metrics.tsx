@@ -148,7 +148,7 @@ export function Metrics({
       {/* Live Data Stream Background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden mix-blend-screen" style={{ backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(0, 240, 255, .3) 25%, rgba(0, 240, 255, .3) 26%, transparent 27%, transparent 74%, rgba(0, 240, 255, .3) 75%, rgba(0, 240, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 240, 255, .3) 25%, rgba(0, 240, 255, .3) 26%, transparent 27%, transparent 74%, rgba(0, 240, 255, .3) 75%, rgba(0, 240, 255, .3) 76%, transparent 77%, transparent)', backgroundSize: '50px 50px', 
       backgroundPosition: '0 0, 0 0' }}>
-         <motion.div animate={{ y: [0, 50] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-full h-[50px] bg-gradient-to-b from-transparent to-primary/30 blur-md"></motion.div>
+         <motion.div animate={{ y: [0, 50] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-full h-[50px] bg-linear-to-b from-transparent to-primary/30 blur-md"></motion.div>
       </div>
 
       <header className="flex-none border-b border-border-dim bg-surface-dim/80 backdrop-blur-2xl z-40 relative">
@@ -198,7 +198,7 @@ export function Metrics({
         </div>
         <div className="h-[2px] w-full bg-border-dim relative overflow-hidden">
           <div className="absolute h-full bg-primary w-[64%] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
-          <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-primary/50 to-transparent"></div>
+          <div className="absolute top-0 right-0 h-full w-24 bg-linear-to-l from-primary/50 to-transparent"></div>
         </div>
       </header>
 
