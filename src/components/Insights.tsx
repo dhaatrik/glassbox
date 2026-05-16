@@ -68,7 +68,7 @@ const HeatmapStrip = () => {
          {days.map((d, i) => (
            <div 
              key={i}
-             className="w-6 h-10 rounded-sm flex-shrink-0 relative group hover:scale-110 transition-transform cursor-pointer"
+             className="w-6 h-10 rounded-sm shrink-0 relative group hover:scale-110 transition-transform cursor-pointer"
              style={{ backgroundColor: `rgba(0, 240, 255, ${Math.max(0.05, d.intensity * 0.8)})` }}
            >
              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-[0_0_10px_rgba(0,240,255,0.3)] border border-primary/30">
@@ -265,14 +265,14 @@ export function Insights() {
                 type="date" 
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-transparent text-white text-xs outline-none flex-1 [color-scheme:dark]"
+                className="bg-transparent text-white text-xs outline-none flex-1 scheme-dark"
               />
               <span className="text-text-muted text-xs">to</span>
               <input 
                 type="date" 
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-transparent text-white text-xs outline-none flex-1 [color-scheme:dark]"
+                className="bg-transparent text-white text-xs outline-none flex-1 scheme-dark"
               />
             </div>
           </div>
@@ -353,7 +353,7 @@ export function Insights() {
 
           {isGenerating && (
             <div className="bg-surface-dim/50 border border-primary/20 p-5 rounded-xl space-y-6 relative overflow-hidden mt-4">
-               <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-primary/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+               <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-primary/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
                <div className="h-[80px] w-full bg-border-dim/20 rounded-xl relative z-10 animate-pulse"></div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
                  <div className="h-32 bg-border-dim/20 rounded-xl animate-pulse"></div>
@@ -501,17 +501,17 @@ export function Insights() {
                 <button
                   key={cat}
                   onClick={() => setFilterCategoryMetrics(cat)}
-                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-[10px] font-sans font-bold uppercase tracking-widest transition-all ${filterCategoryMetrics === cat ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,240,255,0.4)]' : 'bg-surface/80 border border-white/5 text-text-muted hover:text-white backdrop-blur-md'}`}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-[10px] font-sans font-bold uppercase tracking-widest transition-all ${filterCategoryMetrics === cat ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,240,255,0.4)]' : 'bg-surface/80 border border-white/5 text-text-muted hover:text-white backdrop-blur-md'}`}
                 >
                   {cat === "ALL" ? "ALL CATEGORIES" : cat}
                 </button>
               ))}
-              <div className="flex-shrink-0 w-[1px] h-6 bg-white/10 mx-1 self-center"></div>
+              <div className="shrink-0 w-[1px] h-6 bg-white/10 mx-1 self-center"></div>
               {["ALL DEPTS", "[ENG]", "[SALES]", "[PRODUCT]", "[HR]", "[OPS]"].map(dept => (
                 <button
                   key={dept}
                   onClick={() => setFilterDept(dept === "ALL DEPTS" ? "ALL" : dept)}
-                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-[10px] font-sans font-bold uppercase tracking-widest transition-all ${filterDept === (dept === "ALL DEPTS" ? "ALL" : dept) ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,240,255,0.4)]' : 'bg-surface/80 border border-white/5 text-text-muted hover:text-white backdrop-blur-md'}`}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-[10px] font-sans font-bold uppercase tracking-widest transition-all ${filterDept === (dept === "ALL DEPTS" ? "ALL" : dept) ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,240,255,0.4)]' : 'bg-surface/80 border border-white/5 text-text-muted hover:text-white backdrop-blur-md'}`}
                 >
                   {dept}
                 </button>

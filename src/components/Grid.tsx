@@ -333,7 +333,7 @@ export function Grid({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-            <h1 className="text-white text-lg font-bold tracking-[0.1em] uppercase font-display">
+            <h1 className="text-white text-lg font-bold tracking-widest uppercase font-display">
               Global Grid // Monitor
             </h1>
           </div>
@@ -465,7 +465,7 @@ export function Grid({
           <div className="flex h-full min-w-full w-max p-4 gap-4 snap-x snap-mandatory">
             {COLUMNS.map((colId) => (
               <div key={`skeleton-${colId}`} className="flex flex-col w-[85vw] md:w-auto md:flex-1 md:min-w-[300px] h-full rounded-2xl border border-white/10 bg-white/5 p-4 gap-4 opacity-50 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
+                <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
                 <div className="h-6 w-32 bg-surface-dim rounded mb-4"></div>
                 {[1, 2, 3].map(i => (
                   <div key={i} className="flex flex-col p-4 bg-surface-dim/50 rounded-2xl gap-3">
@@ -590,7 +590,7 @@ export function Grid({
                                   } ${isDimmed ? "opacity-30 grayscale saturate-0 pointer-events-none" : isHighlighted && !isDimmed ? "shadow-[0_0_20px_rgba(0,240,255,0.2)] border-primary z-10" : ""}`}
                                 >
                                   {isUrgent && (
-                                    <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-critical/50 to-orange-500/50 opacity-50 blur-sm -z-10 animate-pulse"></div>
+                                    <div className="absolute -inset-px rounded-2xl bg-linear-to-r from-critical/50 to-orange-500/50 opacity-50 blur-sm -z-10 animate-pulse"></div>
                                   )}
                                   {ticket.status === "PROCESSING" && (
                                     <div className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-bl-lg rounded-tr-xl"></div>
@@ -632,10 +632,10 @@ export function Grid({
                                       )}
                                     </div>
                                     {/* Vibe Check Emoji & Favorite */}
-                                    <div className="flex items-center gap-2 flex-shrink-0 relative">
+                                    <div className="flex items-center gap-2 shrink-0 relative">
                                       {/* Avatar */}
                                       <div className="flex -space-x-2 mr-1" title={ticket.lastUpdatedBy}>
-                                        <div className="w-5 h-5 rounded-full border border-background-dark bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-[8px] font-bold text-black shadow-lg z-10 transition-transform group-hover:-translate-y-1">
+                                        <div className="w-5 h-5 rounded-full border border-background-dark bg-linear-to-tr from-primary to-purple-500 flex items-center justify-center text-[8px] font-bold text-black shadow-lg z-10 transition-transform group-hover:-translate-y-1">
                                           {ticket.lastUpdatedBy?.substring(0, 2).toUpperCase() || "SU"}
                                         </div>
                                       </div>
@@ -737,7 +737,7 @@ export function Grid({
                                   >
                                     {/* Smart Progress Bar */}
                                     {daysLeft !== null && ticket.status !== "RESOLVED" && (
-                                      <div className="absolute top-0 left-0 -mt-[1px] w-full h-[1px] bg-white/5">
+                                      <div className="absolute top-0 left-0 -mt-px w-full h-px bg-white/5">
                                         <div 
                                           className={`h-full ${daysLeft <= 1 ? "bg-critical shadow-[0_0_5px_red]" : daysLeft <= 3 ? "bg-orange-400" : "bg-primary"}`} 
                                           style={{ width: `${Math.max(0, Math.min(100, 100 - (daysLeft * 10)))}%`}}
@@ -829,7 +829,7 @@ export function Grid({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed z-[999] w-48 bg-surface border border-white/20 rounded-xl shadow-2xl overflow-hidden backdrop-blur-3xl flex flex-col pointer-events-auto"
+            className="fixed z-999 w-48 bg-surface border border-white/20 rounded-xl shadow-2xl overflow-hidden backdrop-blur-3xl flex flex-col pointer-events-auto"
             style={{ top: contextMenu.y, left: contextMenu.x }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -874,7 +874,7 @@ export function Grid({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background-dark/80 backdrop-blur-md"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-background-dark/80 backdrop-blur-md"
           >
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
@@ -948,7 +948,7 @@ export function Grid({
                           status: e.target.value,
                         })
                       }
-                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors scheme-dark"
                     >
                       {COLUMNS.map((col) => (
                         <option
@@ -992,7 +992,7 @@ export function Grid({
                           dueDate: e.target.value,
                         })
                       }
-                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors scheme-dark"
                     />
                   </div>
                   <div className="flex items-center gap-3">
@@ -1005,7 +1005,7 @@ export function Grid({
                           category: e.target.value,
                         })
                       }
-                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark]"
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors scheme-dark"
                     >
                       <option value="" className="bg-background-dark text-white">None</option>
                       <option value="Culture" className="bg-background-dark text-white">Culture</option>
@@ -1015,7 +1015,7 @@ export function Grid({
                       <option value="Other" className="bg-background-dark text-white">Other</option>
                     </select>
                   </div>
-                  <span className="flex items-center gap-2 uppercase tracking-wider hidden sm:flex">
+                  <span className="items-center gap-2 uppercase tracking-wider hidden sm:flex">
                     <span className="material-symbols-outlined text-[16px]">
                       person
                     </span>
@@ -1085,7 +1085,7 @@ export function Grid({
                           });
                         }
                       }}
-                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors [color-scheme:dark] text-xs max-w-sm w-full"
+                      className="bg-surface border border-border-dim text-white outline-none px-3 py-1.5 rounded-lg focus:border-primary transition-colors scheme-dark text-xs max-w-sm w-full"
                     >
                       <option value="" className="bg-background-dark text-white">+ Add Dependency...</option>
                       {tickets

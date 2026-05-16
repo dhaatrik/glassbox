@@ -240,7 +240,7 @@ export function Submit() {
       className={`flex flex-col flex-1 relative min-h-0 overflow-hidden ${severity === 'CRITICAL' ? 'animate-shake' : ''}`}
     >
       {flashing && (
-        <div className="fixed inset-0 bg-white z-[100] transition-opacity duration-500 opacity-0 animate-[flash_0.5s_ease-out]"></div>
+        <div className="fixed inset-0 bg-white z-100 transition-opacity duration-500 opacity-0 animate-[flash_0.5s_ease-out]"></div>
       )}
 
       <header className="sticky top-0 z-40 bg-background-dark/80 backdrop-blur-2xl border-b border-border-dim">
@@ -256,7 +256,7 @@ export function Submit() {
             </span>
           </motion.button>
           <div className="flex flex-col items-center">
-            <h1 className="text-primary text-lg font-bold tracking-[0.1em] uppercase font-display">
+            <h1 className="text-primary text-lg font-bold tracking-widest uppercase font-display">
               Initiate Signal
             </h1>
             <div className="flex items-center gap-2">
@@ -357,7 +357,7 @@ export function Submit() {
             <select
               value={selectedEmployeeId}
               onChange={(e) => setSelectedEmployeeId(e.target.value)}
-              className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors tracking-wider [color-scheme:dark]"
+              className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors tracking-wider scheme-dark"
             >
               {employees.map(emp => (
                 <option key={emp.id} value={emp.id} className="bg-background-dark text-white">
@@ -413,7 +413,7 @@ export function Submit() {
               {severity === "CRITICAL" && (
                 <>
                   <div className="absolute inset-0 bg-critical/20 animate-ping opacity-75 rounded-xl blur-sm -z-10"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-critical/40 to-transparent -z-10"></div>
+                  <div className="absolute inset-0 bg-linear-to-t from-critical/40 to-transparent -z-10"></div>
                 </>
               )}
               <span className="text-3xl relative z-10 transition-transform duration-300 group-hover:scale-110">🚨</span>
@@ -446,7 +446,7 @@ export function Submit() {
               <select
                 value={dept}
                 onChange={(e) => setDept(e.target.value)}
-                className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider [color-scheme:dark]"
+                className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider scheme-dark"
               >
                 <option className="bg-background-dark text-white">ROUTE_TO: [ ENGINEERING ]</option>
                 <option className="bg-background-dark text-white">ROUTE_TO: [ MARKETING ]</option>
@@ -476,7 +476,7 @@ export function Submit() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider [color-scheme:dark]"
+                className="block w-full pl-12 pr-10 py-4 bg-surface-dim/50 border border-border-dim text-white font-sans font-bold text-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none rounded-xl cursor-pointer hover:border-primary/50 transition-colors uppercase tracking-wider scheme-dark"
               >
                 <option className="bg-background-dark text-white" value="Culture">TAG: [ Culture ]</option>
                 <option className="bg-background-dark text-white" value="Workload">TAG: [ Workload ]</option>
@@ -504,7 +504,7 @@ export function Submit() {
             <h3 className="text-xs font-sans font-bold text-text-muted uppercase tracking-widest">
               Pulse Check // High-Level Metrics
             </h3>
-            <span className="text-[10px] font-sans font-bold text-stable bg-stable/10 px-2 py-1 rounded-full text-primary border border-primary/20 bg-primary/10">
+            <span className="text-[10px] font-sans font-bold px-2 py-1 rounded-full text-primary border border-primary/20 bg-primary/10">
               OPTIONAL
             </span>
           </div>
@@ -716,7 +716,7 @@ export function Submit() {
             05 // Attachments
           </h3>
           <div className="flex gap-3 mt-2 overflow-x-auto pb-4 no-scrollbar items-center">
-            <label htmlFor="submit-file-upload" className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-surface-dim/50 border border-border-dim border-dashed rounded-2xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary backdrop-blur-lg">
+            <label htmlFor="submit-file-upload" className="shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-surface-dim/50 border border-border-dim border-dashed rounded-2xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary backdrop-blur-lg">
               <span className="material-symbols-outlined text-2xl mb-1">add_photo_alternate</span>
               <span className="text-[10px] font-sans font-bold">Add</span>
               <input 
@@ -737,7 +737,7 @@ export function Submit() {
             </label>
             <button 
               onClick={handleScreenRecord}
-              className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-surface-dim/50 border border-border-dim border-dashed rounded-2xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary backdrop-blur-lg"
+              className="shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-surface-dim/50 border border-border-dim border-dashed rounded-2xl cursor-pointer hover:border-primary transition-colors text-text-muted hover:text-primary backdrop-blur-lg"
             >
               <span className="material-symbols-outlined text-2xl mb-1">screen_record</span>
               <span className="text-[10px] font-sans font-bold">Record Screen</span>
@@ -749,7 +749,7 @@ export function Submit() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 key={attachment.name + idx} 
-                className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white/5 border border-white/10 rounded-2xl cursor-pointer hover:border-primary/50 transition-colors text-white relative group backdrop-blur-xl shadow-lg"
+                className="shrink-0 flex flex-col items-center justify-center w-24 h-24 bg-white/5 border border-white/10 rounded-2xl cursor-pointer hover:border-primary/50 transition-colors text-white relative group backdrop-blur-xl shadow-lg"
               >
                 <span className="material-symbols-outlined text-3xl mb-1 text-primary shadow-primary drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]">
                   {attachment.type.startsWith('image/') ? 'image' : attachment.type.startsWith('video/') ? 'movie' : 'description'}
@@ -775,7 +775,7 @@ export function Submit() {
       </AnimatePresence>
 
       {/* Sticky Footer - Transmit */}
-      <footer className="sticky bottom-0 p-5 bg-gradient-to-t from-background-dark via-background-dark to-transparent z-50 w-full max-w-3xl mx-auto">
+      <footer className="sticky bottom-0 p-5 bg-linear-to-t from-background-dark via-background-dark to-transparent z-50 w-full max-w-3xl mx-auto">
         <motion.button
           whileHover={!isTransmitting && text.trim() ? { scale: 1.02 } : {}}
           whileTap={!isTransmitting && text.trim() ? { scale: 0.98 } : {}}

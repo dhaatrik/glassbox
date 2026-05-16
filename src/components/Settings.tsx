@@ -286,7 +286,7 @@ export function Settings() {
     <div className="relative min-h-screen bg-background overflow-hidden flex flex-col font-mono text-white selection:bg-primary/30">
       {/* Parallax Background Environment */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" ref={parallaxRef}>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff11_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff11_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff11_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff11_1px,transparent_1px)] bg-size-[4rem_4rem]"></div>
         <div className="absolute top-[20%] left-[10%] w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-[#ff003c]/10 rounded-full blur-[120px]"></div>
       </div>
@@ -365,7 +365,7 @@ export function Settings() {
                 
                 {/* Cinematic Avatar Uploader / Live Holographic ID Cards */}
                 <section className="glass-panel p-6 border border-border-dim relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none"></div>
                   <h2 className="text-primary text-sm font-bold tracking-widest uppercase border-b border-border-dim pb-2 mb-6 flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm">assignment_ind</span>
                     Holographic ID Configuration
@@ -479,7 +479,7 @@ export function Settings() {
                     <div className="relative flex">
                       <select 
                         value={searchField} onChange={e => setSearchField(e.target.value as any)}
-                        className="bg-surface-dim border border-border-dim text-white text-sm pl-4 pr-10 py-2 rounded-lg focus:border-primary outline-none transition-all focus:ring-1 focus:ring-primary/50 cursor-pointer appearance-none w-full sm:w-36 [color-scheme:dark]"
+                        className="bg-surface-dim border border-border-dim text-white text-sm pl-4 pr-10 py-2 rounded-lg focus:border-primary outline-none transition-all focus:ring-1 focus:ring-primary/50 cursor-pointer appearance-none w-full sm:w-36 scheme-dark"
                       >
                         <option value="Name" className="bg-background-dark text-white font-sans">Name</option>
                         <option value="Role" className="bg-background-dark text-white font-sans">Role</option>
@@ -497,7 +497,7 @@ export function Settings() {
                           <input type="text" value={newEmpRole} onChange={e => setNewEmpRole(e.target.value)} placeholder="Function" className="w-full bg-surface-dim border border-border-dim text-xs px-2 py-1.5 focus:border-primary outline-none rounded" />
                           <div className="flex gap-2">
                              <div className="relative flex-1">
-                               <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="w-full bg-surface-dim border border-border-dim text-xs pl-2 pr-8 py-1.5 focus:border-primary outline-none rounded appearance-none cursor-pointer text-white [color-scheme:dark]">
+                               <select value={newEmpDept} onChange={e => setNewEmpDept(e.target.value)} className="w-full bg-surface-dim border border-border-dim text-xs pl-2 pr-8 py-1.5 focus:border-primary outline-none rounded appearance-none cursor-pointer text-white scheme-dark">
                                  {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN"].map(d => (
                                    <option key={d} value={d} className="bg-background-dark text-white font-sans">{d}</option>
                                  ))}
@@ -511,14 +511,14 @@ export function Settings() {
 
                     {filteredEmployees.map(emp => (
                       <div key={emp.id} className="group relative bg-surface-dim/40 border border-border-dim p-4 rounded-xl hover:border-primary/30 transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-primary/10 to-transparent rounded-tr-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-bl from-primary/10 to-transparent rounded-tr-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         
                         {editingEmpId === emp.id ? (
                           <div className="space-y-2 relative z-10">
                             <input type="text" value={editEmpName} onChange={e => setEditEmpName(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
                             <input type="text" value={editEmpRole} onChange={e => setEditEmpRole(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs px-2 py-1 rounded outline-none" />
                             <div className="relative">
-                              <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs pl-2 pr-7 py-1 rounded outline-none appearance-none cursor-pointer [color-scheme:dark]">
+                              <select value={editEmpDept} onChange={e => setEditEmpDept(e.target.value)} className="w-full bg-surface border border-primary text-white text-xs pl-2 pr-7 py-1 rounded outline-none appearance-none cursor-pointer scheme-dark">
                                 {["ENGINEERING", "MARKETING", "HUMAN RESOURCES", "EXECUTIVE", "DESIGN", "FACILITIES", "FINANCE", "OPERATIONS", "SALES", "PRODUCT", "LEGAL"].map(d => (
                                   <option key={d} value={d} className="bg-background-dark text-white font-sans">{d}</option>
                                 ))}
