@@ -1,6 +1,9 @@
 # Glassbox: Organizational Intelligence & Feedback Terminal
 
 <div align="center">
+  <img src="./public/logo.png" alt="Glassbox Logo" width="150" />
+  <br />
+  <br />
   <img src="https://img.shields.io/badge/version-v4.2.1-blue.svg" alt="Version" />
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
   <img src="https://img.shields.io/badge/React-19-61dafb.svg?logo=react" alt="React" />

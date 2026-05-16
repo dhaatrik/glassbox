@@ -1,6 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let _ai: GoogleGenAI | null = null;
+
+function getAI(): GoogleGenAI {
+  if (!_ai) {
+    _ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY ?? "" });
+  }
+  return _ai;
+}
 
 function parseJSONOutput(text: string | null | undefined): any {
   if (!text) return {};
@@ -33,7 +40,7 @@ function parseJSONOutput(text: string | null | undefined): any {
 
 export async function analyzeSentiment(text: string): Promise<"POSITIVE" | "NEGATIVE" | "NEUTRAL"> {
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: "gemma-4-31b-it",
       contents: `Act as a specialist in organizational psychology and employee sentiment analysis. 
 Your task is to analyze the sentiment of the following employee feedback. 
@@ -69,7 +76,7 @@ export async function generateInsightsReport(feedbacks: any[]): Promise<any> {
   try {
     const feedbackTexts = feedbacks.map(f => `[${f.sentiment}] ${f.text}`).join("\n");
 
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: "gemma-4-31b-it",
       contents: `Act as a specialist in HR Data Analytics and Organizational Behavior.
 Your task is to analyze the following monthly employee feedback and generate a comprehensive, actionable insights report for the executive team.

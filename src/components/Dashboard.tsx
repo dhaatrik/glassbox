@@ -189,7 +189,7 @@ export function Dashboard({
         </div>
         {/* Live Activity Ticker */}
         <div className="overflow-hidden bg-primary/5 py-1 whitespace-nowrap flex items-center border-b border-primary/10">
-          <span className="text-[10px] font-mono font-bold text-primary px-3 uppercase tracking-widest border-r border-primary/20 bg-background-dark relative z-10 flex-shrink-0">
+          <span className="text-[10px] font-mono font-bold text-primary px-3 uppercase tracking-widest border-r border-primary/20 bg-background-dark relative z-10 shrink-0">
             Live Activity
           </span>
           <div className="relative flex-1 overflow-hidden" style={{ width: '100%' }}>
@@ -233,7 +233,7 @@ export function Dashboard({
           </div>
 
           {/* Spotlight effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"></div>
           
           <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
             <div className="w-64 h-64 border border-dashed border-primary rounded-full animate-[spin_20s_linear_infinite]"></div>
@@ -378,7 +378,7 @@ export function Dashboard({
               <span className="material-symbols-outlined text-[16px]">priority_high</span>
             </div>
           </div>
-          <div className={`absolute inset-0 bg-gradient-to-r ${counts.stalled > 0 ? "from-critical/5" : "from-primary/5"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+          <div className={`absolute inset-0 bg-linear-to-r ${counts.stalled > 0 ? "from-critical/5" : "from-primary/5"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
           <div className="flex flex-col gap-2 relative z-10">
             <span className={`text-xs font-sans font-bold uppercase tracking-wider flex items-center gap-1.5 ${counts.stalled > 0 ? "text-critical" : "text-primary"}`}>
               <span className="material-symbols-outlined text-[16px]">
@@ -421,7 +421,7 @@ export function Dashboard({
                 <select
                   value={heatmapRange}
                   onChange={(e) => setHeatmapRange(e.target.value)}
-                  className="bg-transparent text-xs text-text-muted font-sans cursor-pointer hover:text-primary transition-colors appearance-none pr-6 outline-none focus:text-primary [color-scheme:dark]"
+                  className="bg-transparent text-xs text-text-muted font-sans cursor-pointer hover:text-primary transition-colors appearance-none pr-6 outline-none focus:text-primary scheme-dark"
                 >
                   <option value="1week" className="bg-background-dark text-white">Past 1 Week</option>
                   <option value="4weeks" className="bg-background-dark text-white">Past 4 Weeks</option>
@@ -433,8 +433,8 @@ export function Dashboard({
             
             <div className={`grid gap-1.5 md:gap-2 ${
                  heatmapRange === '1week' ? 'grid-cols-7 lg:grid-cols-14' : 
-                 heatmapRange === '12weeks' ? 'grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))] lg:grid-cols-[repeat(42,minmax(0,1fr))]' : 
-                 'grid-cols-[repeat(14,minmax(0,1fr))] md:grid-cols-[repeat(28,minmax(0,1fr))]'
+                 heatmapRange === '12weeks' ? 'grid-cols-14 md:grid-cols-28 lg:grid-cols-42' : 
+                 'grid-cols-14 md:grid-cols-28'
                }`}>
               {heatmapData.map((level, i) => (
                 <motion.div

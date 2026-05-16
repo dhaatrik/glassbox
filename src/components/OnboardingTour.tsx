@@ -129,9 +129,9 @@ export function OnboardingTour({ onComplete }: TourProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-background-dark/90 backdrop-blur-md overflow-hidden">
+    <div className="fixed inset-0 z-200 flex items-center justify-center p-4 bg-background-dark/90 backdrop-blur-md overflow-hidden">
       {/* Animated background grid lines */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)]"></div>
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)]"></div>
 
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -145,7 +145,7 @@ export function OnboardingTour({ onComplete }: TourProps) {
         {/* Decorative Progress Bar */}
         <div className="absolute top-0 left-0 w-full h-1 bg-surface-dim">
           <motion.div
-            className="h-full bg-gradient-to-r from-primary/50 to-primary shadow-[0_0_10px_var(--color-primary)]"
+            className="h-full bg-linear-to-r from-primary/50 to-primary shadow-[0_0_10px_var(--color-primary)]"
             initial={{ width: "0%" }}
             animate={{ width: `${((step + 1) / steps.length) * 100}%` }}
             transition={{ duration: 0.4, ease: "easeOut" }}
@@ -171,7 +171,7 @@ export function OnboardingTour({ onComplete }: TourProps) {
               {/* Enhanced Icon Presentation */}
               <div className="relative mb-6">
                 <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
-                <div className="w-20 h-20 rounded-2xl border border-primary/30 flex items-center justify-center bg-gradient-to-br from-surface-dim to-background shadow-[0_0_20px_rgba(var(--color-primary),0.1)] text-primary relative z-10 overflow-hidden group">
+                <div className="w-20 h-20 rounded-2xl border border-primary/30 flex items-center justify-center bg-linear-to-br from-surface-dim to-background shadow-[0_0_20px_rgba(var(--color-primary),0.1)] text-primary relative z-10 overflow-hidden group">
                   <div className="absolute inset-0 bg-primary/5 rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
                   <span className="material-symbols-outlined text-4xl relative z-10 drop-shadow-[0_0_8px_var(--color-primary)]">
                     {steps[step].icon}

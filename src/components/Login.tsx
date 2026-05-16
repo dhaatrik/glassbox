@@ -95,7 +95,7 @@ export function Login({ onLogin }: LoginProps) {
         className="absolute inset-0 z-0 pointer-events-none opacity-30 transition-transform duration-1000 ease-out"
         style={{ transform: `translate(${(mousePos.x - window.innerWidth/2) * -0.02}px, ${(mousePos.y - window.innerHeight/2) * -0.02}px)` }}
       >
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_10%,transparent_100%)] opacity-20"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-primary)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-primary)_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_10%,transparent_100%)] opacity-20"></div>
       </div>
       
       {/* Decorative Orbs */}
@@ -107,14 +107,14 @@ export function Login({ onLogin }: LoginProps) {
         
         {/* Left visually rich side, hidden on smaller screens */}
         <div className="hidden lg:flex flex-1 flex-col justify-between p-12 border-r border-border-dim/50 bg-surface/30 backdrop-blur-sm relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+          <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none"></div>
           
           <div className="relative z-10">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1 }}
-              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_30px_var(--color-primary)] mb-8"
+              className="mb-8"
             >
-              <span className="material-symbols-outlined text-black text-3xl">grid_view</span>
+              <img src="/logo.png" alt="Glassbox Logo" className="w-16 h-16 object-contain" />
             </motion.div>
             
             <h1 className="text-white text-7xl font-display italic tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
@@ -168,9 +168,9 @@ export function Login({ onLogin }: LoginProps) {
           <div className="lg:hidden text-center mb-10">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_20px_var(--color-primary)] mb-4"
+              className="mb-4"
             >
-              <span className="material-symbols-outlined text-black text-2xl">grid_view</span>
+              <img src="/logo.png" alt="Glassbox Logo" className="w-12 h-12 mx-auto object-contain" />
             </motion.div>
             <h1 className="text-white text-4xl font-display italic tracking-tight mb-2">
               Glassbox
@@ -184,7 +184,7 @@ export function Login({ onLogin }: LoginProps) {
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="w-full max-w-sm glass-panel p-8 rounded-2xl border border-border-dim relative overflow-hidden group shadow-2xl bg-surface/80 backdrop-blur-xl"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-purple-500"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary to-purple-500"></div>
                 
                 <div className="mb-8 font-mono">
                   <h2 className="text-white text-xl font-bold font-display tracking-wider uppercase mb-1">
@@ -257,7 +257,7 @@ export function Login({ onLogin }: LoginProps) {
                 className="w-full max-w-md bg-transparent p-8 flex flex-col font-mono"
               >
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_20px_var(--color-primary)] animate-pulse">
+                  <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_20px_var(--color-primary)] animate-pulse">
                     <span className="material-symbols-outlined text-black text-2xl">memory</span>
                   </div>
                   <div>

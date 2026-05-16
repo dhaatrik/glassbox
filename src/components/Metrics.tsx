@@ -148,7 +148,7 @@ export function Metrics({
       {/* Live Data Stream Background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 overflow-hidden mix-blend-screen" style={{ backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(0, 240, 255, .3) 25%, rgba(0, 240, 255, .3) 26%, transparent 27%, transparent 74%, rgba(0, 240, 255, .3) 75%, rgba(0, 240, 255, .3) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 240, 255, .3) 25%, rgba(0, 240, 255, .3) 26%, transparent 27%, transparent 74%, rgba(0, 240, 255, .3) 75%, rgba(0, 240, 255, .3) 76%, transparent 77%, transparent)', backgroundSize: '50px 50px', 
       backgroundPosition: '0 0, 0 0' }}>
-         <motion.div animate={{ y: [0, 50] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-full h-[50px] bg-gradient-to-b from-transparent to-primary/30 blur-md"></motion.div>
+         <motion.div animate={{ y: [0, 50] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-full h-[50px] bg-linear-to-b from-transparent to-primary/30 blur-md"></motion.div>
       </div>
 
       <header className="flex-none border-b border-border-dim bg-surface-dim/80 backdrop-blur-2xl z-40 relative">
@@ -198,7 +198,7 @@ export function Metrics({
         </div>
         <div className="h-[2px] w-full bg-border-dim relative overflow-hidden">
           <div className="absolute h-full bg-primary w-[64%] shadow-[0_0_10px_rgba(0,240,255,0.5)]"></div>
-          <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-primary/50 to-transparent"></div>
+          <div className="absolute top-0 right-0 h-full w-24 bg-linear-to-l from-primary/50 to-transparent"></div>
         </div>
       </header>
 
@@ -206,7 +206,7 @@ export function Metrics({
         <div className="p-4 space-y-6 pb-20 max-w-7xl mx-auto">
           {/* AI Executive Weather Report */}
           <div className="bg-surface-dim/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent z-0 pointer-events-none group-hover:opacity-100 transition-opacity opacity-50"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent z-0 pointer-events-none group-hover:opacity-100 transition-opacity opacity-50"></div>
             <div className="relative z-10 flex gap-4 items-start">
               <div className="p-3 bg-surface rounded-xl text-primary shadow-inner border border-white/5">
                 <span className="material-symbols-outlined text-3xl">wb_sunny</span>
@@ -240,7 +240,7 @@ export function Metrics({
                           <p className="font-sans font-bold text-white text-xs truncate">{topThree[1].dept}</p>
                           <p className="text-[10px] text-text-muted">{topThree[1].blastRadius.toFixed(1)} BR</p>
                        </div>
-                       <div className="h-16 md:h-24 w-full bg-gradient-to-t from-yellow-500/20 to-surface border border-yellow-500/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(234,179,8,0.1)]">
+                       <div className="h-16 md:h-24 w-full bg-linear-to-t from-yellow-500/20 to-surface border border-yellow-500/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(234,179,8,0.1)]">
                          <span className="text-2xl font-display font-black text-white/50">2</span>
                        </div>
                     </div>
@@ -256,7 +256,7 @@ export function Metrics({
                         <p className="font-sans font-bold text-white text-sm truncate">{topThree[0].dept}</p>
                         <p className="text-[10px] text-critical font-bold mt-1 tracking-wider">{topThree[0].blastRadius.toFixed(1)} BLT. RAD.</p>
                      </div>
-                     <div className="h-24 md:h-32 w-full bg-gradient-to-t from-critical/30 to-surface border border-critical/50 border-b-0 rounded-t-lg relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_30px_rgba(255,68,68,0.2)]">
+                     <div className="h-24 md:h-32 w-full bg-linear-to-t from-critical/30 to-surface border border-critical/50 border-b-0 rounded-t-lg relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_30px_rgba(255,68,68,0.2)]">
                        <span className="text-3xl font-display font-black text-white">1</span>
                      </div>
                   </div>
@@ -271,7 +271,7 @@ export function Metrics({
                           <p className="font-sans font-bold text-white text-xs truncate">{topThree[2].dept}</p>
                           <p className="text-[10px] text-text-muted">{topThree[2].blastRadius.toFixed(1)} BR</p>
                        </div>
-                       <div className="h-12 md:h-16 w-full bg-gradient-to-t from-primary/20 to-surface border border-primary/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(0,240,255,0.1)]">
+                       <div className="h-12 md:h-16 w-full bg-linear-to-t from-primary/20 to-surface border border-primary/30 border-b-0 rounded-t-md relative overflow-hidden flex flex-col justify-end pb-2 items-center shadow-[0_-5px_20px_rgba(0,240,255,0.1)]">
                          <span className="text-xl font-display font-black text-white/40">3</span>
                        </div>
                     </div>
@@ -286,7 +286,7 @@ export function Metrics({
               <button
                 key={segment}
                 onClick={() => setActiveSegment(segment as any)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-sans font-bold tracking-widest uppercase transition-all ${activeSegment === segment ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,240,255,0.5)]' : 'bg-surface border border-white/5 text-text-muted hover:text-white'}`}
+                className={`shrink-0 px-4 py-2 rounded-full text-xs font-sans font-bold tracking-widest uppercase transition-all ${activeSegment === segment ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,240,255,0.5)]' : 'bg-surface border border-white/5 text-text-muted hover:text-white'}`}
               >
                 {segment}
               </button>
@@ -331,7 +331,7 @@ export function Metrics({
                     <div className="p-4 md:p-5 flex flex-col md:flex-row items-start md:items-center gap-4">
                       {/* Avatar Ring & Info */}
                       <div className="flex items-center gap-4 w-full md:w-auto md:min-w-[200px]">
-                        <div className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 bg-surface shadow-lg flex-shrink-0 ${isCritical ? 'border-critical text-critical shadow-critical/50' : 'border-white/20 text-text-muted group-hover:border-primary/50 group-hover:text-primary transition-colors'}`}>
+                        <div className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 bg-surface shadow-lg shrink-0 ${isCritical ? 'border-critical text-critical shadow-critical/50' : 'border-white/20 text-text-muted group-hover:border-primary/50 group-hover:text-primary transition-colors'}`}>
                            <span className="font-bold text-sm">{m.avatar}</span>
                            {isCritical && <div className="absolute inset-0 rounded-full bg-critical/20 animate-ping"></div>}
                         </div>
@@ -373,7 +373,7 @@ export function Metrics({
                       </div>
 
                       {/* Expand Icon */}
-                      <div className="hidden md:flex flex-shrink-0 items-center justify-center w-8 h-8 rounded-full border border-white/10 group-hover:bg-white/5 text-text-muted transition-colors">
+                      <div className="hidden md:flex shrink-0 items-center justify-center w-8 h-8 rounded-full border border-white/10 group-hover:bg-white/5 text-text-muted transition-colors">
                         <span className={`material-symbols-outlined transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
                       </div>
                     </div>
@@ -429,7 +429,7 @@ export function Metrics({
                                 {m.stalledTitles && m.stalledTitles.length > 0 ? (
                                    <ul className="space-y-2">
                                       {m.stalledTitles.map((title, i) => (
-                                        <li key={i} className="text-xs font-sans border-l-2 border-critical pl-3 py-1 bg-gradient-to-r from-critical/5 to-transparent text-white truncate">
+                                        <li key={i} className="text-xs font-sans border-l-2 border-critical pl-3 py-1 bg-linear-to-r from-critical/5 to-transparent text-white truncate">
                                            {title}
                                         </li>
                                       ))}

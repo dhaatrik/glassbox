@@ -121,9 +121,7 @@ export function Layout({ children }: LayoutProps) {
       {currentPath !== "login" && (
         <div className="hidden md:flex flex-col w-72 glass-panel border-y-0 border-l-0 z-40 p-6 relative">
           <div className="flex items-center gap-3 mb-10">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center shadow-[0_0_15px_var(--theme-primary-dim)]">
-              <span className="material-symbols-outlined text-white text-sm">grid_view</span>
-            </div>
+            <img src="/logo.png" alt="Glassbox Logo" className="w-8 h-8 object-contain rounded-xl" />
             <span className="text-white text-2xl font-display italic tracking-tight">
               Glassbox
             </span>
@@ -248,7 +246,7 @@ export function Layout({ children }: LayoutProps) {
                       {s}
                     </button>
                   ))}
-                  <div className="w-full h-[1px] bg-white/10 my-1"></div>
+                  <div className="w-full h-px bg-white/10 my-1"></div>
                   <button 
                     onClick={() => { setShowStatusMenu(false); navigate("/login"); }}
                     className="text-left px-3 py-2.5 text-xs font-mono text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all duration-200 flex items-center gap-2"
@@ -274,7 +272,7 @@ export function Layout({ children }: LayoutProps) {
       </div>
 
       {toast && (
-        <div key={toast.id} className="fixed bottom-24 md:bottom-10 right-4 md:right-10 z-[1000] animate-[slide-up_0.3s_ease-out]">
+        <div key={toast.id} className="fixed bottom-24 md:bottom-10 right-4 md:right-10 z-1000 animate-[slide-up_0.3s_ease-out]">
           <div className="bg-background-dark/90 backdrop-blur-3xl border border-primary/50 text-white px-4 py-3 rounded-2xl shadow-[0_10px_40px_rgba(var(--color-primary),0.2)] flex items-center gap-3">
             <span className="material-symbols-outlined text-primary">info</span>
             <span className="text-sm font-medium">{toast.message}</span>
@@ -284,7 +282,7 @@ export function Layout({ children }: LayoutProps) {
 
       {/* Global Command Palette */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-999 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsSearchOpen(false)}></div>
           <div className="bg-background-dark/95 border border-white/20 rounded-2xl w-full max-w-md shadow-2xl z-10 flex flex-col overflow-hidden animate-[fade-in_0.2s_ease-out]">
             <div className="flex items-center gap-3 p-4 border-b border-border-dim/50">
